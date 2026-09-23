@@ -1,0 +1,71 @@
+/* Mật độ cộng hưởng — homepage section, placed just above the footer.
+   Reuses the signal-hero's own tokens/fonts so the accent and small-caps
+   labels read as one system: --sh-accent for the neon, JetBrains Mono
+   for tracked labels, Plus Jakarta Sans for the bold numbers. */
+.reshome{ margin: 2.4rem auto 0; padding: 0 1rem; max-width: 1180px; }
+.reshome-card{
+  position: relative;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 1.1rem;
+  background: transparent;
+  padding: 2.1rem 1.4rem 1.7rem;
+  text-align: center;
+}
+@media (min-width: 640px) {
+  .reshome-card{ max-width: 440px; margin: 0 auto; padding: 2.3rem 2rem 1.9rem; }
+}
+
+.reshome-kicker{
+  display: inline-flex; align-items: center; gap: .45rem;
+  color: var(--sh-accent, #26c2dc);
+  font-family: 'JetBrains Mono', monospace; font-weight: 600;
+  font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+}
+.reshome-kicker i{
+  width: 6px; height: 6px; border-radius: 50%; background: var(--sh-accent, #26c2dc);
+  box-shadow: 0 0 .6rem rgba(38,194,220,.7);
+}
+
+.reshome-stats{ display: flex; justify-content: center; gap: 2rem; margin-top: 1.5rem; }
+.reshome-stat b{
+  display: block; font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 700; font-size: 1.4rem; line-height: 1;
+  color: var(--sh-ink, #f4f7f8); font-variant-numeric: tabular-nums;
+}
+.reshome-stat span{
+  display: block; margin-top: .45rem; color: var(--sh-muted-dim, rgba(244,247,248,.5));
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .1em; text-transform: uppercase;
+}
+
+.reshome-ratio-bar{
+  display: flex; width: 100%; height: 3px; border-radius: 99px; overflow: hidden;
+  margin-top: 1.3rem; background: rgba(255,255,255,.08);
+}
+.reshome-ratio-bar .res-ratio-fill{ height: 100%; background: var(--sh-accent, #26c2dc); transition: width .4s ease; }
+.reshome-ratio-caption{
+  margin: .55rem 0 0; color: var(--sh-muted, rgba(244,247,248,.74));
+  font-family: 'JetBrains Mono', monospace; font-size: .64rem; letter-spacing: .03em;
+}
+.reshome-ratio-caption b{ color: var(--sh-ink, #f4f7f8); font-weight: 600; }
+
+.reshome-social-row{ display: flex; justify-content: center; align-items: center; gap: 1.3rem; margin-top: 1.7rem; }
+.reshome-social{
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px;
+  color: var(--sh-accent, #26c2dc);
+  filter: drop-shadow(0 0 .45rem rgba(38,194,220,.55));
+  transition: transform .18s ease;
+}
+.reshome-social:hover{ transform: translateY(-2px); }
+.reshome-social-ic{ display: flex; width: 100%; height: 100%; }
+.reshome-social-ic svg{ width: 100%; height: 100%; }
+
+@media (max-width: 380px) {
+  .reshome-card{ padding: 1.8rem 1.1rem 1.4rem; }
+  .reshome-stats{ gap: 1.4rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reshome-social{ transition: none; }
+  .reshome-ratio-bar .res-ratio-fill{ transition: none; }
+}

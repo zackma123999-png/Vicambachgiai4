@@ -538,6 +538,41 @@
     }
     return `<span class="${cls || "sig-ava"}">${esc(letter)}</span>`;
   }
+  function resonanceHomePanel() {
+    const stats = VCBG.publicSiteStats ? VCBG.publicSiteStats() : {};
+    const value = (key) => (Number.isFinite(stats[key]) ? fmtCount(stats[key]) : "—");
+    const online = Number(stats.online) || 0;
+    const ratio = online ? Math.round(((Number(stats.online_members) || 0) / online) * 100) : 0;
+    const so = (VCBG.settings() && VCBG.settings().social) || {};
+    const socials = [["instagram", "Instagram"], ["tiktok", "TikTok"], ["facebook", "Facebook"]];
+    const socialBtn = ([k, label]) => {
+      const href = String(so[k] || "").trim();
+      const active = /^https?:\/\//i.test(href);
+      const inner = SOCIAL_ICONS[k];
+      return active
+        ? `<a class="reshome-social" href="${esc(href)}" target="_blank" rel="noopener noreferrer" aria-label="Theo dõi trên ${label}">
+            <span class="reshome-social-ic" aria-hidden="true">${inner}</span>
+          </a>`
+        : `<span class="reshome-social" role="img" aria-label="${esc(label)} — chưa có liên kết">
+            <span class="reshome-social-ic" aria-hidden="true">${inner}</span>
+          </span>`;
+    };
+    return `<section class="wrap reshome" id="matDoCongHuongHome" aria-label="Mật độ cộng hưởng">
+      <div class="reshome-card">
+        <span class="reshome-kicker"><i aria-hidden="true"></i>Live Resonance</span>
+        <div class="reshome-stats">
+          <div class="reshome-stat"><b data-res="online">${value("online")}</b><span>Trực tuyến</span></div>
+          <div class="reshome-stat"><b data-res="visits_today">${value("visits_today")}</b><span>Ghé hôm nay</span></div>
+          <div class="reshome-stat"><b data-res="members">${value("members")}</b><span>Thành viên</span></div>
+        </div>
+        <div class="reshome-ratio-bar"><div class="res-ratio-fill" style="width:${ratio}%"></div></div>
+        <p class="reshome-ratio-caption"><b data-res="online_guests">${value("online_guests")}</b> vãng lai · <b data-res="online_members">${value("online_members")}</b> thành viên đang đọc</p>
+        <div class="reshome-social-row">
+          ${socials.map(socialBtn).join("")}
+        </div>
+      </div>
+    </section>`;
+  }
   function recommendationPanel() {
     const weekly = VCBG.weeklyRanking ? VCBG.weeklyRanking(5) : [];
     const ranked = weekly.length ? weekly : VCBG.listStories({ sort: "views" }).slice(0, 5).map((story, i) => ({ rank: i + 1, story, week: 0 }));
@@ -569,6 +604,26 @@
         }).join("")}
       </div>
     </section>`;
+  }
+  function watchResonanceStats() {
+    if (!VCBG.watchPublicSiteStats || window.__vcbgResonanceWatching) return;
+    window.__vcbgResonanceWatching = true;
+    VCBG.watchPublicSiteStats((stats) => {
+      $$('[data-res]').forEach((el) => {
+        const n = stats[el.dataset.res];
+        el.textContent = Number.isFinite(n) ? fmtCount(n) : "—";
+      });
+      const ratioPct = (stats.online ? Math.round((stats.online_members / stats.online) * 100) : 0) + "%";
+      $$(".res-ratio-fill").forEach((el) => { el.style.width = ratioPct; });
+      const times = $$(".res-updated");
+      if (times.length && stats.updated_at) {
+        const updated = new Date(stats.updated_at);
+        times.forEach((time) => {
+          time.textContent = updated.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) + " · vừa cập nhật";
+          time.dateTime = updated.toISOString();
+        });
+      }
+    });
   }
   function homeLower() {
     const q = new URLSearchParams((location.hash.split("?")[1] || "").replace(/#.*$/, ""));
@@ -880,6 +935,7 @@
     });
   }
   function bindChrome() {
+    watchResonanceStats();
     const menu = $("#btnMenu");
     const drawer = $("#mobileMenu");
     if (menu && drawer) {
@@ -1092,6 +1148,7 @@
     app().innerHTML =
       header("home") +
       signalHeroHTML(slides) +
+      resonanceHomePanel() +
       footer();
     bindChrome();
     initSignalHero(slides);
