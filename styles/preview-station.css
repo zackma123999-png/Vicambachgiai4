@@ -80,11 +80,11 @@
     radial-gradient(circle at 12% 12%, rgba(105,230,243,.1), transparent 34%),
     linear-gradient(135deg, #080d1c 0%, #090e22 52%, #080c1c 100%);
   box-shadow: 0 18px 54px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.04);
-  transition: opacity .2s ease, transform .2s ease;
+  transition: opacity .15s ease, transform .15s ease;
 }
 .preview-station-stage.is-switching {
-  opacity: .66;
-  transform: translateY(2px);
+  opacity: .18;
+  transform: translateY(4px) scale(.985);
 }
 .preview-station-stage::after {
   position: absolute;
@@ -132,6 +132,8 @@
   border-radius: 1.2rem;
   box-shadow: 0 20px 44px rgba(0,0,0,.44);
 }
+.preview-station-media img { transition: opacity .18s ease; }
+.preview-station-stage.is-switching .preview-station-media img { opacity: 0; }
 .preview-station-no-cover {
   position: relative;
   z-index: 1;
@@ -541,6 +543,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .preview-station-stage,
+  .preview-station-media img,
   .preview-station-card,
   .preview-station-progress button,
   .preview-station-play { transition: none; }

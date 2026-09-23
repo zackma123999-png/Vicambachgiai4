@@ -86,8 +86,12 @@
     writeStageData(stage, data);
     stage.classList.remove("is-playing");
     stage.classList.add("is-switching");
-    stage.innerHTML = posterMarkup(data);
-    requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.remove("is-switching")));
+    const swap = () => {
+      stage.innerHTML = posterMarkup(data);
+      requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.remove("is-switching")));
+    };
+    if (reduceMotion()) { swap(); return; }
+    window.setTimeout(swap, 150);
   }
 
   function play(station, data) {
