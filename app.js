@@ -466,7 +466,6 @@
         ${mmLink("#/", "home", "Trang chủ")}
         ${mmLink("#/kham-pha", "compass", "Khám phá")}
         ${mmLink("#/tu-truyen", "shelf", "Tủ truyện")}
-        <button type="button" class="mm-item" id="menuResonanceBtn">${mmIcons.pulse}<span>Cộng hưởng</span><i class="mm-item-dot" aria-hidden="true"></i></button>
       </div>
       <div class="mm-group">
         ${mmLink("#/dang-len-song", "live", "Đang lên sóng")}
@@ -539,78 +538,6 @@
     }
     return `<span class="${cls || "sig-ava"}">${esc(letter)}</span>`;
   }
-  function resonancePanel() {
-    const stats = VCBG.publicSiteStats ? VCBG.publicSiteStats() : {};
-    const value = (key) => (Number.isFinite(stats[key]) ? fmtCount(stats[key]) : "—");
-    const metricIcons = {
-      members: `<svg viewBox="0 0 32 32"><circle cx="11" cy="10" r="4"/><circle cx="22" cy="12" r="3.2"/><path d="M3.5 27c.5-6.2 3.2-9.3 7.5-9.3s7 3.1 7.5 9.3M17 27c.3-4.7 2.2-7 5.4-7 3.1 0 5.2 2.3 5.6 7"/></svg>`,
-      views: `<svg viewBox="0 0 32 32"><path d="M2.8 16s4.8-8 13.2-8 13.2 8 13.2 8-4.8 8-13.2 8S2.8 16 2.8 16Z"/><circle cx="16" cy="16" r="3.8"/></svg>`
-    };
-    const metric = (key, label, icon) => `<div class="res-table-row res-metric-${icon}">
-      <span class="res-line-icon" aria-hidden="true">${metricIcons[icon]}</span>
-      <span class="res-metric-label">${label}</span>
-      <b data-res="${key}">${value(key)}</b>
-    </div>`;
-    const online = Number(stats.online) || 0;
-    const ratio = online ? Math.round(((Number(stats.online_members) || 0) / online) * 100) : 0;
-    return `<section class="wrap resonance res-editorial-final" id="mat-do-cong-huong" aria-labelledby="resTitle">
-      <header class="res-head">
-        <div class="res-kicker"><i aria-hidden="true"></i><span>LIVE RESONANCE</span><b aria-hidden="true"></b></div>
-        <div class="res-title-line"><h2 id="resTitle">Mật độ cộng hưởng</h2><time id="resTime" class="res-updated">vừa cập nhật</time></div>
-      </header>
-      <div class="res-summary">
-        <div class="res-summary-cell res-live">
-          <b data-res="online">${value("online")}</b>
-          <strong>ĐANG TRỰC TUYẾN</strong>
-          <small><span data-res="online_guests">${value("online_guests")}</span> vãng lai / <span data-res="online_members">${value("online_members")}</span> thành viên</small>
-          <div class="res-ratio-bar"><div class="res-ratio-fill" id="resRatio" style="width:${ratio}%"></div></div>
-        </div>
-        <div class="res-summary-cell res-visits">
-          <b data-res="visits_today">${value("visits_today")}</b>
-          <strong>LƯỢT GHÉ HÔM NAY</strong>
-        </div>
-      </div>
-      <div class="res-table-body">
-        ${metric("members", "Thành viên", "members")}
-        ${metric("total_views", "Tổng lượt xem", "views")}
-      </div>
-    </section>`;
-  }
-  function resonanceHomePanel() {
-    const stats = VCBG.publicSiteStats ? VCBG.publicSiteStats() : {};
-    const value = (key) => (Number.isFinite(stats[key]) ? fmtCount(stats[key]) : "—");
-    const online = Number(stats.online) || 0;
-    const ratio = online ? Math.round(((Number(stats.online_members) || 0) / online) * 100) : 0;
-    const so = (VCBG.settings() && VCBG.settings().social) || {};
-    const socials = [["instagram", "Instagram"], ["tiktok", "TikTok"], ["facebook", "Facebook"]];
-    const socialBtn = ([k, label]) => {
-      const href = String(so[k] || "").trim();
-      const active = /^https?:\/\//i.test(href);
-      const inner = SOCIAL_ICONS[k];
-      return active
-        ? `<a class="reshome-social" href="${esc(href)}" target="_blank" rel="noopener noreferrer" aria-label="Theo dõi trên ${label}">
-            <span class="reshome-social-ic" aria-hidden="true">${inner}</span>
-          </a>`
-        : `<span class="reshome-social" role="img" aria-label="${esc(label)} — chưa có liên kết">
-            <span class="reshome-social-ic" aria-hidden="true">${inner}</span>
-          </span>`;
-    };
-    return `<section class="wrap reshome" id="matDoCongHuongHome" aria-label="Mật độ cộng hưởng">
-      <div class="reshome-card">
-        <span class="reshome-kicker"><i aria-hidden="true"></i>Live Resonance</span>
-        <div class="reshome-stats">
-          <div class="reshome-stat"><b data-res="online">${value("online")}</b><span>Trực tuyến</span></div>
-          <div class="reshome-stat"><b data-res="visits_today">${value("visits_today")}</b><span>Ghé hôm nay</span></div>
-          <div class="reshome-stat"><b data-res="members">${value("members")}</b><span>Thành viên</span></div>
-        </div>
-        <div class="reshome-ratio-bar"><div class="res-ratio-fill" style="width:${ratio}%"></div></div>
-        <p class="reshome-ratio-caption"><b data-res="online_guests">${value("online_guests")}</b> vãng lai · <b data-res="online_members">${value("online_members")}</b> thành viên đang đọc</p>
-        <div class="reshome-social-row">
-          ${socials.map(socialBtn).join("")}
-        </div>
-      </div>
-    </section>`;
-  }
   function recommendationPanel() {
     const weekly = VCBG.weeklyRanking ? VCBG.weeklyRanking(5) : [];
     const ranked = weekly.length ? weekly : VCBG.listStories({ sort: "views" }).slice(0, 5).map((story, i) => ({ rank: i + 1, story, week: 0 }));
@@ -642,48 +569,6 @@
         }).join("")}
       </div>
     </section>`;
-  }
-  function openResonanceModal() {
-    if ($("#resModalHost")) return;
-    const host = document.createElement("div");
-    host.id = "resModalHost";
-    host.innerHTML = `<div class="res-modal-bg" id="resModalBg"></div>
-      <div class="res-modal" id="resModalBox" role="dialog" aria-modal="true" aria-labelledby="resTitle">
-        <button type="button" class="r-ico res-modal-close" id="resModalClose" aria-label="Đóng">×</button>
-        ${resonancePanel()}
-      </div>`;
-    document.body.appendChild(host);
-    const onKey = (e) => { if (e.key === "Escape") close(); };
-    const close = () => {
-      host.remove();
-      window.removeEventListener("hashchange", close);
-      document.removeEventListener("keydown", onKey);
-    };
-    $("#resModalBg").onclick = close;
-    $("#resModalClose").onclick = close;
-    document.addEventListener("keydown", onKey);
-    window.addEventListener("hashchange", close, { once: true });
-    return close;
-  }
-  function watchResonanceStats() {
-    if (!VCBG.watchPublicSiteStats || window.__vcbgResonanceWatching) return;
-    window.__vcbgResonanceWatching = true;
-    VCBG.watchPublicSiteStats((stats) => {
-      $$('[data-res]').forEach((el) => {
-        const n = stats[el.dataset.res];
-        el.textContent = Number.isFinite(n) ? fmtCount(n) : "—";
-      });
-      const ratioPct = (stats.online ? Math.round((stats.online_members / stats.online) * 100) : 0) + "%";
-      $$(".res-ratio-fill").forEach((el) => { el.style.width = ratioPct; });
-      const times = $$(".res-updated");
-      if (times.length && stats.updated_at) {
-        const updated = new Date(stats.updated_at);
-        times.forEach((time) => {
-          time.textContent = updated.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }) + " · vừa cập nhật";
-          time.dateTime = updated.toISOString();
-        });
-      }
-    });
   }
   function homeLower() {
     const q = new URLSearchParams((location.hash.split("?")[1] || "").replace(/#.*$/, ""));
@@ -995,7 +880,6 @@
     });
   }
   function bindChrome() {
-    watchResonanceStats();
     const menu = $("#btnMenu");
     const drawer = $("#mobileMenu");
     if (menu && drawer) {
@@ -1017,8 +901,6 @@
         else openMenu();
       };
       $$("a", drawer).forEach((a) => (a.onclick = () => closeMenu()));
-      const menuRes = $("#menuResonanceBtn", drawer);
-      if (menuRes) menuRes.onclick = () => { closeMenu(); openResonanceModal(); };
     }
     const searchForm = $("#headSearch");
     const searchBtn = $("#btnSearch");
@@ -1210,7 +1092,6 @@
     app().innerHTML =
       header("home") +
       signalHeroHTML(slides) +
-      resonanceHomePanel() +
       footer();
     bindChrome();
     initSignalHero(slides);
