@@ -576,6 +576,50 @@
       </div>
     </section>`;
   }
+  function resonanceHomePanel() {
+    const stats = VCBG.publicSiteStats ? VCBG.publicSiteStats() : {};
+    const value = (key) => (Number.isFinite(stats[key]) ? fmtCount(stats[key]) : "—");
+    const online = Number(stats.online) || 0;
+    const ratio = online ? Math.round(((Number(stats.online_members) || 0) / online) * 100) : 0;
+    const so = (VCBG.settings() && VCBG.settings().social) || {};
+    const socials = [["instagram", "Instagram"], ["tiktok", "TikTok"], ["facebook", "Facebook"]];
+    const socialBtn = ([k, label]) => {
+      const href = String(so[k] || "").trim();
+      const active = /^https?:\/\//i.test(href);
+      const inner = SOCIAL_ICONS[k];
+      return active
+        ? `<a class="reshome-social" href="${esc(href)}" target="_blank" rel="noopener noreferrer" aria-label="Theo dõi trên ${label}">
+            <span class="reshome-social-ic" aria-hidden="true">${inner}</span>Theo dõi ${esc(label)}
+            <svg class="reshome-social-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
+          </a>`
+        : `<span class="reshome-social is-disabled" aria-disabled="true">
+            <span class="reshome-social-ic" aria-hidden="true">${inner}</span>${esc(label)} — chưa có liên kết
+          </span>`;
+    };
+    return `<section class="wrap reshome" id="matDoCongHuongHome" aria-labelledby="resHomeTitle">
+      <div class="reshome-card">
+        <span class="reshome-kicker"><i aria-hidden="true"></i>Live Resonance</span>
+        <h2 class="reshome-title" id="resHomeTitle">Mật độ cộng hưởng</h2>
+        <time class="reshome-tagline res-updated">vừa cập nhật</time>
+        <div class="reshome-badge-row">
+          <span class="reshome-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            Thư Viện Bách Hợp
+          </span>
+        </div>
+        <div class="reshome-stats">
+          <div class="reshome-stat"><b data-res="online">${value("online")}</b><span>Trực tuyến</span></div>
+          <div class="reshome-stat"><b data-res="visits_today">${value("visits_today")}</b><span>Ghé hôm nay</span></div>
+          <div class="reshome-stat"><b data-res="members">${value("members")}</b><span>Thành viên</span></div>
+        </div>
+        <div class="reshome-ratio-bar"><div class="res-ratio-fill" style="width:${ratio}%"></div></div>
+        <p class="reshome-ratio-caption"><b data-res="online_guests">${value("online_guests")}</b> vãng lai · <b data-res="online_members">${value("online_members")}</b> thành viên đang đọc</p>
+        <div class="reshome-social-row">
+          ${socials.map(socialBtn).join("")}
+        </div>
+      </div>
+    </section>`;
+  }
   function recommendationPanel() {
     const weekly = VCBG.weeklyRanking ? VCBG.weeklyRanking(5) : [];
     const ranked = weekly.length ? weekly : VCBG.listStories({ sort: "views" }).slice(0, 5).map((story, i) => ({ rank: i + 1, story, week: 0 }));
@@ -638,8 +682,8 @@
         const n = stats[el.dataset.res];
         el.textContent = Number.isFinite(n) ? fmtCount(n) : "—";
       });
-      const ratio = $("#resRatio");
-      if (ratio) ratio.style.width = (stats.online ? Math.round((stats.online_members / stats.online) * 100) : 0) + "%";
+      const ratioPct = (stats.online ? Math.round((stats.online_members / stats.online) * 100) : 0) + "%";
+      $$(".res-ratio-fill").forEach((el) => { el.style.width = ratioPct; });
       const times = $$(".res-updated");
       if (times.length && stats.updated_at) {
         const updated = new Date(stats.updated_at);
@@ -1175,6 +1219,7 @@
     app().innerHTML =
       header("home") +
       signalHeroHTML(slides) +
+      resonanceHomePanel() +
       footer();
     bindChrome();
     initSignalHero(slides);
