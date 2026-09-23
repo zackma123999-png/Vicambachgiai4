@@ -591,21 +591,13 @@
         ? `<a class="reshome-social" href="${esc(href)}" target="_blank" rel="noopener noreferrer" aria-label="Theo dõi trên ${label}">
             <span class="reshome-social-ic" aria-hidden="true">${inner}</span>
           </a>`
-        : `<span class="reshome-social is-disabled" role="img" aria-label="${esc(label)} — chưa có liên kết">
+        : `<span class="reshome-social" role="img" aria-label="${esc(label)} — chưa có liên kết">
             <span class="reshome-social-ic" aria-hidden="true">${inner}</span>
           </span>`;
     };
-    return `<section class="wrap reshome" id="matDoCongHuongHome" aria-labelledby="resHomeTitle">
+    return `<section class="wrap reshome" id="matDoCongHuongHome" aria-label="Mật độ cộng hưởng">
       <div class="reshome-card">
         <span class="reshome-kicker"><i aria-hidden="true"></i>Live Resonance</span>
-        <h2 class="reshome-title" id="resHomeTitle">Mật độ cộng hưởng</h2>
-        <time class="reshome-tagline res-updated">vừa cập nhật</time>
-        <div class="reshome-badge-row">
-          <span class="reshome-badge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-            Thư Viện Bách Hợp
-          </span>
-        </div>
         <div class="reshome-stats">
           <div class="reshome-stat"><b data-res="online">${value("online")}</b><span>Trực tuyến</span></div>
           <div class="reshome-stat"><b data-res="visits_today">${value("visits_today")}</b><span>Ghé hôm nay</span></div>

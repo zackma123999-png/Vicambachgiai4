@@ -1,5 +1,7 @@
 /* Mật độ cộng hưởng — homepage section, placed just above the footer.
-   Single-sans, tracked-caps, electric-blue treatment (approved demo). */
+   Reuses the signal-hero's own tokens/fonts so the accent and small-caps
+   labels read as one system: --sh-accent for the neon, JetBrains Mono
+   for tracked labels, Plus Jakarta Sans for the bold numbers. */
 .reshome{ margin: 2.4rem auto 0; padding: 0 1rem; max-width: 1180px; }
 .reshome-card{
   position: relative;
@@ -15,69 +17,47 @@
 
 .reshome-kicker{
   display: inline-flex; align-items: center; gap: .45rem;
-  color: #29c5ff; font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-weight: 600;
-  font-size: .72rem; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--sh-accent, #26c2dc);
+  font-family: 'JetBrains Mono', monospace; font-weight: 600;
+  font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
 }
 .reshome-kicker i{
-  width: 6px; height: 6px; border-radius: 50%; background: #29c5ff;
-  box-shadow: 0 0 .6rem rgba(41,197,255,.7);
+  width: 6px; height: 6px; border-radius: 50%; background: var(--sh-accent, #26c2dc);
+  box-shadow: 0 0 .6rem rgba(38,194,220,.7);
 }
 
-.reshome-title{
-  margin: 1.05rem 0 0; color: #f7f8fa;
-  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
-  font-weight: 700; font-size: clamp(1.25rem, 6vw, 1.5rem);
-  letter-spacing: -.005em;
-}
-.reshome-tagline{
-  display: block; margin: .45rem 0 0; color: #7c8794;
-  font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-size: .78rem; font-weight: 500;
-}
-
-.reshome-badge-row{ display: flex; justify-content: center; margin-top: 1.1rem; }
-.reshome-badge{
-  display: inline-flex; align-items: center; gap: .4rem;
-  border: 1px solid rgba(41,197,255,.4); border-radius: .6rem;
-  padding: .42rem .8rem;
-  font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-weight: 700;
-  font-size: .66rem; letter-spacing: .09em; text-transform: uppercase;
-  color: #29c5ff;
-}
-.reshome-badge svg{ width: 12px; height: 12px; flex: 0 0 auto; }
-
-.reshome-stats{ display: flex; justify-content: center; gap: 2rem; margin-top: 1.6rem; }
+.reshome-stats{ display: flex; justify-content: center; gap: 2rem; margin-top: 1.5rem; }
 .reshome-stat b{
-  display: block; font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  display: block; font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight: 700; font-size: 1.4rem; line-height: 1;
-  color: #f7f8fa; font-variant-numeric: tabular-nums;
+  color: var(--sh-ink, #f4f7f8); font-variant-numeric: tabular-nums;
 }
 .reshome-stat span{
-  display: block; margin-top: .4rem; color: #7c8794;
-  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
-  font-size: .62rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+  display: block; margin-top: .45rem; color: var(--sh-muted-dim, rgba(244,247,248,.5));
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .1em; text-transform: uppercase;
 }
 
 .reshome-ratio-bar{
   display: flex; width: 100%; height: 3px; border-radius: 99px; overflow: hidden;
-  margin-top: 1.35rem; background: rgba(255,255,255,.08);
+  margin-top: 1.3rem; background: rgba(255,255,255,.08);
 }
-.reshome-ratio-bar .res-ratio-fill{ height: 100%; background: #29c5ff; transition: width .4s ease; }
+.reshome-ratio-bar .res-ratio-fill{ height: 100%; background: var(--sh-accent, #26c2dc); transition: width .4s ease; }
 .reshome-ratio-caption{
-  margin: .55rem 0 0; color: #7c8794;
-  font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-size: .72rem; font-weight: 500;
+  margin: .55rem 0 0; color: var(--sh-muted, rgba(244,247,248,.74));
+  font-family: 'JetBrains Mono', monospace; font-size: .64rem; letter-spacing: .03em;
 }
-.reshome-ratio-caption b{ color: #c3cad3; font-weight: 700; }
+.reshome-ratio-caption b{ color: var(--sh-ink, #f4f7f8); font-weight: 600; }
 
 .reshome-social-row{ display: flex; justify-content: center; align-items: center; gap: 1.3rem; margin-top: 1.7rem; }
 .reshome-social{
   display: flex; align-items: center; justify-content: center;
   width: 26px; height: 26px;
-  color: #29c5ff;
-  filter: drop-shadow(0 0 .45rem rgba(41,197,255,.55));
-  transition: transform .18s ease, opacity .18s ease;
+  color: var(--sh-accent, #26c2dc);
+  filter: drop-shadow(0 0 .45rem rgba(38,194,220,.55));
+  transition: transform .18s ease;
 }
 .reshome-social:hover{ transform: translateY(-2px); }
-.reshome-social.is-disabled{ color: #3a4552; filter: none; cursor: default; }
 .reshome-social-ic{ display: flex; width: 100%; height: 100%; }
 .reshome-social-ic svg{ width: 100%; height: 100%; }
 
