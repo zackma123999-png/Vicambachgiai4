@@ -1241,7 +1241,7 @@
       author: $("#shAuthor"), stats: $("#shStats"), ctas: $("#shCtas"), trust: $("#shTrust"),
     };
     const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
-    const HOLD = 3200, TEXT_DIP = 170;
+    const HOLD = 3200, TEXT_DIP = 170, TEXT_RISE = 320;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     function headlineSize(top, accent) {
       const maxLen = Math.max((top || "").length, (accent || "").length);
@@ -1268,22 +1268,14 @@
       els.ctas.innerHTML = `<a href="${d.readHref}" class="sh-btn sh-btn--primary">ĐỌC NGAY<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></a><a href="${d.detailHref}" class="sh-btn sh-btn--ghost">XEM CHI TIẾT</a>`;
       els.trust.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>' + d.trust;
     }
-    const SLIDE_T = 620;
-    function parkOffscreen(el) {
-      el.classList.remove("is-visible", "is-leaving");
-      el.style.transition = "none";
-      void el.offsetWidth;
-      el.style.transition = "";
-    }
     let idx = 0, front = layerA, transitioning = false;
     function morphTo(nextIdx) {
       if (nextIdx === idx) return;
       const incoming = front === layerA ? layerB : layerA;
-      const outgoing = front;
       if (reduceMotion) {
         incoming.src = slides[nextIdx].cover;
         incoming.classList.add("is-visible");
-        outgoing.classList.remove("is-visible");
+        front.classList.remove("is-visible");
         front = incoming;
         idx = nextIdx;
         renderText(idx);
@@ -1291,24 +1283,20 @@
       }
       if (transitioning) return;
       transitioning = true;
-      const slide = () => {
-        parkOffscreen(incoming);
-        requestAnimationFrame(() => {
-          incoming.classList.add("is-visible");
-          outgoing.classList.remove("is-visible");
-          outgoing.classList.add("is-leaving");
-        });
+      const crossfade = () => {
+        incoming.classList.add("is-visible");
+        front.classList.remove("is-visible");
         front = incoming;
         stage.classList.add("is-morphing");
         window.setTimeout(() => {
           idx = nextIdx;
           renderText(idx);
           stage.classList.remove("is-morphing");
+          window.setTimeout(() => { transitioning = false; }, TEXT_RISE);
         }, TEXT_DIP);
-        window.setTimeout(() => { transitioning = false; }, SLIDE_T);
       };
       let swapped = false;
-      const trigger = () => { if (swapped) return; swapped = true; requestAnimationFrame(slide); };
+      const trigger = () => { if (swapped) return; swapped = true; requestAnimationFrame(crossfade); };
       incoming.onload = trigger;
       incoming.onerror = trigger;
       incoming.src = slides[nextIdx].cover;
