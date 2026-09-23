@@ -1182,8 +1182,7 @@
   function signalHeroHTML() {
     return `<section class="signal-hero" id="signalHero">
       <div class="sh-bg">
-        <img class="sh-cover sh-cover-a" alt="">
-        <img class="sh-cover sh-cover-b" alt="">
+        <img class="sh-cover" alt="">
       </div>
       <div class="sh-scrim"></div>
       <div class="sh-content">
@@ -1234,14 +1233,13 @@
   function initSignalHero(slides) {
     const stage = $("#signalHero");
     if (!stage || !slides.length) return;
-    const layerA = $(".sh-cover-a", stage);
-    const layerB = $(".sh-cover-b", stage);
+    const cover = $(".sh-cover", stage);
     const els = {
       tags: $("#shTags"), overline: $("#shOverline"), title: $("#shTitle"),
       author: $("#shAuthor"), stats: $("#shStats"), ctas: $("#shCtas"), trust: $("#shTrust"),
     };
     const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
-    const HOLD = 3200, FADE = 420;
+    const HOLD = 3200, DIP = 280;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     function headlineSize(top, accent) {
       const maxLen = Math.max((top || "").length, (accent || "").length);
@@ -1268,39 +1266,27 @@
       els.ctas.innerHTML = `<a href="${d.readHref}" class="sh-btn sh-btn--primary">ĐỌC NGAY<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></a><a href="${d.detailHref}" class="sh-btn sh-btn--ghost">XEM CHI TIẾT</a>`;
       els.trust.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>' + d.trust;
     }
-    let idx = 0, front = layerA, transitioning = false;
+    let idx = 0, transitioning = false;
+    function paint(i) {
+      cover.src = slides[i].cover;
+      renderText(i);
+    }
     function morphTo(nextIdx) {
       if (nextIdx === idx) return;
-      const incoming = front === layerA ? layerB : layerA;
-      if (reduceMotion) {
-        incoming.src = slides[nextIdx].cover;
-        incoming.classList.add("is-visible");
-        front.classList.remove("is-visible");
-        front = incoming;
-        idx = nextIdx;
-        renderText(idx);
-        return;
-      }
+      if (reduceMotion) { idx = nextIdx; paint(idx); return; }
       if (transitioning) return;
       transitioning = true;
-      const swap = () => {
-        incoming.classList.add("is-visible");
-        front.classList.remove("is-visible");
-        front = incoming;
+      stage.classList.add("is-morphing");
+      window.setTimeout(() => {
         idx = nextIdx;
-        renderText(idx);
-        window.setTimeout(() => { transitioning = false; }, FADE);
-      };
-      let swapped = false;
-      const trigger = () => { if (swapped) return; swapped = true; requestAnimationFrame(swap); };
-      incoming.onload = trigger;
-      incoming.onerror = trigger;
-      incoming.src = slides[nextIdx].cover;
-      if (incoming.complete && incoming.naturalWidth) trigger();
+        paint(idx);
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          stage.classList.remove("is-morphing");
+          window.setTimeout(() => { transitioning = false; }, DIP);
+        }));
+      }, DIP);
     }
-    front.src = slides[0].cover;
-    front.classList.add("is-visible");
-    renderText(0);
+    paint(0);
     if (slides.length > 1) {
       const timer = setInterval(() => { morphTo((idx + 1) % slides.length); }, HOLD);
       stage.dataset.timerId = String(timer);
