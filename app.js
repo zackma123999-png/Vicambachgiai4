@@ -184,6 +184,11 @@
     if (!parts.length) return { name: "home", q };
     if (parts[0] === "kham-pha") return { name: "explore", q };
     if (parts[0] === "tu-truyen") return { name: "library", q };
+    if (parts[0] === "dang-len-song") return { name: "rail-ongoing", q };
+    if (parts[0] === "da-hoan-thanh") return { name: "rail-completed", q };
+    if (parts[0] === "sap-ra-mat") return { name: "rail-upcoming", q };
+    if (parts[0] === "kim-bai-de-cu") return { name: "medal-picks", q };
+    if (parts[0] === "tram-preview") return { name: "preview-station", q };
     if (parts[0] === "dang-nhap") return { name: "login", q };
     if (parts[0] === "dang-ky") return { name: "register", q };
     if (parts[0] === "quen-mat-khau") return { name: "forgot", q };
@@ -422,7 +427,12 @@
     mail: `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.2" y="5.5" width="17.6" height="13" rx="2.2"/><path d="m4 7 8 6 8-6"/></svg>`,
     user: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.2" r="3.3"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>`,
     login: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 4h5a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-5"/><path d="M9 8l4 4-4 4M3 12h9.5"/></svg>`,
-    pulse: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h3.6l2.1-6.2 4 12.4L15 12h6"/></svg>`
+    pulse: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h3.6l2.1-6.2 4 12.4L15 12h6"/></svg>`,
+    live: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M7.5 7.5a6.5 6.5 0 0 0 0 9M16.5 7.5a6.5 6.5 0 0 1 0 9M4.3 4.3a11 11 0 0 0 0 15.4M19.7 4.3a11 11 0 0 1 0 15.4"/></svg>`,
+    check: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.3"/><path d="M8.3 12.3l2.5 2.5 5-5.2"/></svg>`,
+    clock: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.3"/><path d="M12 7.3V12l3.2 2"/></svg>`,
+    medal: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="14.5" r="5.3"/><path d="M9.5 9.8 7 3h3l2 4.6L14 3h3l-2.5 6.8"/></svg>`,
+    play: `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.3" y="4.5" width="17.4" height="13" rx="2"/><path d="m10.3 8.3 4.6 2.9-4.6 2.9Z"/></svg>`
   };
   function header(active) {
     const u = VCBG.currentUser();
@@ -455,6 +465,13 @@
         ${mmLink("#/kham-pha", "compass", "Khám phá")}
         ${mmLink("#/tu-truyen", "shelf", "Tủ truyện")}
         <button type="button" class="mm-item" id="menuResonanceBtn">${mmIcons.pulse}<span>Cộng hưởng</span><i class="mm-item-dot" aria-hidden="true"></i></button>
+      </div>
+      <div class="mm-group">
+        ${mmLink("#/dang-len-song", "live", "Đang lên sóng")}
+        ${mmLink("#/da-hoan-thanh", "check", "Đã hoàn thành")}
+        ${mmLink("#/sap-ra-mat", "clock", "Sắp ra mắt")}
+        ${mmLink("#/kim-bai-de-cu", "medal", "Kim bài đề cử")}
+        ${mmLink("#/tram-preview", "play", "Trạm preview")}
       </div>
       ${isAdmin || u ? `<div class="mm-group">
         ${isAdmin ? mmLink("#/admin", "shield", "Quản trị") : ""}
@@ -1406,6 +1423,37 @@
   function section(title, list) {
     if (!list || !list.length) return "";
     return `<section class="wrap section"><h2>${esc(title)}</h2><div class="card-grid">${list.map((s) => storyCard(s, true)).join("")}</div></section>`;
+  }
+  function pageStatusRail(kind) {
+    const cfg = {
+      ongoing: { title: "Đang lên sóng", tone: "cyan", list: () => homePrioritySort(VCBG.listStories({ status: "ongoing" }).filter((s) => !s.upcoming)) },
+      completed: { title: "Đã hoàn thành", tone: "violet", list: () => homePrioritySort(VCBG.listStories({ status: "completed" }).filter((s) => !s.upcoming)) },
+      upcoming: { title: "Sắp ra mắt", tone: "blue", list: () => homePrioritySort(VCBG.listStories({ upcoming: true })) },
+    }[kind];
+    const list = cfg.list();
+    setMeta(cfg.title + " — ViCamBachGiai", VCBG.settings().tagline);
+    app().innerHTML =
+      header() +
+      `<div class="wrap rails">${rail(cfg.title, list, cfg.tone) || `<div class="empty">Chưa có truyện trong mục này.</div>`}</div>` +
+      footer();
+    bindChrome();
+  }
+  function pageMedalPicks() {
+    setMeta("Kim Bài Đề Cử — ViCamBachGiai", VCBG.settings().tagline);
+    app().innerHTML =
+      header() +
+      (recommendationPanel() || `<div class="wrap"><div class="empty">Chưa có dữ liệu xếp hạng.</div></div>`) +
+      footer();
+    bindChrome();
+  }
+  function pagePreviewStation() {
+    const previewStories = homePrioritySort(VCBG.listStories({ sort: "updated" }).filter((story) => tiktokPostId(story.tiktok_intro_url)));
+    setMeta("Trạm Preview — ViCamBachGiai", VCBG.settings().tagline);
+    app().innerHTML =
+      header() +
+      (previewStation(previewStories) || `<div class="wrap"><div class="empty">Chưa có teaser nào sẵn sàng.</div></div>`) +
+      footer();
+    bindChrome();
   }
 
   function pageExplore(route) {
@@ -3737,6 +3785,11 @@
       else if (route.name === "register") pageAuth("register");
       else if (route.name === "forgot") pageAuth("forgot");
       else if (route.name === "library") pageLibrary();
+      else if (route.name === "rail-ongoing") pageStatusRail("ongoing");
+      else if (route.name === "rail-completed") pageStatusRail("completed");
+      else if (route.name === "rail-upcoming") pageStatusRail("upcoming");
+      else if (route.name === "medal-picks") pageMedalPicks();
+      else if (route.name === "preview-station") pagePreviewStation();
       else if (route.name === "account") pageAccount();
       else if (route.name === "notifs") pageNotifs();
       else if (route.name === "mailbox") pageMailbox();
