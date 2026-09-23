@@ -1,7 +1,7 @@
 import { uploadB2Object } from "../_utils/b2-native.js";
 
-const SUPABASE_URL = "https://isawawkxjbnlbuxlhlnk.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzYXdhd2t4amJubGJ1eGxobG5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4OTQ0NzAsImV4cCI6MjEwMjQ3MDQ3MH0.QfFRAyBOKnpy9fjvv5UKv1EgvMDh5LJTKoo36Da8ZAc";
+const SUPABASE_URL = "https://krmwiwbppktpalbzbgum.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_HJU9Ys-5qhc_z_GNwo5KeQ_EskB40vC";
 
 const json = (data, status = 200) => new Response(JSON.stringify(data), {
   status,

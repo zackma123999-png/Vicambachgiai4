@@ -326,7 +326,7 @@
   }
   function logoHTML() {
     return `<a class="brand" href="#/" aria-label="ViCamBachGiai">
-      <img class="brand-mark-img" src="brand/mark.png" alt="" width="42" height="47">
+      <img class="brand-mark-img" src="brand/cat-mark.png" alt="" width="34" height="34">
       <img class="brand-word-img" src="brand/word.png" alt="ViCamBachGiai" width="174" height="48">
     </a>`;
   }
@@ -429,11 +429,7 @@
     const mode = effectiveSiteMode(VCBG.settings());
     const modeBanner = mode === "readonly" ? `<div class="site-readonly-banner" role="status">Website đang ở chế độ chỉ đọc — bạn vẫn có thể đọc truyện, nhưng các thao tác gửi dữ liệu đang tạm dừng.</div>` : "";
     const isAdmin = !!(u && VCBG.isAdmin());
-    const admin = isAdmin ? `<a href="#/admin">Quản trị</a>` : "";
-    const acc = u
-      ? `<a class="icon-btn" href="#/thong-bao" aria-label="Thông báo"></a>
-         <a class="avatar-chip" href="#/tai-khoan" title="${esc(u.profile.display_name)}">${esc(u.profile.avatar)}</a>`
-      : `<a class="btn btn-login" href="#/dang-nhap">Đăng nhập</a>`;
+    const bell = u ? `<a class="icon-btn" href="#/thong-bao" aria-label="Thông báo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2.7c-.86 0-1.55.7-1.55 1.55v.53C7.9 5.46 6.15 7.78 6.15 10.5v3.02c0 1.02-.4 2-1.13 2.72l-.77.77v1.14h15.5v-1.14l-.77-.77a3.85 3.85 0 0 1-1.13-2.72V10.5c0-2.72-1.75-5.04-4.3-5.72v-.53c0-.86-.7-1.55-1.55-1.55Z" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9.4 19.4a2.6 2.6 0 0 0 5.2 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>` : "";
     const mmLink = (href, icon, label) => `<a class="mm-item" href="${href}">${mmIcons[icon]}<span>${label}</span></a>`;
     return `${modeBanner}<header class="site-header">
       <div class="header-inner">
@@ -442,19 +438,18 @@
           <a class="${active === "home" ? "on" : ""}" href="#/">Trang chủ</a>
           <a href="#/kham-pha">Khám phá</a>
           <a href="#/tu-truyen">Tủ truyện</a>
-          ${admin}
+          ${isAdmin ? `<a href="#/admin">Quản trị</a>` : ""}
         </nav>
-        <form class="head-search" id="headSearch" role="search">
-          <button type="button" class="icon-btn search-toggle" id="btnSearch" aria-label="Tìm truyện" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"></circle><path d="m16 16 4.2 4.2"></path></svg></button>
-          <span class="search-ico" aria-hidden="true">⌕</span>
-          <input id="qLive" type="search" placeholder="Tìm truyện..." autocomplete="off">
-        </form>
-        ${acc}
+        ${bell}
         <button class="icon-btn menu-btn" id="btnMenu" aria-label="Menu" aria-expanded="false"><span class="menu-btn-bars" aria-hidden="true"><i></i><i></i><i></i></span></button>
       </div>
-      <div id="searchBox" class="search-panel" hidden></div>
     </header>
     <div id="mobileMenu" class="mobile-menu" hidden>
+      <form class="mm-search" id="headSearch" role="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="mm-search-ico"><circle cx="10.8" cy="10.8" r="6.6"></circle><path d="m16 16 4.2 4.2"></path></svg>
+        <input id="qLive" type="search" placeholder="Tìm truyện..." autocomplete="off">
+      </form>
+      <div id="searchBox" class="search-panel" hidden></div>
       <div class="mm-group">
         ${mmLink("#/", "home", "Trang chủ")}
         ${mmLink("#/kham-pha", "compass", "Khám phá")}
@@ -1149,183 +1144,264 @@
     const updated = VCBG.listStories({ sort: "updated" }).filter((s) => !s.upcoming);
     const done = homePrioritySort(VCBG.listStories({ status: "completed" }).filter((s) => !s.upcoming));
     const soon = homePrioritySort(VCBG.listStories({ upcoming: true }));
-    const previewStories = homePrioritySort(VCBG.listStories({ sort: "updated" }).filter((story) => tiktokPostId(story.tiktok_intro_url)));
     const slideMap = new Map();
     featured.concat(ongoing, updated, done, soon).forEach((s) => {
       if (s && s.id && !slideMap.has(s.id)) slideMap.set(s.id, s);
     });
     const slides = Array.from(slideMap.values());
-    const tags = VCBG.listTags();
     setMeta("ViCamBachGiai — Thư viện Bách Hợp", VCBG.settings().tagline);
-    const banner = slides;
-    const stackCards = banner
-      .map((s, idx) => {
-        const chips = []
-          .concat((s.genres || []).map((g) => g.name))
-          .concat((s.tags || []).map((t) => t.name))
-          .filter(Boolean)
-          .slice(0, 2);
-        const first = VCBG.listChapters(s.id, { sort: "asc" })[0];
-        const readHref = first ? `#/truyen/${esc(s.slug)}/chuong-${first.number}` : `#/truyen/${esc(s.slug)}`;
-        const syn = String(s.synopsis || "").replace(/\s+/g, " ").trim();
-        const badge = s.upcoming ? "Sắp ra mắt" : statusLabel(s.status);
-        return `<article class="stack-card${idx === 0 ? " is-active" : ""}" data-i="${idx}" data-d="${idx}" style="--tone:${esc(s.accent || "#7c5cbf")}">
-          <img class="stack-cover" src="${esc(s.cover)}" alt="${esc(s.title)}" ${idx < 3 ? "" : "loading=\"lazy\""}>
-          <div class="stack-shade"></div>
-          <div class="stack-body">
-            <p class="stack-badge">${esc(badge)}</p>
-            <h2 class="stack-title">${esc(s.title)}</h2>
-            <p class="stack-chips">${chips.map((c) => `<span>${esc(c)}</span>`).join("")}</p>
-            <p class="stack-syn">${esc(syn)}</p>
-            <div class="stack-actions">
-              <a class="btn btn-cyan" href="${readHref}">Đọc ngay →</a>
-              <a class="btn btn-ghost" href="#/truyen/${esc(s.slug)}">Chi tiết</a>
-            </div>
-          </div>
-        </article>`;
-      })
-      .join("");
-    const dots = banner
-      .map((_, idx) => `<button type="button" data-dot="${idx}" class="${idx === 0 ? "on" : ""}" aria-label="Thẻ ${idx + 1}"></button>`)
-      .join("");
     app().innerHTML =
       header("home") +
-      `<section class="hero stack-hero" id="hero" aria-roledescription="carousel">
-        <button type="button" class="stack-arrow stack-prev" data-dir="-1" aria-label="Thẻ trước">‹</button>
-        <div class="stack-stage" id="stackStage">${stackCards}</div>
-        <button type="button" class="stack-arrow stack-next" data-dir="1" aria-label="Thẻ sau">›</button>
-        <div class="hero-nav"><div class="hero-dots">${dots}</div></div>
-      </section>
-      <div class="wrap">${socialStrip()}</div>
-      <div class="wrap home-signal-label"><span>Thư Viện Tín Hiệu</span></div>
-      <div class="wrap rails">
-        ${rail("Đang lên sóng", ongoing, "cyan")}
-        ${rail("Đã hoàn thành", done, "violet")}
-        ${rail("Sắp ra mắt", soon, "blue")}
-      </div>
-      ${recommendationPanel()}
-      ${previewStation(previewStories)}
-      ${homeLower()}` +
+      signalHeroHTML(slides) +
       footer();
     bindChrome();
-    const deck = banner;
-    const n = deck.length;
-    const heroEl = $("#hero");
-    if (!heroEl || !n) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const HOLD = 3000;
-    let i = 0;
-    let timer = null;
-    let paused = false;
-    const rel = (k) => {
-      let d = k - i;
-      if (d > n / 2) d -= n;
-      if (d < -n / 2) d += n;
-      return d;
+    initSignalHero(slides);
+  }
+  function signalHeroHTML() {
+    return `<section class="signal-hero" id="signalHero">
+      <div class="sh-bg"></div>
+      <canvas id="shFx"></canvas>
+      <div class="sh-scrim"></div>
+      <div class="sh-content">
+        <div class="sh-tags" id="shTags"></div>
+        <p class="sh-overline" id="shOverline"></p>
+        <h1 class="sh-title" id="shTitle"></h1>
+        <p class="sh-author" id="shAuthor"></p>
+        <div class="sh-stats" id="shStats"></div>
+        <div class="sh-ctas" id="shCtas"></div>
+        <p class="sh-trust" id="shTrust"></p>
+      </div>
+    </section>`;
+  }
+  function shSlideData(s) {
+    const first = VCBG.listChapters(s.id, { sort: "asc" })[0];
+    const readHref = first ? `#/truyen/${esc(s.slug)}/chuong-${first.number}` : `#/truyen/${esc(s.slug)}`;
+    const detailHref = `#/truyen/${esc(s.slug)}`;
+    const statusTxt = s.upcoming ? "SẮP RA MẮT" : statusLabel(s.status).toUpperCase();
+    const genre = (s.genres || [])[0];
+    const tagCount = (s.tags || []).length;
+    const words = String(s.title || "").trim().split(/\s+/).filter(Boolean);
+    const accentWord = words.length > 1 ? words.pop() : words[0] || "";
+    const topWords = words.length ? words.join(" ") : "";
+    const rating = s.stats.rating_avg ? s.stats.rating_avg.toFixed(1) : "—";
+    const latest = s.stats.latest_chapter;
+    return {
+      cover: s.cover,
+      overline: statusTxt + (genre ? " · " + genre.name.toUpperCase() : ""),
+      tags: [
+        { label: statusTxt, accent: true, dot: !s.upcoming && s.status === "ongoing", check: s.status === "completed" },
+        genre ? { label: genre.name.toUpperCase() + (tagCount ? " +" + tagCount : "") } : null,
+      ].filter(Boolean),
+      titleTop: topWords,
+      titleAccent: accentWord || s.title,
+      author: `Tác giả — <b>${esc(s.author || "—")}</b>`,
+      stats: [
+        { num: fmtCount(s.stats.views), label: "Lượt xem" },
+        { num: rating, label: "Đánh giá" },
+        { num: String(s.stats.chapter_count), label: "Chương" },
+      ],
+      trust: latest
+        ? `Chương mới nhất — <b>${esc(latestLine(s))}</b>`
+        : `Chương đầu tiên — <b>sắp ra mắt</b>`,
+      readHref,
+      detailHref,
     };
-    const preload = (idx) => {
-      const s = deck[idx];
-      if (!s || !s.cover) return;
-      const im = new Image();
-      im.src = s.cover;
+  }
+  function initSignalHero(slides) {
+    const stage = $("#signalHero");
+    if (!stage || !slides.length) return;
+    const canvas = $("#shFx");
+    const ctx = canvas.getContext("2d");
+    const els = {
+      tags: $("#shTags"), overline: $("#shOverline"), title: $("#shTitle"),
+      author: $("#shAuthor"), stats: $("#shStats"), ctas: $("#shCtas"), trust: $("#shTrust"),
     };
-    const place = () => {
-      const tone = (deck[i] && deck[i].accent) || "#7c5cbf";
-      heroEl.style.setProperty("--hero-tone", tone);
-      $$(".stack-card", heroEl).forEach((el, k) => {
-        const d = rel(k);
-        const abs = Math.abs(d);
-        el.dataset.d = String(d);
-        el.style.setProperty("--d", d);
-        el.style.setProperty("--abs", abs);
-        el.classList.toggle("is-active", d === 0);
-        el.classList.toggle("is-side", abs > 0 && abs <= 2);
-        el.style.zIndex = String(50 - abs);
-        el.setAttribute("aria-hidden", d === 0 ? "false" : "true");
+    const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+    const HOLD = 3200, GCOLS = 26, GROWS = 42, POS_X = 50, POS_Y = 18;
+    const D_OUT = 110, S_OUT = 34, D_IN = 150, S_IN = 80;
+    const SWAP_T = S_OUT + D_OUT;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    function headlineSize(top, accent) {
+      const maxLen = Math.max((top || "").length, (accent || "").length);
+      let rem;
+      if (maxLen <= 6) rem = 3.5;
+      else if (maxLen <= 9) rem = 2.9;
+      else if (maxLen <= 12) rem = 2.45;
+      else if (maxLen <= 15) rem = 2.05;
+      else rem = 1.75;
+      const vw = (rem * 2.6).toFixed(2);
+      return `clamp(${Math.max(1.5, rem - 0.7)}rem, ${vw}vw, ${rem}rem)`;
+    }
+    function renderText(i) {
+      const d = shSlideData(slides[i]);
+      els.tags.innerHTML = d.tags.map((t) => {
+        const icon = t.dot ? '<span class="sh-tag-dot"></span>' : t.check ? checkIcon : "";
+        return `<span class="sh-tag${t.accent ? " sh-tag--accent" : ""}">${icon}${esc(t.label)}</span>`;
+      }).join("");
+      els.overline.textContent = d.overline;
+      els.title.innerHTML = (d.titleTop ? `<span>${esc(d.titleTop)}</span>` : "") + `<span><em>${esc(d.titleAccent)}</em></span>`;
+      els.title.style.setProperty("--sh-title-size", headlineSize(d.titleTop, d.titleAccent));
+      els.author.innerHTML = d.author;
+      els.stats.innerHTML = d.stats.map((st) => `<div><div class="sh-stat-num">${esc(st.num)}</div><div class="sh-stat-label">${esc(st.label)}</div></div>`).join("");
+      els.ctas.innerHTML = `<a href="${d.readHref}" class="sh-btn sh-btn--primary">ĐỌC NGAY<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></a><a href="${d.detailHref}" class="sh-btn sh-btn--ghost">XEM CHI TIẾT</a>`;
+      els.trust.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>' + d.trust;
+    }
+    function loadImage(src) {
+      return new Promise((resolve) => {
+        const im = new Image();
+        im.onload = () => resolve(im);
+        im.onerror = () => resolve(im);
+        im.src = src;
       });
-      $$("[data-dot]", heroEl).forEach((el, k) => el.classList.toggle("on", k === i));
-      preload((i + 1) % n);
-      preload((i + n - 1) % n);
-      preload((i + 2) % n);
-    };
-    const stop = () => {
-      clearTimeout(timer);
-      timer = null;
-    };
-    const schedule = () => {
-      stop();
-      if (paused || n < 2) return;
-      timer = setTimeout(() => go(1), HOLD);
-    };
-    const go = (dir) => {
-      if (n < 2) return;
-      const next = (((i + dir) % n) + n) % n;
-      if (next === i) return;
-      i = next;
-      place();
-      schedule();
-    };
-    $$("[data-dot]", heroEl).forEach((b) => {
-      b.onclick = () => {
-        const t = Number(b.dataset.dot);
-        if (t === i) return;
-        const fwd = (t - i + n) % n;
-        const back = (i - t + n) % n;
-        go(fwd <= back ? fwd : -back);
-      };
-    });
-    $$("[data-dir]", heroEl).forEach((b) => {
-      b.onclick = () => go(Number(b.dataset.dir));
-    });
-    $$(".stack-card", heroEl).forEach((el, k) => {
-      el.onclick = (ev) => {
-        if (el.classList.contains("is-active")) return;
-        if (ev.target.closest("a,button")) return;
-        const fwd = (k - i + n) % n;
-        const back = (i - k + n) % n;
-        go(fwd <= back ? fwd : -back);
-      };
-    });
-    heroEl.addEventListener("mouseenter", () => {
-      if (window.matchMedia("(hover: hover)").matches) {
-        paused = true;
-        stop();
+    }
+    function prepSlide(slide, im) {
+      slide._natW = im.naturalWidth || 800;
+      slide._natH = im.naturalHeight || 1200;
+      const off = document.createElement("canvas");
+      off.width = slide._natW;
+      off.height = slide._natH;
+      const octx = off.getContext("2d");
+      octx.filter = "saturate(1.04) brightness(.97)";
+      try { octx.drawImage(im, 0, 0, slide._natW, slide._natH); } catch (e) {}
+      slide._filtered = off;
+    }
+    const N = GCOLS * GROWS;
+    const grain = { jx: new Float32Array(N), jy: new Float32Array(N), js: new Float32Array(N) };
+    for (let k = 0; k < N; k++) {
+      grain.jx[k] = (Math.random() - 0.5) * 0.16;
+      grain.jy[k] = (Math.random() - 0.5) * 0.16;
+      grain.js[k] = 1.38 + Math.random() * 0.22;
+    }
+    let dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    let boxW = 0, boxH = 0;
+    const dest = { x: new Float32Array(N), y: new Float32Array(N), w: new Float32Array(N), h: new Float32Array(N) };
+    const scatter = { dx: new Float32Array(N), dy: new Float32Array(N), delayOut: new Float32Array(N), delayIn: new Float32Array(N) };
+    function layoutCanvas() {
+      boxW = canvas.clientWidth;
+      boxH = canvas.clientHeight;
+      canvas.width = Math.round(boxW * dpr);
+      canvas.height = Math.round(boxH * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      for (let r = 0; r < GROWS; r++) {
+        for (let c = 0; c < GCOLS; c++) {
+          const k = r * GCOLS + c;
+          const cw = boxW / GCOLS, ch = boxH / GROWS;
+          dest.w[k] = cw * grain.js[k];
+          dest.h[k] = ch * grain.js[k];
+          dest.x[k] = c * cw + (cw - dest.w[k]) / 2 + grain.jx[k] * cw;
+          dest.y[k] = r * ch + (ch - dest.h[k]) / 2 + grain.jy[k] * ch;
+        }
+      }
+    }
+    function coverRect(slide) {
+      const scale = Math.max(boxW / slide._natW, boxH / slide._natH);
+      const rw = slide._natW * scale, rh = slide._natH * scale;
+      return { scale, offX: (boxW - rw) * (POS_X / 100), offY: (boxH - rh) * (POS_Y / 100) };
+    }
+    function drawAt(slide, cover, t) {
+      ctx.clearRect(0, 0, boxW, boxH);
+      for (let k = 0; k < N; k++) {
+        if (t <= 0) continue;
+        const x = dest.x[k] + scatter.dx[k] * (1 - t);
+        const y = dest.y[k] + scatter.dy[k] * (1 - t);
+        const scale = 0.9 + 0.1 * t;
+        const w = dest.w[k] * scale, h = dest.h[k] * scale;
+        const cx = x + dest.w[k] / 2, cy = y + dest.h[k] / 2;
+        const sx = (dest.x[k] - cover.offX) / cover.scale;
+        const sy = (dest.y[k] - cover.offY) / cover.scale;
+        const sw = dest.w[k] / cover.scale, sh = dest.h[k] / cover.scale;
+        ctx.globalAlpha = t;
+        ctx.drawImage(slide._filtered, sx, sy, sw, sh, cx - w / 2, cy - h / 2, w, h);
+      }
+      ctx.globalAlpha = 1;
+    }
+    let idx = 0, ready = false, transitioning = false;
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+    function drawStatic(i) { drawAt(slides[i], coverRect(slides[i]), 1); }
+    function armScatter() {
+      for (let k = 0; k < N; k++) {
+        const ang = Math.random() * Math.PI * 2;
+        const mag = 6 + Math.random() * 16;
+        scatter.dx[k] = Math.cos(ang) * mag;
+        scatter.dy[k] = Math.sin(ang) * mag;
+        scatter.delayOut[k] = Math.random() * S_OUT;
+        scatter.delayIn[k] = Math.random() * S_IN;
+      }
+    }
+    function morphTo(nextIdx) {
+      if (!ready) return;
+      if (reduceMotion) { idx = nextIdx; drawStatic(idx); renderText(idx); return; }
+      if (transitioning) return;
+      transitioning = true;
+      armScatter();
+      const from = slides[idx], to = slides[nextIdx];
+      const coverFrom = coverRect(from), coverTo = coverRect(to);
+      let textSwapped = false;
+      const start = performance.now();
+      function paintPhase(slide, cover, delays, dur, since, invert) {
+        ctx.clearRect(0, 0, boxW, boxH);
+        for (let k = 0; k < N; k++) {
+          const local = Math.min(Math.max((since - delays[k]) / dur, 0), 1);
+          const t = invert ? 1 - easeOutCubic(local) : easeOutCubic(local);
+          if (t <= 0) continue;
+          const x = dest.x[k] + scatter.dx[k] * (1 - t);
+          const y = dest.y[k] + scatter.dy[k] * (1 - t);
+          const scale = 0.9 + 0.1 * t;
+          const w = dest.w[k] * scale, h = dest.h[k] * scale;
+          const cx = x + dest.w[k] / 2, cy = y + dest.h[k] / 2;
+          const sx = (dest.x[k] - cover.offX) / cover.scale;
+          const sy = (dest.y[k] - cover.offY) / cover.scale;
+          const sw = dest.w[k] / cover.scale, sh = dest.h[k] / cover.scale;
+          ctx.globalAlpha = t;
+          ctx.drawImage(slide._filtered, sx, sy, sw, sh, cx - w / 2, cy - h / 2, w, h);
+        }
+        ctx.globalAlpha = 1;
+      }
+      function frame(now) {
+        try {
+          const elapsed = now - start;
+          if (elapsed < SWAP_T) {
+            paintPhase(from, coverFrom, scatter.delayOut, D_OUT, elapsed, true);
+            requestAnimationFrame(frame);
+            return;
+          }
+          if (!textSwapped) { textSwapped = true; idx = nextIdx; renderText(idx); }
+          const sinceSwap = elapsed - SWAP_T;
+          if (sinceSwap < S_IN + D_IN) {
+            paintPhase(to, coverTo, scatter.delayIn, D_IN, sinceSwap, false);
+            requestAnimationFrame(frame);
+            return;
+          }
+          transitioning = false;
+          drawStatic(idx);
+        } catch (e) {
+          transitioning = false;
+          idx = nextIdx;
+          renderText(idx);
+          drawStatic(idx);
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+    Promise.all(slides.map((s) => loadImage(s.cover).then((im) => prepSlide(s, im)))).then(() => {
+      layoutCanvas();
+      ready = true;
+      drawStatic(0);
+      renderText(0);
+      if (slides.length > 1) {
+        const timer = setInterval(() => { morphTo((idx + 1) % slides.length); }, HOLD);
+        stage.dataset.timerId = String(timer);
       }
     });
-    heroEl.addEventListener("mouseleave", () => {
-      paused = false;
-      schedule();
+    let resizeT;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeT);
+      resizeT = setTimeout(() => {
+        if (!ready) return;
+        layoutCanvas();
+        if (!transitioning) drawStatic(idx);
+      }, 120);
     });
-    let sx = 0;
-    let sy = 0;
-    heroEl.addEventListener(
-      "touchstart",
-      (e) => {
-        sx = e.changedTouches[0].clientX;
-        sy = e.changedTouches[0].clientY;
-      },
-      { passive: true }
-    );
-    heroEl.addEventListener(
-      "touchend",
-      (e) => {
-        const dx = e.changedTouches[0].clientX - sx;
-        const dy = e.changedTouches[0].clientY - sy;
-        if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
-      },
-      { passive: true }
-    );
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) {
-        paused = true;
-        stop();
-      } else {
-        paused = false;
-        schedule();
-      }
-    });
-    place();
-    schedule();
   }
   function section(title, list) {
     if (!list || !list.length) return "";

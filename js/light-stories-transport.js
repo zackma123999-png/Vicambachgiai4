@@ -9,7 +9,7 @@
   function coverProxy(row) {
     if (!row || !row.id) return "";
     if (/^https?:\/\//i.test(String(row.cover_url || ""))) return String(row.cover_url);
-    var base = (window.VCBG_CONFIG && window.VCBG_CONFIG.supabaseUrl) || "https://isawawkxjbnlbuxlhlnk.supabase.co";
+    var base = (window.VCBG_CONFIG && window.VCBG_CONFIG.supabaseUrl) || "";
     var v = row.updated_at || "";
     return base.replace(/\/$/, "") + "/functions/v1/story-cover?id=" + encodeURIComponent(row.id) + "&v=" + encodeURIComponent(v);
   }

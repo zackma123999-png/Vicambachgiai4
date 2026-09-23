@@ -17,7 +17,8 @@
       return String(s.cover || s.cover_url);
     }
     var v = Number(s.updated_at || 0) || Date.now();
-    return "https://isawawkxjbnlbuxlhlnk.supabase.co/functions/v1/story-cover?id=" + encodeURIComponent(s.id) + "&v=" + encodeURIComponent(v);
+    var base = (window.VCBG_CONFIG && window.VCBG_CONFIG.supabaseUrl) || "";
+    return base.replace(/\/$/, "") + "/functions/v1/story-cover?id=" + encodeURIComponent(s.id) + "&v=" + encodeURIComponent(v);
   }
 
   function normalizeFallback(s) {
