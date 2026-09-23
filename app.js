@@ -450,8 +450,10 @@
           <a href="#/tu-truyen">Tủ truyện</a>
           ${isAdmin ? `<a href="#/admin">Quản trị</a>` : ""}
         </nav>
-        ${bell}
-        <button class="icon-btn menu-btn" id="btnMenu" aria-label="Menu" aria-expanded="false"><span class="menu-btn-bars" aria-hidden="true"><i></i><i></i><i></i></span></button>
+        <div class="nav-actions">
+          ${bell}
+          <button class="icon-btn menu-btn" id="btnMenu" aria-label="Menu" aria-expanded="false"><span class="menu-btn-bars" aria-hidden="true"><i></i><i></i><i></i></span></button>
+        </div>
       </div>
     </header>
     <div id="mobileMenu" class="mobile-menu" hidden>
@@ -497,10 +499,12 @@
         ${logoHTML()}
         <p class="foot2-kicker">Thư viện Bách Hợp</p>
         <p class="foot2-desc">Nơi lưu giữ những câu chuyện tôi yêu thích và những <br class="foot2-brk">bản dịch được thực hiện bằng tất cả sự trân trọng.</p>
-        <div class="foot2-acts">
-          <button type="button" class="foot2-act foot2-act-msg" id="btnMsg"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg><span class="foot2-act-t"><small>Liên hệ</small><b>Gửi lời nhắn</b></span></button>
-          <button type="button" class="foot2-act foot2-act-report" id="btnReport"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="3" x2="5" y2="21"></line><path d="M5 4 19 9.5 5 15Z"></path></svg><span class="foot2-act-t"><small>Hỗ trợ</small><b>Báo lỗi nội dung</b></span></button>
+        <div class="foot2-section">
+          <h4>Liên hệ &amp; hỗ trợ</h4>
+          <button type="button" class="foot2-row" id="btnMsg"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg><span class="foot2-row-t"><small>Liên hệ</small><b>Gửi lời nhắn</b></span></button>
+          <button type="button" class="foot2-row" id="btnReport"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="3" x2="5" y2="21"></line><path d="M5 4 19 9.5 5 15Z"></path></svg><span class="foot2-row-t"><small>Hỗ trợ</small><b>Báo lỗi nội dung</b></span></button>
         </div>
+        <div class="foot2-cols">
         <div class="foot2-section">
           <h4>Khám phá</h4>
           <a href="#/">Trang chủ</a>
@@ -511,6 +515,7 @@
           <h4>Cộng đồng</h4>
           ${links.map(([k, l]) => `<a class="foot2-social-${k}" href="${esc(social[k])}" target="_blank" rel="noopener">${l}</a>`).join("")}
         </div>` : ""}
+        </div>
       </div>
       <div class="foot2-rule"></div>
       <p class="foot2-copy">© ${new Date().getFullYear()} ViCamBachGiai · Bản dịch thuộc về người thực hiện · Vui lòng không đăng lại.</p>
