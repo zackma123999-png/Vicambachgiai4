@@ -1,0 +1,80 @@
+/* ViCamBachGiai — bounded reader-signal feed. Scope is intentionally limited to #tin-hieu. */
+#tin-hieu .sig-board.signal-window-ready{
+  overflow: hidden;
+}
+
+#tin-hieu .sig-board.signal-window-ready .sig-list{
+  max-height: clamp(32rem, 68dvh, 44rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 34%, transparent) transparent;
+  padding-right: .2rem;
+  scroll-behavior: smooth;
+}
+
+#tin-hieu .sig-board.signal-window-ready .sig-list::-webkit-scrollbar{ width: 5px; }
+#tin-hieu .sig-board.signal-window-ready .sig-list::-webkit-scrollbar-track{ background: transparent; }
+#tin-hieu .sig-board.signal-window-ready .sig-list::-webkit-scrollbar-thumb{
+  background: color-mix(in srgb, var(--accent) 32%, transparent);
+  border-radius: 999px;
+}
+
+/* Existing card design is preserved; only very long copy is clamped inside the bounded feed. */
+#tin-hieu .sig-board.signal-window-ready .sig-card blockquote,
+#tin-hieu .sig-board.signal-window-ready .sig-quote{
+  max-height: 7.2em;
+  overflow: hidden;
+}
+
+#tin-hieu .sig-board.signal-window-ready .sig-card .sig-text,
+#tin-hieu .sig-board.signal-window-ready .sig-card > p{
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+#tin-hieu .sig-board.signal-window-ready .sig-more{
+  display: none !important;
+}
+
+#tin-hieu .sig-scroll-status{
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  padding: .6rem .8rem .45rem;
+  color: var(--muted);
+  font-size: .76rem;
+  text-align: center;
+}
+
+#tin-hieu .sig-scroll-status::before{
+  content: "";
+  width: .42rem;
+  height: .42rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 68%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+#tin-hieu .sig-scroll-status.is-done::before{
+  opacity: .35;
+  box-shadow: none;
+}
+
+@media (max-width: 640px){
+  #tin-hieu .sig-board.signal-window-ready .sig-list{
+    max-height: 70dvh;
+    padding-right: .1rem;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 600px){
+  #tin-hieu .sig-board.signal-window-ready .sig-list{
+    max-height: 72dvh;
+  }
+}

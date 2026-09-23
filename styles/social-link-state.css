@@ -1,0 +1,21 @@
+/* Social icons are vivid/clickable only when a real URL is configured. */
+.social-strip .social-ico{
+  transition:opacity .18s ease,filter .18s ease,box-shadow .18s ease,border-color .18s ease,transform .18s ease;
+}
+.social-strip .social-ico.is-disabled{
+  opacity:.28 !important;
+  filter:grayscale(1) saturate(.2) brightness(.72) !important;
+  box-shadow:none !important;
+  cursor:default !important;
+  pointer-events:none !important;
+}
+.social-strip .social-ico.is-active{
+  opacity:1 !important;
+  filter:none !important;
+  cursor:pointer !important;
+}
+.social-strip .social-ico.is-active:hover,
+.social-strip .social-ico.is-active:focus-visible{
+  transform:translateY(-1px);
+  box-shadow:0 0 18px rgba(137,108,255,.18);
+}

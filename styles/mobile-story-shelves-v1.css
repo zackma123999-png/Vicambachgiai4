@@ -1,0 +1,197 @@
+/* Chosen phone story-shelf layout: open sections, balanced cards, animated swipe cue. */
+@media (max-width: 640px) {
+  #app .rails {
+    gap: 1.25rem !important;
+    padding-block: .85rem 1.7rem !important;
+    overflow: hidden;
+  }
+
+  #app .rail-panel,
+  #app .rail-panel.is-glowing,
+  #app .rail-panel:has(.wide-card:active),
+  #app .rail-panel:has(.wide-card:focus-within) {
+    width: 100% !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  #app .rail-panel::before,
+  #app .rail-panel::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  #app .rail-head {
+    --heading-color: #eef1f7;
+    display: flex !important;
+    align-items: center !important;
+    gap: .42rem !important;
+    padding: 0 1.15rem .72rem !important;
+  }
+
+  #app .tone-cyan .rail-head,
+  #app .tone-violet .rail-head,
+  #app .tone-blue .rail-head { --heading-color: #eef1f7; }
+
+  #app .rail-head h2 {
+    min-width: 0;
+    color: var(--heading-color) !important;
+    font-size: clamp(1.16rem, 5.1vw, 1.42rem) !important;
+    font-weight: 700 !important;
+    text-shadow: 0 0 8px rgba(238, 241, 247, .1);
+  }
+
+  #app .rail-head .live-dot {
+    flex: 0 0 auto;
+    background: var(--heading-color) !important;
+    box-shadow: 0 0 6px rgba(238, 241, 247, .22) !important;
+  }
+
+  #app .rail-head .count {
+    margin-left: auto !important;
+    flex: 0 0 auto;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: var(--heading-color) !important;
+    font-size: clamp(.76rem, 3.25vw, .92rem) !important;
+    font-weight: 600;
+    text-shadow: none;
+  }
+
+  #app .rail-swipe-cue {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    width: 2.25rem;
+    color: #c46cff;
+    filter: drop-shadow(0 0 4px rgba(196, 108, 255, .9))
+            drop-shadow(0 0 10px rgba(151, 74, 255, .52));
+  }
+
+  #app .rail-swipe-cue i {
+    width: .62rem;
+    height: .62rem;
+    border-top: 2px solid currentColor;
+    border-right: 2px solid currentColor;
+    transform: rotate(45deg);
+    animation: vc-swipe-right 1.15s ease-in-out infinite;
+  }
+
+  #app .rail-swipe-cue i:nth-child(2) { animation-delay: .14s; }
+  #app .rail-swipe-cue i:nth-child(3) { animation-delay: .28s; }
+
+  #app .rail {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    gap: .72rem !important;
+    margin: 0 !important;
+    padding: .15rem 1.15rem .85rem !important;
+    scroll-padding-inline: 1.15rem !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+
+  #app .wide-card {
+    flex: 0 0 84vw !important;
+    width: 84vw !important;
+    min-width: 84vw !important;
+    max-width: 84vw !important;
+    align-items: stretch !important;
+  }
+
+  #app .wide-body {
+    min-width: 0 !important;
+    align-self: stretch !important;
+  }
+}
+
+@keyframes vc-swipe-right {
+  0%, 18% { opacity: .18; transform: translateX(-3px) rotate(45deg); }
+  48% { opacity: 1; }
+  82%, 100% { opacity: .26; transform: translateX(3px) rotate(45deg); }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+  #app .rail-swipe-cue i { animation: none !important; opacity: .85; }
+}
+
+
+/* Larger screens inherit the chosen visual language without changing card,
+   cover, track or carousel dimensions in portrait or landscape. */
+@media (min-width: 641px) {
+  #app .rail-panel,
+  #app .rail-panel.is-glowing,
+  #app .rail-panel:has(.wide-card:active),
+  #app .rail-panel:has(.wide-card:focus-within) {
+    --heading-color: #eef1f7;
+    border-color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  #app .rail-panel::before,
+  #app .rail-panel::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  #app .rail-panel.tone-cyan,
+  #app .rail-panel.tone-violet,
+  #app .rail-panel.tone-blue { --heading-color: #eef1f7; }
+
+  #app .rail-head h2,
+  #app .rail-head .count {
+    color: var(--heading-color) !important;
+    text-shadow: 0 0 8px rgba(238, 241, 247, .1);
+  }
+
+  #app .rail-head .live-dot {
+    background: var(--heading-color) !important;
+    box-shadow: 0 0 6px rgba(238, 241, 247, .22) !important;
+  }
+
+  #app .rail-head .count {
+    border-color: transparent !important;
+    background: transparent !important;
+  }
+
+  #app .rail-swipe-cue {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    width: 2.25rem;
+    color: #c46cff;
+    filter: drop-shadow(0 0 4px rgba(196, 108, 255, .9))
+            drop-shadow(0 0 10px rgba(151, 74, 255, .52));
+  }
+
+  #app .rail-swipe-cue i {
+    width: .62rem;
+    height: .62rem;
+    border-top: 2px solid currentColor;
+    border-right: 2px solid currentColor;
+    transform: rotate(45deg);
+    animation: vc-swipe-right 1.15s ease-in-out infinite;
+  }
+
+  #app .rail-swipe-cue i:nth-child(2) { animation-delay: .14s; }
+  #app .rail-swipe-cue i:nth-child(3) { animation-delay: .28s; }
+}
+
+@media (min-width: 641px) and (prefers-reduced-motion: reduce) {
+  #app .rail-swipe-cue i { animation: none !important; opacity: .85; }
+}

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Ngôi sao Admin màu hồng neon">
+  <defs>
+    <radialGradient id="bg" cx="38%" cy="30%" r="76%">
+      <stop offset="0" stop-color="#242b4b"/>
+      <stop offset=".62" stop-color="#11172b"/>
+      <stop offset="1" stop-color="#070b16"/>
+    </radialGradient>
+    <linearGradient id="star" x1=".2" y1=".05" x2=".78" y2=".94">
+      <stop stop-color="#fff4ff"/>
+      <stop offset=".18" stop-color="#ffb8f1"/>
+      <stop offset=".52" stop-color="#ff4fc8"/>
+      <stop offset="1" stop-color="#e817a2"/>
+    </linearGradient>
+    <filter id="pinkGlow" x="-70%" y="-70%" width="240%" height="240%">
+      <feGaussianBlur stdDeviation="17" result="blur1"/>
+      <feFlood flood-color="#ff29c6" flood-opacity=".92"/>
+      <feComposite in2="blur1" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="ringGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <circle cx="256" cy="256" r="244" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="235" fill="none" stroke="#7a3cff" stroke-width="8" filter="url(#ringGlow)"/>
+  <circle cx="256" cy="256" r="218" fill="none" stroke="#d06cff" stroke-opacity=".2" stroke-width="3"/>
+  <path d="M256 91 304 195 418 208 334 286 357 399 256 342 155 399 178 286 94 208 208 195Z"
+        fill="url(#star)" stroke="#ffd8f7" stroke-width="7" stroke-linejoin="round" filter="url(#pinkGlow)"/>
+  <path d="M256 116 287 207 379 218 307 277 328 364 256 319 184 364 205 277 133 218 225 207Z"
+        fill="none" stroke="#fff" stroke-opacity=".42" stroke-width="5" stroke-linejoin="round"/>
+  <ellipse cx="222" cy="165" rx="27" ry="11" fill="#fff" opacity=".38" transform="rotate(-30 222 165)"/>
+</svg>

@@ -1,0 +1,37 @@
+/* Homepage story-section shells only.
+   Make the three rails (Đang lên sóng / Đã hoàn thành / Sắp ra mắt)
+   use the available viewport width consistently across phone, tablet and desktop.
+   Does not target hero/banner, story cards, reader signal, or any functionality. */
+.rails {
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: max(env(safe-area-inset-left), 0px);
+  padding-right: max(env(safe-area-inset-right), 0px);
+}
+
+/* Keep inner content breathing room inside each section while the outer shell reaches the screen edges. */
+.rail-panel {
+  width: 100%;
+  max-width: none;
+}
+
+.home-signal-label{
+  padding-top:.72rem;
+}
+
+.home-signal-label span{
+  display:inline-flex;
+  align-items:center;
+  min-height:34px;
+  padding:.38rem .78rem;
+  border:1px solid rgba(159,141,230,.3);
+  border-radius:999px;
+  background:rgba(102,76,178,.1);
+  color:#9f8de6;
+  font-size:.86rem;
+  font-weight:600;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}

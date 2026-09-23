@@ -1,0 +1,60 @@
+/* Footer redesign: borderless, left-aligned, liquid-glass action buttons. */
+.foot2{text-align:left;overflow:hidden;border-top:0!important}
+.foot2-body{position:relative;padding-top:.4rem}
+
+.foot2-body>.brand{margin:0;justify-content:flex-start;gap:.62rem}
+.foot2-body .brand-mark-img{width:clamp(2.5rem,6.8vw,3.55rem);height:auto}
+.foot2-body .brand-word-img{width:auto;height:clamp(1.9rem,5.2vw,2.8rem)}
+
+/* soft ambient glow so the glass buttons have something to refract */
+.foot2-body::before,.foot2-body::after{
+  content:"";position:absolute;border-radius:50%;pointer-events:none;filter:blur(46px);z-index:0;
+}
+.foot2-body::before{width:220px;height:170px;left:0;top:9.5rem;background:radial-gradient(closest-side,rgba(143,116,255,.55),transparent 72%)}
+.foot2-body::after{width:200px;height:160px;right:0;top:10rem;background:radial-gradient(closest-side,rgba(255,140,190,.42),transparent 72%)}
+
+.foot2-kicker{
+  position:relative;z-index:1;margin:clamp(1.05rem,3.2vw,1.65rem) 0 0;font-weight:600;
+  font-size:clamp(.66rem,2.3vw,.82rem);letter-spacing:.48em;line-height:1.4;text-transform:uppercase;
+  background:linear-gradient(90deg,#c57aff,#988cff 48%,#73d7f7);-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.foot2-desc{position:relative;z-index:1;margin:.58rem 0 0;max-width:39rem;color:#f0eadf;font-size:clamp(.86rem,2.8vw,1rem);font-weight:400;line-height:1.52}
+@media(max-width:520px){
+  .foot2-kicker{letter-spacing:.34em}
+  .foot2-desc{max-width:none;font-size:.8rem}
+}
+@media(max-width:380px){
+  .foot2-desc{font-size:.74rem}
+}
+
+.foot2-acts{position:relative;z-index:1;display:flex;gap:.6rem;margin-top:1.4rem;flex-wrap:wrap}
+.foot2-act{
+  appearance:none;-webkit-appearance:none;
+  flex:0 0 auto;width:12rem;display:flex;align-items:center;gap:.65rem;
+  background:rgba(255,255,255,.09);
+  -webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);
+  border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:.8rem 1.1rem .8rem 1rem;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -6px 14px rgba(255,255,255,.05),0 10px 24px rgba(0,0,0,.4);
+  cursor:pointer;color:#f1f3fb;white-space:nowrap;transition:transform .15s ease;
+}
+.foot2-act:hover{transform:translateY(-1px)}
+.foot2-act:focus-visible{outline:1px solid #c9a8ff;outline-offset:2px}
+.foot2-act svg{width:19px;height:19px;flex:0 0 auto;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.foot2-act-msg svg{stroke:#70d5ff}
+.foot2-act-report svg{stroke:#ff7c83}
+.foot2-act-t{display:block;text-align:left;min-width:0;overflow:hidden}
+.foot2-act-t small{display:block;font-size:.72rem;color:#8b9bb3;line-height:1}
+.foot2-act-t b{display:block;font-size:.82rem;font-weight:600;margin-top:.18rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.foot2-section{position:relative;z-index:1;margin-top:2.3rem}
+.foot2-section h4{margin:0 0 1rem;font-size:.94rem;font-weight:700;color:#f1f3fb}
+.foot2-section a{display:block;margin-bottom:.95rem;color:#8b9bb3;font-size:.9rem;font-weight:400;text-decoration:none}
+.foot2-section a:last-child{margin-bottom:0}
+.foot2-social-youtube{color:#ff858b}
+.foot2-social-tiktok{color:#68d9ee}
+.foot2-social-facebook{color:#83aaf8}
+.foot2-social-wattpad{color:#ff7f91}
+
+.foot2-rule{width:100%;max-width:1180px;margin:2.2rem auto 0;height:1px;background:var(--line)}
+.foot2-rule-top{margin:0 auto 2.4rem;background:linear-gradient(90deg,transparent,rgba(149,137,230,.55) 15%,rgba(104,217,238,.5) 85%,transparent)}
+.foot2-copy{margin:1.25rem 1rem 0;text-align:center;color:#718198;font-size:.68rem;line-height:1.6}

@@ -1,0 +1,176 @@
+/* ViCamBachGiai — glass shelves for same-author and recommended stories. */
+.story-page .info-more{
+  display:flex;
+  width:100%;
+  min-height:44px;
+  margin-top:.85rem;
+  padding:.55rem .85rem;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(168,154,230,.3);
+  border-radius:11px;
+  background:linear-gradient(180deg,rgba(24,21,46,.48),rgba(13,15,29,.55));
+  color:#cbb9ff;
+  font-size:.88rem;
+  font-weight:650;
+  line-height:1.2;
+  text-align:center;
+}
+
+.story-page .info-more:active{
+  border-color:rgba(192,174,255,.58);
+  background:rgba(42,34,78,.52);
+}
+
+.story-page .same-author{
+  margin-top:1rem;
+  padding:clamp(.85rem,3vw,1.15rem);
+  border:1px solid rgba(168,154,230,.27);
+  border-radius:16px;
+  background:
+    radial-gradient(90% 115% at 100% 0%,rgba(129,116,216,.13),transparent 58%),
+    linear-gradient(180deg,rgba(17,20,38,.94),rgba(10,13,26,.97));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 14px 32px rgba(0,0,0,.16);
+  overflow:hidden;
+}
+
+.story-page .same-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.6rem;
+  margin-bottom:.8rem;
+}
+
+.story-page .same-head h3{
+  display:flex;
+  align-items:center;
+  gap:.55rem;
+  margin:0;
+  color:#f0edff;
+  font-size:clamp(.82rem,2.8vw,1rem);
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.story-page .same-head h3::before{
+  content:"";
+  width:1.4rem;
+  height:3px;
+  flex:0 0 auto;
+  border-radius:999px;
+  background:linear-gradient(90deg,#9b70ff,#c5a9ff);
+  box-shadow:0 0 10px rgba(155,112,255,.7);
+}
+
+.story-page .same-head span{color:#9199ad;font-size:.78rem}
+
+.story-page .same-rail{
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:clamp(94px,25vw,116px);
+  gap:.72rem;
+  overflow-x:auto;
+  padding:.12rem .1rem .28rem;
+  scroll-snap-type:x proximity;
+  scrollbar-width:none;
+  overscroll-behavior-inline:contain;
+  -webkit-overflow-scrolling:touch;
+}
+
+.story-page .same-rail::-webkit-scrollbar{display:none}
+
+.story-page .same-card{
+  display:block;
+  min-width:0;
+  padding:.34rem .34rem .45rem;
+  color:inherit;
+  border:1px solid rgba(168,154,230,.22);
+  border-radius:11px;
+  background:linear-gradient(180deg,rgba(20,23,42,.88),rgba(12,15,29,.94));
+  box-shadow:0 8px 20px rgba(0,0,0,.2);
+  scroll-snap-align:start;
+}
+
+.story-page .same-card:active{
+  transform:translateY(-2px);
+  border-color:rgba(183,160,255,.55);
+  box-shadow:0 10px 24px rgba(42,30,95,.28),0 0 0 1px rgba(155,112,255,.12);
+}
+
+.story-page .same-card .cover-frame{
+  display:block;
+  width:100%;
+  height:auto;
+  aspect-ratio:2/3;
+  overflow:hidden;
+  border-radius:8px;
+  background:#0b0e19;
+}
+
+.story-page .same-card .cover-frame img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.story-page .same-card b{
+  min-height:2.5em;
+  margin-top:.42rem;
+  overflow:hidden;
+  color:#f0f1f8;
+  font-size:.72rem;
+  line-height:1.25;
+  font-weight:600;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+}
+
+.story-page .same-card small{
+  display:block;
+  margin-top:.18rem;
+  overflow:hidden;
+  color:#8f97aa;
+  font-size:.64rem;
+  line-height:1.25;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.story-page .same-card em{
+  display:inline-flex;
+  align-items:center;
+  gap:.25rem;
+  max-width:100%;
+  margin-top:.42rem;
+  padding:.16rem .38rem;
+  overflow:hidden;
+  border:1px solid rgba(168,154,230,.28);
+  border-radius:999px;
+  color:#aaa7bd;
+  font-size:.56rem;
+  font-style:normal;
+  line-height:1;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.story-page .same-card em::before{
+  content:"";
+  width:5px;
+  height:5px;
+  flex:0 0 auto;
+  border-radius:50%;
+  background:#9b70ff;
+  box-shadow:0 0 7px rgba(155,112,255,.7);
+}
+
+.story-page .recommended-stories{margin-top:1rem}
+
+/* The dedicated right rail has its own compact design in landscape. */
+@media (min-width:640px) and (max-width:1366px) and (orientation:landscape){
+  .story-page .same-author{display:none}
+}

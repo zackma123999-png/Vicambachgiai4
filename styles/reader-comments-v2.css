@@ -1,0 +1,174 @@
+/* ViCamBachGiai reader comments v2 — contextual, themed, non-intrusive. */
+.reader-page .r-p .p-bubble {
+  right: -0.25rem !important;
+  top: 50% !important;
+  width: 2.2rem !important;
+  min-width: 2.2rem !important;
+  height: 2.2rem !important;
+  min-height: 2.2rem !important;
+  padding: 0 .38rem !important;
+  border: 1.5px solid color-mix(in srgb, var(--raccent) 82%, white 18%) !important;
+  background: color-mix(in srgb, var(--rbg) 94%, transparent) !important;
+  color: var(--raccent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--raccent) 8%, transparent), 0 5px 18px rgba(0,0,0,.12) !important;
+  font-size: .72rem !important;
+  font-weight: 700;
+  transform: translate(34%, -50%) scale(.9) !important;
+  backdrop-filter: blur(10px);
+}
+.reader-page .r-p .p-bubble::before,
+.reader-page .r-p .p-bubble.has::before { content: "" !important; }
+.reader-page .r-p .p-bubble::after {
+  content: "💬";
+  font-size: .9rem;
+  line-height: 1;
+  filter: saturate(.8);
+}
+.reader-page .r-p.is-comment-target .p-bubble {
+  transform: translate(34%, -50%) scale(1) !important;
+  opacity: 1 !important;
+}
+.reader-page .r-p.is-comment-target {
+  background: color-mix(in srgb, var(--raccent) 3.5%, transparent);
+  border-radius: .55rem;
+}
+
+.vc-cmt-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(5,7,15,.38);
+  backdrop-filter: blur(2px);
+  animation: vcFade .16s ease both;
+}
+.vc-cmt-panel {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  z-index: 1201;
+  width: min(48rem, 100%);
+  max-height: min(88dvh, 54rem);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-50%);
+  color: var(--rtext);
+  background: color-mix(in srgb, var(--rbg) 97%, var(--raccent) 3%);
+  border: 1px solid color-mix(in srgb, var(--rmuted) 22%, transparent);
+  border-bottom: 0;
+  border-radius: 1.4rem 1.4rem 0 0;
+  box-shadow: 0 -18px 60px rgba(0,0,0,.18);
+  overflow: hidden;
+  animation: vcCmtUp .22s cubic-bezier(.2,.8,.2,1) both;
+}
+.vc-cmt-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 13%;
+  right: 13%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--raccent) 70%, transparent), transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--raccent) 35%, transparent);
+}
+.vc-cmt-grab {
+  width: 2.8rem;
+  height: .26rem;
+  border-radius: 999px;
+  margin: .55rem auto .1rem;
+  background: color-mix(in srgb, var(--rmuted) 42%, transparent);
+}
+.vc-cmt-head {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .65rem 1rem .75rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--rmuted) 14%, transparent);
+}
+.vc-cmt-head h3 { margin: 0; font: 700 1.02rem/1.2 "Be Vietnam Pro",sans-serif; }
+.vc-cmt-count { color: var(--rmuted); font: 500 .78rem/1 "Be Vietnam Pro",sans-serif; }
+.vc-cmt-close {
+  margin-left: auto;
+  width: 2.2rem; height: 2.2rem;
+  border: 0; border-radius: 50%;
+  color: var(--rtext);
+  background: color-mix(in srgb, var(--rmuted) 9%, transparent);
+  font-size: 1.35rem;
+}
+.vc-cmt-scroll { overflow: auto; overscroll-behavior: contain; padding: .9rem 1rem 5.6rem; }
+.vc-cmt-quote {
+  position: relative;
+  margin-bottom: .85rem;
+  padding: .78rem .9rem .72rem 1rem;
+  border-radius: .8rem;
+  background: color-mix(in srgb, var(--raccent) 5%, var(--rbg));
+  border: 1px solid color-mix(in srgb, var(--rmuted) 13%, transparent);
+}
+.vc-cmt-quote::before {
+  content: "";
+  position: absolute; left: 0; top: .5rem; bottom: .5rem; width: 2px;
+  border-radius: 4px;
+  background: linear-gradient(var(--raccent), color-mix(in srgb, var(--raccent) 20%, transparent));
+}
+.vc-cmt-quote p {
+  margin: 0;
+  font: italic 500 .96rem/1.62 "Source Serif 4",serif;
+  display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+}
+.vc-cmt-quote.is-open p { display: block; }
+.vc-cmt-meta { display:flex; align-items:center; gap:.42rem; flex-wrap:wrap; margin-top:.55rem; color:var(--rmuted); font:500 .72rem/1.4 "Be Vietnam Pro",sans-serif; }
+.vc-cmt-expand { margin-left:auto; border:0; background:transparent; color:var(--raccent); font:600 .72rem/1.2 "Be Vietnam Pro",sans-serif; }
+.vc-react-wrap { display:flex; align-items:center; gap:.5rem; margin:.15rem 0 1rem; flex-wrap:wrap; }
+.vc-react-label { color:var(--rmuted); font:600 .72rem/1 "Be Vietnam Pro",sans-serif; }
+.vc-reactions { display:flex; gap:.18rem; padding:.22rem; border-radius:999px; background:color-mix(in srgb,var(--rmuted) 7%,transparent); }
+.vc-reaction {
+  width:2rem; height:2rem; display:grid; place-items:center; padding:0;
+  border:1px solid transparent; border-radius:50%; background:transparent; font-size:1rem;
+  transition:transform .12s ease,background .12s ease,border-color .12s ease;
+}
+.vc-reaction:active { transform:scale(.9); }
+.vc-reaction.on { background:color-mix(in srgb,var(--raccent) 12%,transparent); border-color:color-mix(in srgb,var(--raccent) 42%,transparent); }
+.vc-react-summary { color:var(--rmuted); font:500 .72rem/1.3 "Be Vietnam Pro",sans-serif; }
+.vc-cmt-list-head { display:flex; align-items:center; justify-content:space-between; margin:.2rem 0 .4rem; color:var(--rmuted); font:600 .72rem/1 "Be Vietnam Pro",sans-serif; }
+.vc-cmt-item { position:relative; padding:.72rem 0 .72rem 2.65rem; border-bottom:1px solid color-mix(in srgb,var(--rmuted) 10%,transparent); }
+.vc-cmt-avatar { position:absolute; left:0; top:.72rem; width:2rem; height:2rem; border-radius:50%; display:grid; place-items:center; background:color-mix(in srgb,var(--raccent) 15%,var(--rbg)); border:1px solid color-mix(in srgb,var(--raccent) 25%,transparent); color:var(--raccent); font:700 .78rem/1 "Be Vietnam Pro",sans-serif; overflow:hidden; }
+.vc-cmt-avatar img { width:100%; height:100%; object-fit:cover; }
+.vc-cmt-who { display:flex; align-items:baseline; gap:.45rem; font-family:"Be Vietnam Pro",sans-serif; }
+.vc-cmt-who b { font-size:.79rem; }
+.vc-cmt-time { color:var(--rmuted); font-size:.68rem; }
+.vc-cmt-body { margin:.28rem 0 .45rem; white-space:pre-wrap; font:400 .9rem/1.58 "Be Vietnam Pro",sans-serif; }
+.vc-cmt-actions { display:flex; gap:.75rem; align-items:center; }
+.vc-cmt-actions button { border:0; padding:.15rem 0; background:transparent; color:var(--rmuted); font:600 .7rem/1 "Be Vietnam Pro",sans-serif; }
+.vc-cmt-actions button.on { color:var(--raccent); }
+.vc-cmt-replies { margin-top:.55rem; padding-left:.7rem; border-left:1px solid color-mix(in srgb,var(--raccent) 23%,transparent); }
+.vc-cmt-reply { padding:.45rem 0; }
+.vc-cmt-reply .vc-cmt-body { margin:.18rem 0; font-size:.84rem; }
+.vc-cmt-empty { padding:1.5rem 0; text-align:center; color:var(--rmuted); font:500 .85rem/1.5 "Be Vietnam Pro",sans-serif; }
+.vc-reply-box { display:flex; gap:.4rem; margin-top:.55rem; }
+.vc-reply-box input { flex:1; min-width:0; border:1px solid color-mix(in srgb,var(--rmuted) 20%,transparent); border-radius:999px; padding:.55rem .7rem; color:var(--rtext); background:transparent; }
+.vc-reply-box button { border:0; border-radius:999px; padding:.5rem .72rem; color:white; background:var(--raccent); }
+.vc-cmt-compose {
+  position:absolute; left:0; right:0; bottom:0;
+  display:flex; align-items:flex-end; gap:.45rem;
+  padding:.65rem max(1rem,env(safe-area-inset-left)) calc(.65rem + env(safe-area-inset-bottom));
+  background:linear-gradient(transparent,color-mix(in srgb,var(--rbg) 96%,var(--raccent) 4%) 26%);
+}
+.vc-cmt-compose textarea {
+  flex:1; min-height:2.55rem; max-height:8rem; resize:none;
+  border:1px solid color-mix(in srgb,var(--rmuted) 22%,transparent);
+  border-radius:1.2rem; padding:.68rem .85rem; outline:none;
+  color:var(--rtext); background:color-mix(in srgb,var(--rbg) 94%,transparent);
+  font:400 .82rem/1.4 "Be Vietnam Pro",sans-serif;
+}
+.vc-cmt-compose textarea:focus { border-color:color-mix(in srgb,var(--raccent) 65%,transparent); box-shadow:0 0 0 3px color-mix(in srgb,var(--raccent) 8%,transparent); }
+.vc-cmt-send { flex:0 0 2.55rem; width:2.55rem; height:2.55rem; border:0; border-radius:50%; color:white; background:linear-gradient(145deg,color-mix(in srgb,var(--raccent) 82%,#b64cff),var(--raccent)); box-shadow:0 6px 18px color-mix(in srgb,var(--raccent) 30%,transparent); font-size:1rem; }
+.vc-cmt-login { display:block; margin:.7rem 1rem calc(.7rem + env(safe-area-inset-bottom)); padding:.75rem; border-radius:1rem; text-align:center; color:var(--raccent); background:color-mix(in srgb,var(--raccent) 7%,transparent); font:600 .78rem/1.4 "Be Vietnam Pro",sans-serif; }
+@keyframes vcFade { from{opacity:0} to{opacity:1} }
+@keyframes vcCmtUp { from{opacity:.6;transform:translate(-50%,24px)} to{opacity:1;transform:translate(-50%,0)} }
+@media (min-width: 760px) {
+  .vc-cmt-panel { bottom:1rem; border-radius:1.4rem; max-height:min(82dvh,54rem); }
+  .vc-cmt-scroll { padding-left:1.25rem; padding-right:1.25rem; }
+}
+@media (max-width: 640px) {
+  .reader-page .r-p .p-bubble { right: -.05rem !important; }
+  .vc-cmt-panel { width:100%; max-height:86dvh; }
+}

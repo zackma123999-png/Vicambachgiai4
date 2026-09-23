@@ -1,0 +1,49 @@
+/* Fix hero banner in short landscape viewports only.
+   Keep the fan fully inside the banner instead of letting tablet/desktop
+   card sizes overflow the reduced landscape hero height. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .hero.stack-hero {
+    height: 19.2rem;
+  }
+
+  .hero.stack-hero .stack-card {
+    top: 49%;
+    width: 9.8rem;
+    height: 15.8rem;
+    transform:
+      translate(-50%, -50%)
+      translateX(calc(var(--d) * 3.7rem))
+      rotate(calc(var(--d) * 11deg))
+      scale(calc(0.88 - var(--abs) * 0.04));
+  }
+
+  .hero.stack-hero .stack-card.is-active {
+    width: 11.7rem;
+    height: 17.4rem;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+
+  .hero.stack-hero .stack-body {
+    padding: 0.62rem 0.7rem 0.72rem;
+  }
+
+  .hero.stack-hero .stack-title {
+    font-size: 1.08rem;
+  }
+
+  .hero.stack-hero .stack-syn {
+    font-size: 0.68rem;
+    line-height: 1.35;
+    -webkit-line-clamp: 2;
+  }
+
+  .hero.stack-hero .stack-actions {
+    margin-top: 0.48rem;
+  }
+
+  .hero.stack-hero .stack-actions .btn {
+    min-height: 30px;
+    padding: 0 0.58rem;
+    font-size: 0.68rem;
+  }
+}

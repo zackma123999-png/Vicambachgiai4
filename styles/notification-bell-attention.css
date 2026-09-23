@@ -1,0 +1,30 @@
+@keyframes vc-bell-ring {
+  0%, 62%, 100% { transform: rotate(0deg); }
+  66% { transform: rotate(15deg); }
+  70% { transform: rotate(-13deg); }
+  74% { transform: rotate(10deg); }
+  78% { transform: rotate(-7deg); }
+  82% { transform: rotate(4deg); }
+  86% { transform: rotate(0deg); }
+}
+
+@keyframes vc-bell-glow {
+  0%, 62%, 100% { box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), 0 0 10px rgba(156,111,255,.3), 0 0 22px rgba(128,86,230,.16); }
+  74% { box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 0 16px rgba(180,142,255,.7), 0 0 34px rgba(128,86,230,.38); }
+}
+
+.vc-notification-bell.has-unread {
+  animation: vc-bell-glow 2.6s ease-in-out infinite;
+}
+
+.vc-notification-bell.has-unread > svg {
+  transform-origin: 50% 14%;
+  animation: vc-bell-ring 2.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vc-notification-bell.has-unread,
+  .vc-notification-bell.has-unread > svg {
+    animation: none;
+  }
+}

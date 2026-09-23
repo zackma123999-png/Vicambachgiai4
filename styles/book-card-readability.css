@@ -1,0 +1,165 @@
+/* Book-card readability + landscape grid only.
+   Scope is intentionally limited to the three homepage story lists/cards.
+   Does NOT target the hero/banner, header, auth, comments, reader controls, or other features. */
+
+/* ---------- Base / mobile: preserve current horizontal browsing behaviour ---------- */
+.wide-card {
+  grid-template-columns: minmax(8.35rem, 39%) minmax(0, 1fr);
+  gap: 0.5rem 0.58rem;
+  padding: 0.52rem 0.55rem 0.58rem;
+  align-items: stretch;
+}
+
+.wide-cover {
+  align-self: start;
+  min-width: 0;
+}
+
+/* Cover ratio is immutable: width determines height; card height never stretches the image. */
+.wide-cover .cover-frame {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+}
+
+.wide-cover .cover-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+}
+
+/* Information fills the same card row and distributes content from top to bottom. */
+.wide-body {
+  min-width: 0;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 0.34rem;
+}
+
+.wide-title h3 {
+  font-size: clamp(1.18rem, 4.75vw, 1.62rem);
+  line-height: 1.08;
+  font-weight: 600;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.wide-body .by {
+  font-size: clamp(0.84rem, 2.55vw, 1rem);
+  line-height: 1.3;
+}
+
+.wide-card .pill {
+  font-size: clamp(0.7rem, 2.05vw, 0.82rem);
+  padding: 0.18rem 0.52rem;
+}
+
+.wide-stats {
+  font-size: clamp(0.76rem, 2.05vw, 0.88rem);
+}
+
+.wide-latest {
+  margin-top: auto;
+  font-size: clamp(0.76rem, 2.05vw, 0.88rem);
+  padding: 0.4rem 0.52rem 0.42rem;
+}
+
+/* Very narrow portrait phones: keep enough room for text. */
+@media (max-width: 380px) {
+  .wide-card {
+    grid-template-columns: minmax(7.75rem, 38%) minmax(0, 1fr);
+    gap: 0.45rem;
+    padding: 0.48rem;
+  }
+
+  .wide-title { padding-right: 1.35rem; }
+  .wide-title h3 { font-size: clamp(1.08rem, 4.7vw, 1.28rem); }
+  .wide-body .by { font-size: clamp(0.78rem, 2.6vw, 0.9rem); }
+}
+
+/* ---------- Landscape/tablet: convert only the story list itself into a fluid grid ---------- */
+@media (orientation: landscape) and (min-width: 820px) {
+  .rail {
+    display: grid;
+    grid-auto-flow: row;
+    grid-auto-columns: unset;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(0.7rem, 1.2vw, 1rem);
+    overflow: visible;
+    scroll-snap-type: none;
+    padding-bottom: 0;
+  }
+
+  /* All cards are visible in grid mode, so the carousel progress indicator is no longer meaningful. */
+  .rail-panel .rail-foot {
+    display: none;
+  }
+
+  .wide-card {
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: clamp(6.8rem, 34%, 8.6rem) minmax(0, 1fr);
+    gap: clamp(0.5rem, 0.75vw, 0.68rem);
+    padding: clamp(0.48rem, 0.7vw, 0.62rem);
+    align-items: stretch;
+  }
+
+  .wide-body {
+    height: 100%;
+    justify-content: flex-start;
+    gap: clamp(0.2rem, 0.42vw, 0.34rem);
+  }
+
+  .wide-title h3 {
+    font-size: clamp(1rem, 1.45vw, 1.28rem);
+    line-height: 1.08;
+    -webkit-line-clamp: 3;
+  }
+
+  .wide-body .by {
+    font-size: clamp(0.76rem, 1.05vw, 0.9rem);
+    line-height: 1.22;
+  }
+
+  .wide-card .pill {
+    font-size: clamp(0.62rem, 0.82vw, 0.74rem);
+    padding: 0.14rem 0.42rem;
+  }
+
+  .wide-stats,
+  .wide-latest {
+    font-size: clamp(0.68rem, 0.82vw, 0.8rem);
+  }
+
+  .wide-latest {
+    margin-top: auto;
+    padding: 0.34rem 0.44rem 0.36rem;
+  }
+}
+
+/* Large desktop: use the extra width for a fourth card, not for oversized cards/covers. */
+@media (orientation: landscape) and (min-width: 1440px) {
+  .rail {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .wide-card {
+    grid-template-columns: clamp(6.9rem, 32%, 8.8rem) minmax(0, 1fr);
+  }
+
+  .wide-title h3 {
+    font-size: clamp(1.02rem, 1.05vw, 1.3rem);
+  }
+
+  .wide-body .by {
+    font-size: clamp(0.78rem, 0.72vw, 0.92rem);
+  }
+}

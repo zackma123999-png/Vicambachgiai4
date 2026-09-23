@@ -1,0 +1,49 @@
+/* Hamburger icon: three bars morphing into a close mark via aria-expanded. */
+.menu-btn-bars{position:relative;display:block;width:19px;height:13px}
+.menu-btn-bars i{position:absolute;left:0;right:0;height:2px;border-radius:2px;background:currentColor;transition:transform .25s ease,opacity .2s ease,top .25s ease}
+.menu-btn-bars i:nth-child(1){top:0}
+.menu-btn-bars i:nth-child(2){top:5.5px}
+.menu-btn-bars i:nth-child(3){top:11px}
+.menu-btn[aria-expanded="true"] .menu-btn-bars i:nth-child(1){top:5.5px;transform:rotate(45deg)}
+.menu-btn[aria-expanded="true"] .menu-btn-bars i:nth-child(2){opacity:0}
+.menu-btn[aria-expanded="true"] .menu-btn-bars i:nth-child(3){top:5.5px;transform:rotate(-45deg)}
+@media(prefers-reduced-motion:reduce){ .menu-btn-bars i{transition:none} }
+
+/* Dropdown panel: glass card with grouped, iconized items instead of a flat link list. */
+.mobile-menu{
+  top:calc(64px + env(safe-area-inset-top,0px));
+  left:.6rem;right:.6rem;
+  background:linear-gradient(165deg,rgba(15,25,43,.97),rgba(7,13,24,.99));
+  border:1px solid rgba(140,170,210,.18);
+  border-radius:1.1rem;
+  box-shadow:0 1.2rem 2.6rem rgba(0,0,0,.42),inset 0 1px rgba(255,255,255,.04);
+  padding:.65rem;
+  gap:0;
+  overflow:hidden;
+}
+.mobile-menu::before{
+  content:"";display:block;height:2px;margin:-.65rem -.65rem .55rem;
+  background:linear-gradient(90deg,#43dfe9,#b965ed 60%,transparent);
+}
+.mm-group{display:flex;flex-direction:column;gap:.1rem;padding:.2rem 0}
+.mm-group+.mm-group{border-top:1px solid rgba(140,170,210,.14);margin-top:.2rem;padding-top:.5rem}
+.mm-item{
+  display:flex;align-items:center;gap:.75rem;width:100%;text-align:left;
+  padding:.7rem .6rem;border-radius:.75rem;background:transparent;border:0;
+  color:#e7ecf6;font:500 .98rem/1.1 "Be Vietnam Pro",system-ui,sans-serif;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s ease;
+}
+.mm-item:hover,.mm-item:active{background:rgba(140,170,210,.09)}
+.mm-item:focus-visible{outline:1px solid #9589e6;outline-offset:2px}
+.mm-item svg{
+  flex:0 0 auto;width:1.3rem;height:1.3rem;color:#8fa9c2;
+  fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
+}
+.mm-item span{flex:1;min-width:0}
+#menuResonanceBtn svg{color:#43dfe9}
+.mm-item-dot{
+  margin-left:auto;width:.5rem;height:.5rem;border-radius:50%;background:#43dfe9;flex:0 0 auto;
+  animation:mmDotPulse 2.4s ease-out infinite;
+}
+@keyframes mmDotPulse{0%{box-shadow:0 0 0 0 rgba(67,223,233,.45)}70%{box-shadow:0 0 0 6px rgba(67,223,233,0)}100%{box-shadow:0 0 0 0 rgba(67,223,233,0)}}
+@media(prefers-reduced-motion:reduce){ .mm-item-dot{animation:none} }

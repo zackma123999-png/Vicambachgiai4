@@ -1,0 +1,61 @@
+/* Kim Bài: covers, copy and status tags share one top edge; labels stay complete. */
+#app .medal-pick-cover,
+#app .medal-pick-copy,
+#app .medal-pick-status {
+  align-self: start !important;
+}
+
+#app .medal-pick-status {
+  width: max-content !important;
+  max-width: none !important;
+  overflow: visible !important;
+  margin-top: 0 !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 760px) {
+  #app .medal-pick {
+    align-items: start !important;
+  }
+  #app .medal-pick-cover {
+    grid-row: 1 / span 2;
+  }
+  #app .medal-pick-copy,
+  #app .medal-pick-status {
+    grid-row: 1;
+  }
+  #app .medal-pick-status {
+    justify-self: end;
+    padding: .32rem .48rem !important;
+    font-size: clamp(.52rem, 2.25vw, .6rem) !important;
+  }
+}
+
+@media (max-width: 380px) {
+  #app .medal-pick {
+    grid-template-columns: 1.7rem 2.4rem minmax(0,1fr) auto !important;
+    column-gap: .42rem !important;
+  }
+  #app .medal-pick-cover { --medal-cover-w: 2.4rem; }
+  #app .medal-pick-status {
+    padding-inline: .38rem !important;
+    font-size: .5rem !important;
+  }
+}
+
+@media (min-width: 900px) and (orientation: landscape) {
+  #app .home-desktop-side .medal-pick-cover,
+  #app .home-desktop-side .medal-pick-copy {
+    align-self: start !important;
+  }
+}
+
+/* Audio tag starts on the same vertical edge as the small cover. */
+@media (max-width: 760px) {
+  #app .medal-tiktok-button {
+    grid-column: 2 / 5 !important;
+    width: 100% !important;
+    justify-self: stretch !important;
+  }
+}

@@ -1,0 +1,45 @@
+/* Fast, GPU-friendly story-cover transition. */
+.vc-card-flip-stage{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  pointer-events:none;
+  background:rgba(3,6,14,.2);
+  perspective:900px;
+  animation:vc-stage-in 90ms ease-out both;
+}
+
+.vc-card-flip-card{
+  position:fixed;
+  left:var(--flip-left);
+  top:var(--flip-top);
+  width:var(--flip-width);
+  height:var(--flip-height);
+  overflow:hidden;
+  border:1px solid rgba(183,157,255,.58);
+  border-radius:var(--flip-radius,10px);
+  background:#090d18;
+  box-shadow:0 14px 34px rgba(0,0,0,.44),0 0 18px rgba(137,99,245,.2);
+  transform-origin:50% 50%;
+  backface-visibility:hidden;
+  will-change:transform,opacity;
+  animation:vc-card-flip 240ms cubic-bezier(.2,.72,.2,1) both;
+}
+
+.vc-card-flip-card img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+@keyframes vc-stage-in{from{background:rgba(3,6,14,0)}to{background:rgba(3,6,14,.2)}}
+@keyframes vc-card-flip{
+  0%{transform:translateZ(0) rotateY(0) scale(1);opacity:1}
+  68%{transform:translateZ(38px) rotateY(-92deg) scale(1.055);opacity:1}
+  100%{transform:translateZ(52px) rotateY(-132deg) scale(1.075);opacity:.12}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .vc-card-flip-stage,.vc-card-flip-card{animation:none!important}
+}

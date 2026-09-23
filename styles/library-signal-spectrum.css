@@ -1,0 +1,250 @@
+/* ViCamBachGiai — restrained colour system for the homepage story library. */
+.home-signal-label {
+  padding-top: .9rem;
+}
+
+.home-signal-label span {
+  position: relative;
+  min-height: 36px;
+  padding: .42rem .9rem;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(120deg, rgba(18,14,39,.92), rgba(7,20,37,.92)) padding-box,
+    linear-gradient(105deg, rgba(202,98,255,.72), rgba(113,111,241,.58), rgba(74,205,244,.78)) border-box;
+  color: #b9a2ff;
+  box-shadow: 0 0 18px rgba(130,91,230,.1), inset 0 1px 0 rgba(255,255,255,.035);
+  letter-spacing: .14em;
+}
+
+.rail-panel {
+  --shelf-a: #9f67f4;
+  --shelf-b: #43b9f5;
+  --shelf-warm: #d9ad68;
+  --shelf-text: #bba7ff;
+  --shelf-wash: rgba(115,71,202,.15);
+}
+
+/* Đang lên sóng — violet, blue and champagne. */
+.rail-panel.tone-cyan {
+  --shelf-a: #a965f3;
+  --shelf-b: #39b9fa;
+  --shelf-warm: #dda95d;
+  --shelf-text: #bda5ff;
+  --shelf-wash: rgba(115,63,202,.17);
+}
+
+/* Đã hoàn thành — jade, turquoise and muted gold. */
+.rail-panel.tone-violet {
+  --shelf-a: #27c8c5;
+  --shelf-b: #58d39d;
+  --shelf-warm: #d5bd66;
+  --shelf-text: #69ded5;
+  --shelf-wash: rgba(14,137,130,.16);
+}
+
+/* Sắp ra mắt — sapphire, lavender and soft coral. */
+.rail-panel.tone-blue {
+  --shelf-a: #5988f5;
+  --shelf-b: #a277eb;
+  --shelf-warm: #db8a7d;
+  --shelf-text: #9db9ff;
+  --shelf-wash: rgba(55,92,184,.16);
+}
+
+.rail-panel.tone-cyan,
+.rail-panel.tone-violet,
+.rail-panel.tone-blue {
+  position: relative;
+  border: 1px solid transparent !important;
+  background:
+    radial-gradient(75% 78% at 8% 8%, var(--shelf-wash), transparent 68%) padding-box,
+    linear-gradient(180deg, rgba(7,9,22,.92), rgba(4,8,18,.97)) padding-box,
+    linear-gradient(120deg, color-mix(in srgb,var(--shelf-a) 82%,transparent), rgba(116,102,176,.25) 55%, color-mix(in srgb,var(--shelf-warm) 74%,transparent)) border-box !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 16px 38px rgba(0,0,0,.18) !important;
+}
+
+.rail-panel.tone-cyan::before,
+.rail-panel.tone-violet::before,
+.rail-panel.tone-blue::before {
+  inset: -25% -8%;
+  opacity: .7;
+  background:
+    radial-gradient(44% 55% at 12% 14%, var(--shelf-wash), transparent 72%),
+    radial-gradient(35% 48% at 90% 92%, color-mix(in srgb,var(--shelf-warm) 7%,transparent), transparent 74%);
+  filter: blur(7px);
+}
+
+.rail-panel.tone-cyan::after,
+.rail-panel.tone-violet::after,
+.rail-panel.tone-blue::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 6%;
+  width: 88%;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--shelf-a), var(--shelf-b) 58%, var(--shelf-warm), transparent);
+  opacity: .72;
+}
+
+.rail-panel .rail-head {
+  position: relative;
+  z-index: 1;
+}
+
+.rail-panel .live-dot {
+  width: 9px;
+  height: 9px;
+  background: var(--shelf-a) !important;
+  box-shadow: 0 0 6px var(--shelf-a), 0 0 15px color-mix(in srgb,var(--shelf-a) 58%,transparent) !important;
+}
+
+.rail-panel .rail-head .count {
+  margin-left: auto;
+  padding: .25rem .58rem;
+  border: 1px solid color-mix(in srgb,var(--shelf-a) 45%,transparent);
+  border-radius: .55rem;
+  background: color-mix(in srgb,var(--shelf-a) 10%,rgba(5,9,19,.62));
+  color: var(--shelf-text);
+  line-height: 1.2;
+}
+
+.rail-panel .wide-card {
+  border: 1px solid transparent !important;
+  background:
+    linear-gradient(145deg, rgba(6,8,19,.94), rgba(3,8,17,.96)) padding-box,
+    linear-gradient(132deg, color-mix(in srgb,var(--shelf-a) 58%,transparent), rgba(129,113,173,.2) 50%, color-mix(in srgb,var(--shelf-warm) 48%,transparent)) border-box !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 10px 26px rgba(0,0,0,.17) !important;
+}
+
+.rail-panel .wide-card:is(.is-selected, :active, :focus-within) {
+  border-color: transparent !important;
+  background:
+    linear-gradient(145deg, color-mix(in srgb,var(--shelf-a) 9%,rgba(6,8,19,.96)), rgba(3,8,17,.97)) padding-box,
+    linear-gradient(125deg, var(--shelf-a), var(--shelf-b) 58%, var(--shelf-warm)) border-box !important;
+  box-shadow: 0 0 22px color-mix(in srgb,var(--shelf-a) 20%,transparent), inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+
+/* Touch glow inherits the palette of its own shelf instead of the old global purple. */
+.rail-panel .wide-card::before {
+  background: radial-gradient(
+    72% 88% at 34% 48%,
+    color-mix(in srgb,var(--shelf-a) 31%,transparent),
+    color-mix(in srgb,var(--shelf-b) 12%,transparent) 48%,
+    transparent 76%
+  ) !important;
+}
+
+.rail-panel .wide-card::after {
+  background: linear-gradient(90deg,var(--shelf-a),var(--shelf-b)) !important;
+  filter: blur(9px);
+}
+
+.rail-panel .wide-card:is(.is-selected, :active, :focus-within)::before,
+.rail-panel .wide-card:is(.is-selected, :active, :focus-within)::after {
+  opacity: 1;
+}
+
+.rail-panel .wide-card:is(.is-selected, :active, :focus-within) .cover-frame {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb,var(--shelf-a) 84%,#ffffff),
+    0 12px 24px rgba(0,0,0,.32),
+    0 0 23px color-mix(in srgb,var(--shelf-a) 38%,transparent),
+    0 0 34px color-mix(in srgb,var(--shelf-b) 16%,transparent) !important;
+}
+
+.rail-panel.is-glowing {
+  border-color: transparent !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.055),
+    0 0 26px color-mix(in srgb,var(--shelf-a) 13%,transparent) !important;
+}
+
+.rail-panel.is-glowing .rail-track span,
+.rail-panel:has(.wide-card:active) .rail-track span,
+.rail-panel:has(.wide-card:focus-within) .rail-track span {
+  box-shadow: 0 0 14px color-mix(in srgb,var(--shelf-a) 52%,transparent) !important;
+}
+
+.rail-panel .wide-cover .cover-frame {
+  box-shadow: 0 0 0 1px color-mix(in srgb,var(--shelf-warm) 25%,transparent), 0 10px 22px rgba(0,0,0,.27) !important;
+}
+
+.rail-panel .wide-body .by {
+  color: color-mix(in srgb,var(--shelf-text) 85%,#cfd8e8);
+}
+
+.rail-panel .wide-heart {
+  border-color: color-mix(in srgb,var(--shelf-a) 34%,rgba(168,180,211,.16)) !important;
+  color: color-mix(in srgb,var(--shelf-text) 80%,#f0f2fb);
+}
+
+.rail-panel .wide-card .pill-row .pill {
+  border-color: color-mix(in srgb,var(--shelf-b) 68%,transparent) !important;
+  background: color-mix(in srgb,var(--shelf-b) 10%,rgba(8,11,25,.8)) !important;
+  color: color-mix(in srgb,var(--shelf-text) 64%,#f1f4fa) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+}
+
+.rail-panel .wide-card .pill-row .pill:first-child {
+  border-color: color-mix(in srgb,var(--shelf-a) 78%,transparent) !important;
+  background: linear-gradient(180deg, color-mix(in srgb,var(--shelf-a) 40%,transparent), color-mix(in srgb,var(--shelf-a) 22%,rgba(8,10,24,.75))) !important;
+  color: #f1effb !important;
+}
+
+.rail-panel .wide-card .pill-row .pill-more {
+  border-color: color-mix(in srgb,var(--shelf-warm) 60%,transparent) !important;
+  color: color-mix(in srgb,var(--shelf-warm) 72%,#f4f0e7) !important;
+}
+
+.rail-panel .wide-stats {
+  color: color-mix(in srgb,var(--shelf-b) 66%,#a8b2c5);
+}
+
+.rail-panel .wide-stats > span:nth-child(2) {
+  color: color-mix(in srgb,var(--shelf-warm) 58%,#aab4c6);
+}
+
+.rail-panel .wide-latest {
+  border: 1px solid color-mix(in srgb,var(--shelf-warm) 34%,rgba(168,177,203,.12)) !important;
+  background: linear-gradient(120deg, color-mix(in srgb,var(--shelf-warm) 7%,rgba(6,10,20,.86)), rgba(5,9,18,.82)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+}
+
+.rail-panel .wide-latest > span {
+  color: #aeb8ca;
+}
+
+.rail-panel .wide-latest > span i {
+  background: var(--shelf-warm) !important;
+  box-shadow: 0 0 8px color-mix(in srgb,var(--shelf-warm) 58%,transparent);
+}
+
+.rail-panel .wide-latest > em {
+  color: var(--shelf-text);
+}
+
+.rail-panel .rail-track {
+  background: rgba(213,220,240,.075) !important;
+}
+
+.rail-panel .rail-track span {
+  background: linear-gradient(90deg,var(--shelf-a),var(--shelf-b)) !important;
+  box-shadow: 0 0 10px color-mix(in srgb,var(--shelf-a) 32%,transparent) !important;
+}
+
+.rail-panel .rail-foot [data-num] {
+  color: var(--shelf-text);
+}
+
+@media (max-width: 520px) {
+  .home-signal-label span { font-size: .78rem; letter-spacing: .12em; }
+  .rail-panel .rail-head .count { padding: .22rem .5rem; font-size: .72rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rail-panel .wide-card,
+  .rail-panel .wide-heart,
+  .rail-panel .rail-track span { transition: none !important; }
+}

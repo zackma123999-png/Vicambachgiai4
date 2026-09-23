@@ -1,0 +1,53 @@
+/* ViCamBachGiai — avatar picker, scoped to account only. */
+.vc-avatar-account{margin:1rem 0 1.2rem;padding:.85rem .9rem;display:grid;grid-template-columns:54px 1fr auto;gap:.8rem;align-items:center;border:1px solid rgba(167,137,255,.22);border-radius:18px;background:rgba(124,94,210,.06)}
+.vc-avatar-account-preview{width:54px;height:54px;border-radius:50%;display:block;object-fit:cover;border:1px solid rgba(172,142,255,.55);background:#15182a}
+.vc-avatar-account-copy{min-width:0;display:flex;flex-direction:column;gap:.18rem}.vc-avatar-account-copy strong{font-size:.98rem}.vc-avatar-account-copy span{font-size:.78rem;color:var(--muted,#8f98b5);line-height:1.35}
+.vc-avatar-account-btn{border:1px solid rgba(168,136,255,.45);background:rgba(132,93,220,.12);color:inherit;border-radius:999px;padding:.55rem .75rem;font:inherit;font-size:.82rem;white-space:nowrap}
+.vc-avatar-picker-backdrop{position:fixed;inset:0;z-index:99999;background:rgba(3,6,15,.68);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.vc-avatar-picker{width:min(560px,100%);max-height:min(82dvh,720px);overflow:hidden;display:flex;flex-direction:column;border:1px solid rgba(166,135,255,.3);border-radius:26px;background:#0d1221;color:#eef0ff;box-shadow:0 25px 80px rgba(0,0,0,.48)}
+.vc-avatar-picker header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1rem .8rem;border-bottom:1px solid rgba(255,255,255,.07)}.vc-avatar-picker h2{font-size:1.1rem;margin:0}.vc-avatar-picker header p{margin:.2rem 0 0;color:#8993b2;font-size:.78rem}
+.vc-avatar-close{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:transparent;color:#cbd1e8;font-size:1.35rem}
+.vc-avatar-grid{padding:1rem;overflow:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.75rem}
+.vc-avatar-option{border:1px solid transparent;border-radius:16px;padding:.45rem .25rem .5rem;background:rgba(255,255,255,.025);color:#cfd4e8;display:flex;flex-direction:column;align-items:center;gap:.38rem;font:inherit;font-size:.72rem}.vc-avatar-option img{width:62px;height:62px;border-radius:50%;display:block}.vc-avatar-option.is-selected{border-color:#9b76ff;background:rgba(140,98,255,.12);box-shadow:0 0 0 1px rgba(155,118,255,.2) inset}.vc-avatar-option.is-selected img{box-shadow:0 0 0 2px #9b76ff}
+.vc-avatar-picker footer{padding:.85rem 1rem calc(.85rem + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;gap:1rem}.vc-avatar-picker footer span{font-size:.74rem;color:#838dab}.vc-avatar-save{border:0;border-radius:999px;padding:.68rem 1rem;background:#7955db;color:#fff;font:inherit;font-weight:600}.vc-avatar-save:disabled{opacity:.38}
+@media(max-width:460px){.vc-avatar-account{grid-template-columns:50px 1fr}.vc-avatar-account-btn{grid-column:2;justify-self:start;margin-top:-.2rem}.vc-avatar-account-preview{width:50px;height:50px}.vc-avatar-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:.55rem;padding:.8rem}.vc-avatar-option img{width:54px;height:54px}.vc-avatar-option{font-size:.66rem}.vc-avatar-picker footer span{display:none}.vc-avatar-picker footer{justify-content:flex-end}}
+
+/* ViCamBachGiai — polished avatar picker v2. */
+.vc-avatar-picker-backdrop{align-items:center;padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom))}
+.vc-avatar-picker{width:min(620px,100%);max-height:min(90dvh,780px);border-color:rgba(153,111,255,.48);border-radius:28px;background:linear-gradient(180deg,#0e1425 0%,#0b1120 100%)}
+.vc-avatar-picker header{padding:1.2rem 1.25rem 1rem}.vc-avatar-picker h2{font-size:1.45rem;letter-spacing:-.02em}.vc-avatar-picker header p{font-size:.88rem;margin-top:.3rem}
+.vc-avatar-close{width:44px;height:44px;font-size:1.5rem;font-weight:600}
+.vc-avatar-grid{padding:1rem 1.1rem 1.15rem;gap:.78rem .7rem}
+.vc-avatar-option{min-width:0;border-radius:18px;padding:.5rem .2rem .6rem;gap:.42rem;font-size:.78rem;background:rgba(255,255,255,.022)}
+.vc-avatar-option img{width:min(92px,100%);aspect-ratio:1;height:auto;border:0;background:#0c1328;object-fit:cover}
+.vc-avatar-option span{display:block;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vc-avatar-option.is-admin-only{position:relative;border-color:rgba(255,62,198,.34);background:linear-gradient(180deg,rgba(255,49,194,.1),rgba(126,69,255,.07))}.vc-avatar-option.is-admin-only small{color:#ff83d6;font-size:.58rem;line-height:1;white-space:nowrap}.vc-avatar-option.is-admin-only img{filter:drop-shadow(0 0 8px rgba(255,48,194,.38))}
+.vc-avatar-option:focus-visible{outline:2px solid #b79aff;outline-offset:2px}.vc-avatar-option.is-selected{border-color:#9b76ff;background:rgba(140,98,255,.15)}
+.vc-avatar-picker footer{padding:1rem 1.2rem calc(1rem + env(safe-area-inset-bottom))}.vc-avatar-save{min-width:150px;padding:.78rem 1.2rem;font-size:.92rem;background:linear-gradient(135deg,#7955db,#643cc5)}
+@media(max-width:460px){.vc-avatar-picker{max-height:88dvh;border-radius:25px}.vc-avatar-picker header{padding:1rem}.vc-avatar-picker h2{font-size:1.25rem}.vc-avatar-grid{padding:.85rem;gap:.55rem}.vc-avatar-option{padding:.38rem .12rem .48rem;font-size:.67rem}.vc-avatar-option img{width:min(68px,100%)}.vc-avatar-save{min-width:145px}.vc-avatar-picker footer{padding:.85rem 1rem calc(.85rem + env(safe-area-inset-bottom))}}
+
+/* Single-ring rule: artwork owns the only visible purple circle. */
+.vc-avatar-account-preview,.vc-avatar-option img{border:0!important;box-shadow:none!important;background:transparent!important}
+.vc-avatar-option.is-selected img{box-shadow:none!important}
+
+/* Three-source avatar picker. */
+.vc-avatar-sources{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.55rem;padding:.85rem 1rem;border-bottom:1px solid rgba(255,255,255,.07)}
+.vc-avatar-sources button{min-width:0;display:flex;align-items:center;justify-content:center;gap:.42rem;padding:.68rem .5rem;border:1px solid rgba(165,137,255,.18);border-radius:14px;background:rgba(255,255,255,.025);color:#aab3cf;font:600 .76rem/1.2 "Be Vietnam Pro",sans-serif}
+.vc-avatar-sources button b{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;background:rgba(142,103,255,.14);color:#c3acff;font-size:.82rem}
+.vc-avatar-sources button.is-active{border-color:rgba(166,126,255,.68);background:rgba(126,82,224,.17);color:#fff;box-shadow:0 0 18px rgba(132,80,242,.13)}
+.vc-avatar-sources button.is-active b{background:linear-gradient(145deg,#9a66ff,#df45cb);color:#fff}
+.vc-avatar-panels{min-height:250px;overflow:auto}
+.vc-avatar-panel[hidden]{display:none!important}
+.vc-avatar-panel{padding:1rem}
+.vc-avatar-panel .vc-avatar-grid{padding:0;overflow:visible}
+.vc-avatar-google-card,.vc-avatar-upload-card{width:100%;min-height:92px;display:grid;grid-template-columns:66px minmax(0,1fr) auto;gap:.85rem;align-items:center;padding:.75rem;border:1px solid rgba(164,133,255,.22);border-radius:20px;background:linear-gradient(115deg,rgba(116,80,210,.12),rgba(255,255,255,.025));color:#eef0ff;text-align:left;font:inherit}
+.vc-avatar-google-card img,.vc-avatar-upload-preview,.vc-avatar-google-fallback{width:66px;height:66px;display:grid;place-items:center;border-radius:50%;object-fit:cover;background:#171d31;border:1px solid rgba(178,147,255,.35);background-size:cover;background-position:center}
+.vc-avatar-google-fallback{font:700 1.45rem/1 "Be Vietnam Pro",sans-serif;color:#d3c2ff}
+.vc-avatar-google-card span:not(.vc-avatar-google-fallback),.vc-avatar-upload-card>span:nth-child(2){min-width:0;display:flex;flex-direction:column;gap:.28rem}
+.vc-avatar-google-card b,.vc-avatar-upload-card b{font-size:.9rem}.vc-avatar-google-card small,.vc-avatar-upload-card small{color:#939dbb;font-size:.72rem;line-height:1.45}
+.vc-avatar-google-card i,.vc-avatar-upload-card i{padding:.45rem .65rem;border-radius:999px;background:rgba(139,93,234,.16);color:#c8b2ff;font-size:.69rem;font-style:normal;font-weight:650;white-space:nowrap}
+.vc-avatar-google-card.is-disabled{opacity:.55}.vc-avatar-google-card.is-selected,.vc-avatar-upload-card.is-selected{border-color:#a77dff;background:rgba(134,86,230,.18);box-shadow:0 0 0 1px rgba(167,125,255,.16) inset,0 0 22px rgba(118,69,220,.14)}
+.vc-avatar-upload-preview{font:400 1.55rem/1 system-ui,sans-serif;color:#c6afff}
+.vc-avatar-upload-card.is-busy{opacity:.68;pointer-events:none}
+.vc-avatar-upload-note{margin:.85rem .15rem 0;color:#808aa7;font-size:.7rem;line-height:1.55}
+@media(max-width:460px){.vc-avatar-sources{padding:.7rem;gap:.38rem}.vc-avatar-sources button{flex-direction:column;gap:.3rem;padding:.58rem .25rem;font-size:.65rem}.vc-avatar-panel{padding:.75rem}.vc-avatar-panels{min-height:230px}.vc-avatar-google-card,.vc-avatar-upload-card{grid-template-columns:56px minmax(0,1fr);min-height:84px;padding:.65rem;gap:.7rem}.vc-avatar-google-card img,.vc-avatar-upload-preview,.vc-avatar-google-fallback{width:56px;height:56px}.vc-avatar-google-card i,.vc-avatar-upload-card i{grid-column:2;justify-self:start;margin-top:-.2rem}.vc-avatar-google-card b,.vc-avatar-upload-card b{font-size:.8rem}.vc-avatar-google-card small,.vc-avatar-upload-card small{font-size:.66rem}}

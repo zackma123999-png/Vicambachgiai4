@@ -1,0 +1,228 @@
+/* Kim Bài Đề Cử — racing board matched to the approved mobile reference. */
+@property --medal-beam-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+#app .medal-picks {
+  position: relative; width: min(42rem, calc(100% - .25rem));
+  margin: 2.8rem auto 5.7rem !important; padding: 0 !important;
+  overflow: visible !important; border: 0 !important; border-radius: 0 !important;
+  background: none !important; box-shadow: none !important; isolation: isolate;
+}
+#app .medal-picks::after { display: none !important; }
+#app .medal-picks-head {
+  position: relative; display: flex; align-items: center; gap: .65rem;
+  margin: 0 0 1.9rem 2.7rem !important; padding: 0 4.3rem .7rem 0;
+}
+#app .medal-picks-head > div { order: 1; min-width: 0; }
+#app .medal-picks-emblem {
+  order: 2; display: grid; place-items: center; width: 2.05rem; height: 2.05rem; flex: 0 0 auto;
+  border: 1px solid rgba(242,196,82,.9); border-radius: 50%; color: #f4c95c;
+  background: rgba(233,181,58,.055); box-shadow: 0 0 1.1rem rgba(236,184,52,.18);
+}
+#app .medal-picks-head::after {
+  content: ""; position: absolute; right: .15rem; bottom: 1.05rem; width: 3.9rem; height: .75rem; opacity: .82;
+  background: linear-gradient(90deg,transparent 0 8%,#e4b84d 8% 100%) 0 0/100% 2px no-repeat,
+    linear-gradient(90deg,transparent 0 24%,#e4b84d 24% 86%,transparent 86%) 0 50%/100% 2px no-repeat,
+    linear-gradient(90deg,transparent 0 43%,#e4b84d 43% 72%,transparent 72%) 0 100%/100% 2px no-repeat;
+  filter: drop-shadow(0 0 .35rem rgba(236,188,73,.52)); transform: skewX(-29deg);
+}
+#app .medal-picks-head small {
+  display: block; margin: 0 0 .18rem; color: #aeb8cc;
+  font: 700 .61rem/1 "Be Vietnam Pro",sans-serif; letter-spacing: .25em;
+}
+#app .medal-picks-head h2 {
+  margin: 0; color: #f1d79d; font-family: var(--serif); font-size: clamp(2rem,9.2vw,2.55rem);
+  font-weight: 500; line-height: .92; letter-spacing: .01em; white-space: nowrap;
+}
+#app .medal-picks-head p {
+  margin: .45rem 0 0; color: #7f899e; font: 600 .5rem/1.2 "Be Vietnam Pro",sans-serif;
+  letter-spacing: .18em; white-space: nowrap;
+}
+#app .medal-picks-list {
+  position: relative; display: flex; flex-direction: column; align-items: stretch; gap: .72rem;
+  padding-left: 1rem; overflow: visible !important; border: 0 !important; background: none !important;
+}
+#app .medal-picks-list::before {
+  content: ""; position: absolute; z-index: 0; top: -8.3rem; bottom: -2.2rem; left: .42rem; width: .7rem; opacity: .43;
+  background: conic-gradient(from 90deg,rgba(190,201,222,.92) 0 25%,transparent 0 50%,rgba(190,201,222,.92) 0 75%,transparent 0) 0 0/.7rem .7rem;
+  -webkit-mask-image: linear-gradient(transparent,#000 6%,#000 94%,transparent);
+  mask-image: linear-gradient(transparent,#000 6%,#000 94%,transparent);
+}
+#app .medal-pick {
+  --rank-tone: #edbd4f; --race-width: calc(100% - .35rem);
+  position: relative; z-index: 1; display: grid !important;
+  grid-template-columns: 3.45rem 3rem minmax(0,1fr); grid-template-rows: auto auto;
+  align-items: center !important; column-gap: .5rem !important; row-gap: .14rem;
+  width: var(--race-width); min-height: 4.65rem !important; margin: 0 !important;
+  padding: .43rem 1.05rem .43rem .7rem !important; overflow: hidden;
+  border: 1px solid color-mix(in srgb,var(--rank-tone) 68%,#24314a) !important;
+  border-radius: .08rem .22rem .08rem .22rem !important; color: #f4f6fb;
+  background: radial-gradient(circle at 8% 52%,color-mix(in srgb,var(--rank-tone) 18%,transparent),transparent 25%),
+    linear-gradient(99deg,#121c31 0%,#091224 61%,color-mix(in srgb,var(--rank-tone) 9%,#080f1e) 100%) !important;
+  box-shadow: inset 0 1px 0 color-mix(in srgb,var(--rank-tone) 50%,transparent),
+    inset 0 -1px 0 color-mix(in srgb,var(--rank-tone) 34%,transparent),0 .55rem 1rem rgba(0,0,0,.32) !important;
+  clip-path: polygon(7.5% 0,100% 0,94.5% 100%,0 100%); opacity: .94; filter: saturate(.96);
+  transform: translateZ(0); transform-origin: center;
+  transition: opacity .25s ease,filter .28s ease,border-color .28s ease,box-shadow .28s ease,transform .2s cubic-bezier(.2,.8,.2,1); scroll-margin-block: 30vh;
+}
+#app .medal-pick:nth-child(odd) { margin-left: -1rem !important; margin-right: auto !important; }
+#app .medal-pick:nth-child(even) { margin-left: auto !important; margin-right: 0 !important; }
+#app .medal-pick::before {
+  content: ""; position: absolute; z-index: 0; top: -.25rem; bottom: -.25rem; left: .42rem; width: .42rem;
+  background: linear-gradient(180deg,#fff2bd,var(--rank-tone) 20% 76%,color-mix(in srgb,var(--rank-tone) 44%,#030812));
+  box-shadow: .2rem 0 .8rem color-mix(in srgb,var(--rank-tone) 75%,transparent); transform: skewX(-16deg);
+}
+#app .medal-pick::after {
+  content: ""; position: absolute; z-index: 0; left: 0; right: 0; bottom: 0; height: 2px; opacity: .7;
+  background: linear-gradient(90deg,transparent 0 4%,var(--rank-tone) 15% 87%,transparent 96%);
+  box-shadow: 0 0 .55rem color-mix(in srgb,var(--rank-tone) 55%,transparent);
+}
+#app .medal-pick > * { position: relative; z-index: 1; }
+#app .medal-pick-speed {
+  position: absolute !important; z-index: 1; left: 2.05rem; bottom: .48rem; width: 2.5rem; height: .62rem; opacity: .45;
+  background: linear-gradient(90deg,transparent 0 8%,var(--rank-tone) 8% 100%) 0 0/100% 1px no-repeat,
+    linear-gradient(90deg,transparent 0 27%,var(--rank-tone) 27% 83%,transparent 83%) 0 50%/100% 1px no-repeat,
+    linear-gradient(90deg,transparent 0 48%,var(--rank-tone) 48% 72%,transparent 72%) 0 100%/100% 1px no-repeat;
+  transform: skewX(-30deg);
+}
+#app .medal-pick-checker {
+  position: absolute !important; z-index: 1; top: .7rem; right: .55rem; bottom: .7rem; width: 1.05rem; opacity: .28;
+  background: conic-gradient(from 90deg,var(--rank-tone) 0 25%,transparent 0 50%,var(--rank-tone) 0 75%,transparent 0) 0 0/.56rem .56rem;
+  transform: skewX(-13deg); -webkit-mask-image: linear-gradient(transparent,#000 18%,#000 82%,transparent); mask-image: linear-gradient(transparent,#000 18%,#000 82%,transparent);
+}
+#app .medal-pick-border-beam {
+  --medal-beam-angle: 0deg;
+  position: absolute !important; z-index: 5; inset: 0; padding: 2px; opacity: 0; pointer-events: none;
+  background: conic-gradient(from var(--medal-beam-angle),transparent 0deg 265deg,
+    color-mix(in srgb,var(--rank-tone) 15%,transparent) 286deg,
+    #fff9df 308deg,var(--rank-tone) 324deg,transparent 346deg 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  filter: drop-shadow(0 0 .22rem var(--rank-tone)) drop-shadow(0 0 .48rem color-mix(in srgb,var(--rank-tone) 72%,transparent));
+}
+#app .medal-pick.is-race-active,#app .medal-pick:hover,#app .medal-pick:focus-visible,#app .medal-pick:focus-within {
+  outline: 0; opacity: 1; border-color: color-mix(in srgb,var(--rank-tone) 92%,white) !important;
+  box-shadow: inset 0 1px 0 color-mix(in srgb,var(--rank-tone) 74%,white),
+    inset 0 -1px 0 color-mix(in srgb,var(--rank-tone) 74%,white),
+    0 0 .22rem color-mix(in srgb,var(--rank-tone) 88%,transparent),
+    0 0 1.1rem color-mix(in srgb,var(--rank-tone) 48%,transparent),0 .75rem 1.4rem rgba(0,0,0,.4) !important;
+  filter: saturate(1.18) drop-shadow(0 0 .42rem color-mix(in srgb,var(--rank-tone) 32%,transparent));
+}
+#app .medal-pick.is-race-active {
+  z-index: 3;
+  animation: medalRaceArrival .48s cubic-bezier(.16,1.22,.34,1) both;
+}
+#app .medal-pick.is-touch-bounce {
+  z-index: 4;
+  animation: medalRaceTouch .38s cubic-bezier(.2,1.45,.35,1) both;
+}
+#app .medal-pick.is-race-active .medal-pick-border-beam,
+#app .medal-pick.is-touch-bounce .medal-pick-border-beam {
+  opacity: 1;
+  animation: medalRaceBorderRun 1.05s cubic-bezier(.3,.05,.18,1) both;
+}
+@keyframes medalRaceArrival {
+  0% { transform: translate3d(0,0,0) scale(1); }
+  42% { transform: translate3d(0,-3px,0) scale(1.01); }
+  72% { transform: translate3d(0,1px,0) scale(.998); }
+  100% { transform: translate3d(0,0,0) scale(1); }
+}
+@keyframes medalRaceTouch {
+  0% { transform: translate3d(0,0,0) scale(1); }
+  35% { transform: translate3d(0,2px,0) scale(.975); }
+  72% { transform: translate3d(0,-4px,0) scale(1.022); }
+  100% { transform: translate3d(0,0,0) scale(1); }
+}
+@keyframes medalRaceBorderRun {
+  0% { --medal-beam-angle: 0deg; opacity: 0; }
+  12% { opacity: 1; }
+  82% { opacity: 1; }
+  100% { --medal-beam-angle: 360deg; opacity: 0; }
+}
+#app .medal-pick.is-race-active .medal-pick-speed,#app .medal-pick.is-race-active .medal-pick-checker,
+#app .medal-pick:hover .medal-pick-speed,#app .medal-pick:hover .medal-pick-checker,
+#app .medal-pick:focus-within .medal-pick-speed,#app .medal-pick:focus-within .medal-pick-checker { opacity: .82; }
+#app .medal-pick-gold { --rank-tone: #f0be48; }
+#app .medal-pick-lavender { --rank-tone: #b66cff; }
+#app .medal-pick-sapphire { --rank-tone: #4496ff; }
+#app .medal-pick-jade { --rank-tone: #3ce3d4; }
+#app .medal-pick-coral { --rank-tone: #ff7168; }
+#app .medal-pick-rank {
+  grid-column: 1; grid-row: 1/3; align-self: center; color: var(--rank-tone); font-family: var(--serif);
+  font-size: clamp(2.1rem,9.6vw,2.8rem); font-style: italic; font-weight: 600; line-height: 1;
+  letter-spacing: -.05em; text-shadow: 0 0 .8rem color-mix(in srgb,var(--rank-tone) 48%,transparent);
+}
+#app .medal-pick-cover { --medal-cover-w: 3rem; grid-column: 2; grid-row: 1/3 !important; align-self: center !important; width: var(--medal-cover-w) !important; }
+#app .medal-pick-cover .cover-frame {
+  width: 100% !important; aspect-ratio: 3/4 !important; overflow: hidden;
+  border: 1px solid color-mix(in srgb,var(--rank-tone) 67%,#e6ebf3) !important;
+  border-radius: .4rem !important; box-shadow: 0 .28rem .7rem rgba(0,0,0,.5) !important;
+}
+#app .medal-pick-cover img { width: 100% !important; height: 100% !important; object-fit: cover !important; }
+#app .medal-pick-copy { grid-column: 3; grid-row: 1 !important; align-self: end !important; min-width: 0; padding-right: 6.35rem; }
+#app .medal-pick-copy > b {
+  display: -webkit-box !important; overflow: hidden; color: #f4f1eb; font-family: var(--serif);
+  font-size: clamp(.82rem,3.6vw,1.02rem) !important; font-weight: 500; line-height: 1.02 !important;
+  white-space: normal !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+}
+#app .medal-pick-copy > small {
+  display: block; overflow: hidden; margin-top: .2rem; color: #9aa6bc; font-size: .67rem; line-height: 1.05;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+#app .medal-pick-status {
+  position: absolute !important; top: .74rem; right: 1.75rem; width: auto !important; max-width: none !important;
+  overflow: visible !important; padding: .3rem .55rem !important;
+  border: 1px solid color-mix(in srgb,var(--rank-tone) 82%,transparent) !important; border-radius: 999px !important;
+  color: var(--rank-tone); background: rgba(7,14,28,.7); font-size: .58rem !important; line-height: 1;
+  text-overflow: clip !important; white-space: nowrap !important;
+}
+#app .medal-pick-stats {
+  grid-column: 3; grid-row: 2; display: flex !important; align-self: start; gap: .72rem !important;
+  min-width: 0; margin: 0 !important;
+}
+#app .medal-pick-stats > span { display: flex !important; align-items: center; gap: .24rem; min-width: 0; }
+#app .medal-pick-stats i { color: var(--rank-tone); font-size: .78rem; font-style: normal; }
+#app .medal-pick-stats b { color: #d8dde8; font-size: .68rem; font-weight: 650; }
+#app .medal-pick-stats small { display: none; }
+@media (max-width: 430px) {
+  #app .medal-picks-head h2 { font-size: clamp(1.9rem,9.3vw,2.25rem); }
+  #app .medal-pick { grid-template-columns: 3.3rem 2.75rem minmax(0,1fr) !important; }
+  #app .medal-pick-cover { --medal-cover-w: 2.75rem; }
+  #app .medal-pick-copy { padding-right: 5.7rem; }
+  #app .medal-pick-status { right: 1.45rem; font-size: .55rem !important; }
+}
+@media (min-width: 900px) and (orientation: landscape) {
+  #app .home-desktop-side .medal-picks { width: 100%; margin-top: 0 !important; }
+  #app .home-desktop-side .medal-picks-head { margin-left: 1.8rem !important; padding-right: 2.6rem; }
+  #app .home-desktop-side .medal-picks-head h2 { font-size: 1.62rem; }
+  #app .home-desktop-side .medal-picks-head::after { right: 0; width: 2.45rem; }
+  #app .home-desktop-side .medal-picks-list { padding-left: .85rem; }
+  #app .home-desktop-side .medal-pick {
+    --race-width: calc(100% - .25rem); grid-template-columns: 2.5rem 2.35rem minmax(0,1fr) !important;
+    min-height: 4.15rem !important; column-gap: .34rem !important; padding: .36rem .6rem .36rem .42rem !important;
+  }
+  #app .home-desktop-side .medal-pick:nth-child(odd) { margin-left: -.85rem !important; }
+  #app .home-desktop-side .medal-pick-rank { font-size: 1.65rem !important; }
+  #app .home-desktop-side .medal-pick-cover { --medal-cover-w: 2.35rem; }
+  #app .home-desktop-side .medal-pick-copy { padding-right: 0; }
+  #app .home-desktop-side .medal-pick-copy > b {
+    display: block !important; overflow: hidden !important; font-size: .71rem !important; line-height: 1.1 !important;
+    text-overflow: ellipsis; white-space: nowrap !important;
+  }
+  #app .home-desktop-side .medal-pick-copy > small { overflow: hidden; font-size: .54rem; text-overflow: ellipsis; white-space: nowrap; }
+  #app .home-desktop-side .medal-pick-status { display: none !important; }
+  #app .home-desktop-side .medal-pick-stats { gap: .34rem !important; overflow: hidden; }
+  #app .home-desktop-side .medal-pick-stats > span { gap: .14rem; }
+  #app .home-desktop-side .medal-pick-stats b { font-size: .53rem; }
+  #app .home-desktop-side .medal-pick-speed { left: 1.5rem; width: 1.7rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #app .medal-pick { transition: opacity .01ms linear,filter .01ms linear; }
+  #app .medal-pick.is-race-active,#app .medal-pick.is-touch-bounce,
+  #app .medal-pick.is-race-active .medal-pick-border-beam,
+  #app .medal-pick.is-touch-bounce .medal-pick-border-beam { animation: none !important; }
+}

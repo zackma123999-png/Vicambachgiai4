@@ -1,0 +1,15 @@
+.vc-mail-compose textarea,
+.vc-mail-dialog input,
+.vc-mail-dialog textarea {
+  color: #f2f4fb !important;
+  -webkit-text-fill-color: #f2f4fb;
+  caret-color: #b98cff;
+}
+
+.vc-mail-compose textarea::placeholder,
+.vc-mail-dialog input::placeholder,
+.vc-mail-dialog textarea::placeholder {
+  color: #8792a8 !important;
+  -webkit-text-fill-color: #8792a8;
+  opacity: 1;
+}

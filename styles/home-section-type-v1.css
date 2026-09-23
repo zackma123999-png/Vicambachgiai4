@@ -1,0 +1,28 @@
+/* Homepage section typography aligned with the Trạm Preview heading. */
+#app .home-signal-label > span,
+#app .rail-panel .rail-head h2 {
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-weight: 500 !important;
+}
+
+#app .home-signal-label > span {
+  color: #69e6f3 !important;
+  letter-spacing: .14em !important;
+  text-shadow: 0 0 12px rgba(105, 230, 243, .2) !important;
+}
+
+#app .rail-panel .rail-head .count {
+  color: #69e6f3 !important;
+  text-shadow: 0 0 10px rgba(105, 230, 243, .18) !important;
+}
+
+#app .rail-panel .rail-head h2 {
+  letter-spacing: .015em !important;
+  line-height: 1.05 !important;
+}
+
+@media (max-width: 640px) {
+  #app .rail-panel .rail-head h2 {
+    font-size: clamp(1.45rem, 6.3vw, 1.72rem) !important;
+  }
+}

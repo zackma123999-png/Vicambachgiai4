@@ -1,0 +1,15 @@
+/* Keep the whole initial fan hidden until all five visible covers are decoded. */
+.hero.stack-hero .stack-stage {
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.hero.stack-hero.hero-fan-ready .stack-stage {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Keep carousel logic intact but permanently hide the pagination dots. */
+.hero.stack-hero .hero-nav,
+.hero.stack-hero.hero-fan-ready .hero-nav {
+  display: none !important;
+}

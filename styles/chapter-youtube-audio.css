@@ -1,0 +1,109 @@
+.chapter-youtube-audio {
+  --yt-accent: color-mix(in srgb, var(--raccent) 78%, #a875ff 22%);
+  margin: 1.25rem 0 2rem;
+  font-family: "Be Vietnam Pro", system-ui, sans-serif;
+}
+
+.chapter-youtube-bar {
+  width: 100%;
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto 16px;
+  gap: 10px;
+  align-items: center;
+  padding: 7px 12px 7px 8px;
+  border: 1px solid color-mix(in srgb, var(--yt-accent) 48%, var(--rline));
+  border-radius: 999px;
+  color: var(--rink);
+  background: linear-gradient(100deg,
+    color-mix(in srgb, var(--yt-accent) 13%, var(--rpanel)),
+    color-mix(in srgb, var(--rpanel) 84%, transparent));
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--yt-accent) 12%, transparent), inset 0 1px rgba(255,255,255,.08);
+  cursor: pointer;
+  text-align: left;
+}
+
+.chapter-youtube-cover {
+  width: 42px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background-image: linear-gradient(rgba(0,0,0,.18), rgba(0,0,0,.34)), var(--audio-cover);
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--yt-accent) 48%, transparent);
+  overflow: hidden;
+}
+
+.chapter-youtube-cover i {
+  width: 23px;
+  height: 23px;
+  display: grid;
+  place-items: center;
+  padding-left: 1px;
+  border-radius: 50%;
+  color: white;
+  background: color-mix(in srgb, var(--yt-accent) 84%, #ff3f9d 16%);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--yt-accent) 60%, transparent);
+  font: 700 9px/1 system-ui, sans-serif;
+  font-style: normal;
+}
+
+.chapter-youtube-copy { min-width: 0; }
+.chapter-youtube-copy small,
+.chapter-youtube-copy strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chapter-youtube-copy small { margin-bottom: 2px; color: var(--yt-accent); font-size: .55rem; font-weight: 750; letter-spacing: .13em; }
+.chapter-youtube-copy strong { color: var(--rink); font-size: .78rem; font-weight: 650; }
+.chapter-youtube-action { color: var(--yt-accent); font-size: .66rem; font-weight: 650; white-space: nowrap; }
+.chapter-youtube-chevron { color: var(--yt-accent); font-size: 1rem; transition: transform .2s ease; }
+.chapter-youtube-audio.is-open .chapter-youtube-chevron { transform: rotate(180deg); }
+
+.chapter-youtube-player {
+  width: 100%;
+  min-height: 200px;
+  margin-top: 10px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--yt-accent) 48%, var(--rline));
+  border-radius: 20px;
+  background: #000;
+  box-shadow: 0 12px 30px rgba(0,0,0,.18);
+}
+.chapter-youtube-player[hidden] { display: none; }
+.chapter-youtube-player iframe { display: block; width: 100%; height: clamp(200px, 56.25vw, 420px); border: 0; }
+
+.chapter-youtube-bar:focus-visible {
+  outline: 2px solid var(--yt-accent);
+  outline-offset: 3px;
+}
+.chapter-youtube-bar:hover { border-color: var(--yt-accent); }
+
+.chapter-youtube-audio.is-empty { opacity: .68; }
+.chapter-youtube-audio.is-empty .chapter-youtube-bar { cursor: default; box-shadow: none; }
+.chapter-youtube-audio.is-empty .chapter-youtube-cover { filter: grayscale(.5); }
+
+.admin-youtube-mark {
+  width: 58px;
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  padding-left: 3px;
+  border-radius: 50%;
+  color: #fff;
+  background: linear-gradient(145deg, #ff3f9d, #7c4dff);
+  box-shadow: 0 0 22px rgba(217,55,255,.28);
+}
+.admin-youtube-note { margin: -2px 0 0; color: var(--muted,#8994aa); font-size: .78rem; line-height: 1.55; }
+
+@media (max-width: 560px) {
+  .chapter-youtube-audio { margin: 1.05rem 0 1.7rem; }
+  .chapter-youtube-bar { min-height: 54px; grid-template-columns: 38px minmax(0,1fr) 14px; gap: 8px; padding: 7px 10px 7px 8px; }
+  .chapter-youtube-cover { width: 38px; }
+  .chapter-youtube-action { display: none; }
+  .chapter-youtube-copy strong { font-size: .74rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chapter-youtube-chevron { transition: none; }
+}
