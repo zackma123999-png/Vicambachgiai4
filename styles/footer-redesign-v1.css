@@ -6,12 +6,6 @@
 .foot2-body .brand-mark-img{width:clamp(2.5rem,6.8vw,3.55rem);height:auto}
 .foot2-body .brand-word-img{width:auto;height:clamp(1.9rem,5.2vw,2.8rem)}
 
-/* soft ambient glow so the glass buttons have something to refract */
-.foot2-body::before,.foot2-body::after{
-  content:"";position:absolute;border-radius:50%;pointer-events:none;filter:blur(46px);z-index:0;
-}
-.foot2-body::before{width:220px;height:170px;left:0;top:9.5rem;background:radial-gradient(closest-side,rgba(143,116,255,.55),transparent 72%)}
-.foot2-body::after{width:200px;height:160px;right:0;top:10rem;background:radial-gradient(closest-side,rgba(255,140,190,.42),transparent 72%)}
 
 .foot2-kicker{
   position:relative;z-index:1;margin:clamp(1.05rem,3.2vw,1.65rem) 0 0;font-weight:600;
