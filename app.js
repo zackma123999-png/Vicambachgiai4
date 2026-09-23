@@ -1181,8 +1181,10 @@
   }
   function signalHeroHTML() {
     return `<section class="signal-hero" id="signalHero">
-      <div class="sh-bg"></div>
-      <canvas id="shFx"></canvas>
+      <div class="sh-bg">
+        <img class="sh-cover sh-cover-a" alt="">
+        <img class="sh-cover sh-cover-b" alt="">
+      </div>
       <div class="sh-scrim"></div>
       <div class="sh-content">
         <div class="sh-tags" id="shTags"></div>
@@ -1232,16 +1234,14 @@
   function initSignalHero(slides) {
     const stage = $("#signalHero");
     if (!stage || !slides.length) return;
-    const canvas = $("#shFx");
-    const ctx = canvas.getContext("2d");
+    const layerA = $(".sh-cover-a", stage);
+    const layerB = $(".sh-cover-b", stage);
     const els = {
       tags: $("#shTags"), overline: $("#shOverline"), title: $("#shTitle"),
       author: $("#shAuthor"), stats: $("#shStats"), ctas: $("#shCtas"), trust: $("#shTrust"),
     };
     const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
-    const HOLD = 3200, GCOLS = 26, GROWS = 42, POS_X = 50, POS_Y = 18;
-    const D_OUT = 110, S_OUT = 34, D_IN = 150, S_IN = 80;
-    const SWAP_T = S_OUT + D_OUT;
+    const HOLD = 3200, FADE = 420;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     function headlineSize(top, accent) {
       const maxLen = Math.max((top || "").length, (accent || "").length);
@@ -1268,162 +1268,43 @@
       els.ctas.innerHTML = `<a href="${d.readHref}" class="sh-btn sh-btn--primary">ĐỌC NGAY<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></a><a href="${d.detailHref}" class="sh-btn sh-btn--ghost">XEM CHI TIẾT</a>`;
       els.trust.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>' + d.trust;
     }
-    function loadImage(src) {
-      return new Promise((resolve) => {
-        const im = new Image();
-        im.onload = () => resolve(im);
-        im.onerror = () => resolve(im);
-        im.src = src;
-      });
-    }
-    function prepSlide(slide, im) {
-      slide._natW = im.naturalWidth || 800;
-      slide._natH = im.naturalHeight || 1200;
-      const off = document.createElement("canvas");
-      off.width = slide._natW;
-      off.height = slide._natH;
-      const octx = off.getContext("2d");
-      octx.filter = "saturate(1.04) brightness(.97)";
-      try { octx.drawImage(im, 0, 0, slide._natW, slide._natH); } catch (e) {}
-      slide._filtered = off;
-    }
-    const N = GCOLS * GROWS;
-    const grain = { jx: new Float32Array(N), jy: new Float32Array(N), js: new Float32Array(N) };
-    for (let k = 0; k < N; k++) {
-      grain.jx[k] = (Math.random() - 0.5) * 0.16;
-      grain.jy[k] = (Math.random() - 0.5) * 0.16;
-      grain.js[k] = 1.38 + Math.random() * 0.22;
-    }
-    let dpr = Math.min(window.devicePixelRatio || 1, 2.5);
-    let boxW = 0, boxH = 0;
-    const dest = { x: new Float32Array(N), y: new Float32Array(N), w: new Float32Array(N), h: new Float32Array(N) };
-    const scatter = { dx: new Float32Array(N), dy: new Float32Array(N), delayOut: new Float32Array(N), delayIn: new Float32Array(N) };
-    function layoutCanvas() {
-      boxW = canvas.clientWidth;
-      boxH = canvas.clientHeight;
-      canvas.width = Math.round(boxW * dpr);
-      canvas.height = Math.round(boxH * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      for (let r = 0; r < GROWS; r++) {
-        for (let c = 0; c < GCOLS; c++) {
-          const k = r * GCOLS + c;
-          const cw = boxW / GCOLS, ch = boxH / GROWS;
-          dest.w[k] = cw * grain.js[k];
-          dest.h[k] = ch * grain.js[k];
-          dest.x[k] = c * cw + (cw - dest.w[k]) / 2 + grain.jx[k] * cw;
-          dest.y[k] = r * ch + (ch - dest.h[k]) / 2 + grain.jy[k] * ch;
-        }
-      }
-    }
-    function coverRect(slide) {
-      const scale = Math.max(boxW / slide._natW, boxH / slide._natH);
-      const rw = slide._natW * scale, rh = slide._natH * scale;
-      return { scale, offX: (boxW - rw) * (POS_X / 100), offY: (boxH - rh) * (POS_Y / 100) };
-    }
-    function drawAt(slide, cover, t) {
-      ctx.clearRect(0, 0, boxW, boxH);
-      for (let k = 0; k < N; k++) {
-        if (t <= 0) continue;
-        const x = dest.x[k] + scatter.dx[k] * (1 - t);
-        const y = dest.y[k] + scatter.dy[k] * (1 - t);
-        const scale = 0.9 + 0.1 * t;
-        const w = dest.w[k] * scale, h = dest.h[k] * scale;
-        const cx = x + dest.w[k] / 2, cy = y + dest.h[k] / 2;
-        const sx = (dest.x[k] - cover.offX) / cover.scale;
-        const sy = (dest.y[k] - cover.offY) / cover.scale;
-        const sw = dest.w[k] / cover.scale, sh = dest.h[k] / cover.scale;
-        ctx.globalAlpha = t;
-        ctx.drawImage(slide._filtered, sx, sy, sw, sh, cx - w / 2, cy - h / 2, w, h);
-      }
-      ctx.globalAlpha = 1;
-    }
-    let idx = 0, ready = false, transitioning = false;
-    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
-    function drawStatic(i) { drawAt(slides[i], coverRect(slides[i]), 1); }
-    function armScatter() {
-      for (let k = 0; k < N; k++) {
-        const ang = Math.random() * Math.PI * 2;
-        const mag = 6 + Math.random() * 16;
-        scatter.dx[k] = Math.cos(ang) * mag;
-        scatter.dy[k] = Math.sin(ang) * mag;
-        scatter.delayOut[k] = Math.random() * S_OUT;
-        scatter.delayIn[k] = Math.random() * S_IN;
-      }
-    }
+    let idx = 0, front = layerA, transitioning = false;
     function morphTo(nextIdx) {
-      if (!ready) return;
-      if (reduceMotion) { idx = nextIdx; drawStatic(idx); renderText(idx); return; }
+      if (nextIdx === idx) return;
+      const incoming = front === layerA ? layerB : layerA;
+      if (reduceMotion) {
+        incoming.src = slides[nextIdx].cover;
+        incoming.classList.add("is-visible");
+        front.classList.remove("is-visible");
+        front = incoming;
+        idx = nextIdx;
+        renderText(idx);
+        return;
+      }
       if (transitioning) return;
       transitioning = true;
-      armScatter();
-      const from = slides[idx], to = slides[nextIdx];
-      const coverFrom = coverRect(from), coverTo = coverRect(to);
-      let textSwapped = false;
-      const start = performance.now();
-      function paintPhase(slide, cover, delays, dur, since, invert) {
-        ctx.clearRect(0, 0, boxW, boxH);
-        for (let k = 0; k < N; k++) {
-          const local = Math.min(Math.max((since - delays[k]) / dur, 0), 1);
-          const t = invert ? 1 - easeOutCubic(local) : easeOutCubic(local);
-          if (t <= 0) continue;
-          const x = dest.x[k] + scatter.dx[k] * (1 - t);
-          const y = dest.y[k] + scatter.dy[k] * (1 - t);
-          const scale = 0.9 + 0.1 * t;
-          const w = dest.w[k] * scale, h = dest.h[k] * scale;
-          const cx = x + dest.w[k] / 2, cy = y + dest.h[k] / 2;
-          const sx = (dest.x[k] - cover.offX) / cover.scale;
-          const sy = (dest.y[k] - cover.offY) / cover.scale;
-          const sw = dest.w[k] / cover.scale, sh = dest.h[k] / cover.scale;
-          ctx.globalAlpha = t;
-          ctx.drawImage(slide._filtered, sx, sy, sw, sh, cx - w / 2, cy - h / 2, w, h);
-        }
-        ctx.globalAlpha = 1;
-      }
-      function frame(now) {
-        try {
-          const elapsed = now - start;
-          if (elapsed < SWAP_T) {
-            paintPhase(from, coverFrom, scatter.delayOut, D_OUT, elapsed, true);
-            requestAnimationFrame(frame);
-            return;
-          }
-          if (!textSwapped) { textSwapped = true; idx = nextIdx; renderText(idx); }
-          const sinceSwap = elapsed - SWAP_T;
-          if (sinceSwap < S_IN + D_IN) {
-            paintPhase(to, coverTo, scatter.delayIn, D_IN, sinceSwap, false);
-            requestAnimationFrame(frame);
-            return;
-          }
-          transitioning = false;
-          drawStatic(idx);
-        } catch (e) {
-          transitioning = false;
-          idx = nextIdx;
-          renderText(idx);
-          drawStatic(idx);
-        }
-      }
-      requestAnimationFrame(frame);
+      const swap = () => {
+        incoming.classList.add("is-visible");
+        front.classList.remove("is-visible");
+        front = incoming;
+        idx = nextIdx;
+        renderText(idx);
+        window.setTimeout(() => { transitioning = false; }, FADE);
+      };
+      let swapped = false;
+      const trigger = () => { if (swapped) return; swapped = true; requestAnimationFrame(swap); };
+      incoming.onload = trigger;
+      incoming.onerror = trigger;
+      incoming.src = slides[nextIdx].cover;
+      if (incoming.complete && incoming.naturalWidth) trigger();
     }
-    Promise.all(slides.map((s) => loadImage(s.cover).then((im) => prepSlide(s, im)))).then(() => {
-      layoutCanvas();
-      ready = true;
-      drawStatic(0);
-      renderText(0);
-      if (slides.length > 1) {
-        const timer = setInterval(() => { morphTo((idx + 1) % slides.length); }, HOLD);
-        stage.dataset.timerId = String(timer);
-      }
-    });
-    let resizeT;
-    window.addEventListener("resize", () => {
-      clearTimeout(resizeT);
-      resizeT = setTimeout(() => {
-        if (!ready) return;
-        layoutCanvas();
-        if (!transitioning) drawStatic(idx);
-      }, 120);
-    });
+    front.src = slides[0].cover;
+    front.classList.add("is-visible");
+    renderText(0);
+    if (slides.length > 1) {
+      const timer = setInterval(() => { morphTo((idx + 1) % slides.length); }, HOLD);
+      stage.dataset.timerId = String(timer);
+    }
   }
   function section(title, list) {
     if (!list || !list.length) return "";
