@@ -5,8 +5,7 @@
   position: relative;
   border: 1px solid rgba(255,255,255,.1);
   border-radius: 1.1rem;
-  background: #0a0a0a;
-  box-shadow: 0 1.5rem 3.5rem rgba(0,0,0,.6), inset 0 1px rgba(255,255,255,.04);
+  background: transparent;
   padding: 2.1rem 1.4rem 1.7rem;
   text-align: center;
 }
@@ -69,24 +68,18 @@
 }
 .reshome-ratio-caption b{ color: #c3cad3; font-weight: 700; }
 
-.reshome-social-row{ display: flex; flex-direction: column; gap: .6rem; margin-top: 1.6rem; }
+.reshome-social-row{ display: flex; justify-content: center; align-items: center; gap: 1.3rem; margin-top: 1.7rem; }
 .reshome-social{
-  display: flex; align-items: center; justify-content: center; gap: .6rem;
-  border: 1px solid rgba(41,197,255,.4); border-radius: .85rem;
-  padding: .85rem 1rem;
-  color: #29c5ff; text-decoration: none;
-  font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-weight: 700;
-  font-size: .78rem; letter-spacing: .08em; text-transform: uppercase;
-  background: rgba(41,197,255,.05);
-  transition: background .18s ease, transform .18s ease;
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px;
+  color: #29c5ff;
+  filter: drop-shadow(0 0 .45rem rgba(41,197,255,.55));
+  transition: transform .18s ease, opacity .18s ease;
 }
-.reshome-social:hover{ background: rgba(41,197,255,.13); transform: translateY(-1px); }
-.reshome-social.is-disabled{
-  color: #7c8794; border-color: rgba(255,255,255,.12); background: transparent; cursor: default;
-}
-.reshome-social-ic{ display: flex; width: 16px; height: 16px; flex: 0 0 auto; }
+.reshome-social:hover{ transform: translateY(-2px); }
+.reshome-social.is-disabled{ color: #3a4552; filter: none; cursor: default; }
+.reshome-social-ic{ display: flex; width: 100%; height: 100%; }
 .reshome-social-ic svg{ width: 100%; height: 100%; }
-.reshome-social-go{ width: 13px; height: 13px; flex: 0 0 auto; opacity: .8; }
 
 @media (max-width: 380px) {
   .reshome-card{ padding: 1.8rem 1.1rem 1.4rem; }

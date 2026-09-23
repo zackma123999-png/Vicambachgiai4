@@ -589,11 +589,10 @@
       const inner = SOCIAL_ICONS[k];
       return active
         ? `<a class="reshome-social" href="${esc(href)}" target="_blank" rel="noopener noreferrer" aria-label="Theo dõi trên ${label}">
-            <span class="reshome-social-ic" aria-hidden="true">${inner}</span>Theo dõi ${esc(label)}
-            <svg class="reshome-social-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
+            <span class="reshome-social-ic" aria-hidden="true">${inner}</span>
           </a>`
-        : `<span class="reshome-social is-disabled" aria-disabled="true">
-            <span class="reshome-social-ic" aria-hidden="true">${inner}</span>${esc(label)} — chưa có liên kết
+        : `<span class="reshome-social is-disabled" role="img" aria-label="${esc(label)} — chưa có liên kết">
+            <span class="reshome-social-ic" aria-hidden="true">${inner}</span>
           </span>`;
     };
     return `<section class="wrap reshome" id="matDoCongHuongHome" aria-labelledby="resHomeTitle">
