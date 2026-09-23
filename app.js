@@ -1239,7 +1239,7 @@
       author: $("#shAuthor"), stats: $("#shStats"), ctas: $("#shCtas"), trust: $("#shTrust"),
     };
     const checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
-    const HOLD = 3200, DIP = 280;
+    const HOLD = 3200, DIP = 480;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     function headlineSize(top, accent) {
       const maxLen = Math.max((top || "").length, (accent || "").length);
