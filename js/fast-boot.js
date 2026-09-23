@@ -71,6 +71,21 @@
     return filterFallback(opts || {});
   };
 
+  /* A story card can render from the fallback list above before the live
+     catalog finishes loading. Without this, clicking into that same story
+     hits the unpatched lookup below, finds nothing yet in the live cache,
+     and wrongly reports the story as missing. */
+  var originalGetStoryBySlug = typeof window.VCBG.getStoryBySlug === "function"
+    ? window.VCBG.getStoryBySlug.bind(window.VCBG)
+    : null;
+  window.VCBG.getStoryBySlug = function instantGetStoryBySlug(slug) {
+    var live = null;
+    try { live = originalGetStoryBySlug ? originalGetStoryBySlug(slug) : null; } catch (_) {}
+    if (live) return live;
+    var match = fallbackStories.filter(function (s) { return s.slug === slug; })[0];
+    return match || null;
+  };
+
   function saveLiveFallback() {
     try {
       var live = originalListStories({ sort: "updated" }) || [];
