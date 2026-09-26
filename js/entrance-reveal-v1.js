@@ -9,7 +9,7 @@
     // The homepage hero — the very first thing seen when the site opens.
     { selector: ".signal-hero .sh-tags, .signal-hero .sh-overline, .signal-hero .sh-title, .signal-hero .sh-author, .signal-hero .sh-stats, .signal-hero .sh-ctas, .signal-hero .sh-trust", step: 70 },
     // Section headers and page titles across the site.
-    { selector: ".rail-head, .medal-picks-head, .preview-station-head, h1.hero-title, .section > h2, .story-copy > *", step: 55 },
+    { selector: ".rail-head, .medal-picks-head, .preview-station-head, .cm-wrap, h1.hero-title, .section > h2, .story-copy > *", step: 55 },
     // The homepage "resonance" panel — its own pieces, sliding in from the right.
     { selector: ".reshome-card > *", step: 60, from: "right" },
     // Card grids and list rows — staggered per grid, capped so a long shelf doesn't crawl in.

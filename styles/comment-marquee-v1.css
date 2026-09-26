@@ -1,0 +1,99 @@
+/* Homepage "comments this week" marquee — black cards, white text, scrolling
+   sideways non-stop. Fonts match the Live Resonance panel: JetBrains Mono for
+   the tracked kicker/meta labels, Plus Jakarta Sans for names and body copy. */
+.cm-wrap { margin: 2.6rem auto 0; max-width: 1180px; }
+.cm-head {
+  display: flex; align-items: center; gap: .5rem;
+  padding: 0 1rem; margin-bottom: 1rem;
+}
+.cm-kicker {
+  display: inline-flex; align-items: center; gap: .45rem;
+  color: var(--sh-accent, #26c2dc);
+  font-family: 'JetBrains Mono', monospace; font-weight: 600;
+  font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+}
+.cm-kicker i {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--sh-accent, #26c2dc);
+  box-shadow: 0 0 .6rem rgba(38, 194, 220, .7);
+}
+
+.cm-marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.cm-track {
+  display: flex;
+  width: max-content;
+  animation: cm-scroll linear infinite;
+}
+.cm-track:hover { animation-play-state: paused; }
+.cm-group {
+  display: flex;
+  gap: 1rem;
+  padding: 0 .5rem;
+  flex-shrink: 0;
+}
+
+.cm-card {
+  display: flex;
+  flex-direction: column;
+  gap: .7rem;
+  width: min(78vw, 340px);
+  flex-shrink: 0;
+  background: #0b0c10;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 1rem;
+  padding: 1.1rem 1.2rem;
+  text-decoration: none;
+  color: var(--sh-ink, #f4f7f8);
+}
+
+.cm-card-head { display: flex; align-items: center; gap: .6rem; }
+.cm-avatar {
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%;
+  overflow: hidden;
+  background: rgba(38, 194, 220, .16);
+  color: var(--sh-accent, #26c2dc);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 700; font-size: .85rem;
+}
+.cm-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.cm-who { min-width: 0; }
+.cm-who b {
+  display: block;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 700; font-size: .86rem; color: var(--sh-ink, #f4f7f8);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cm-who span {
+  display: block; margin-top: .1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem; letter-spacing: .04em;
+  color: var(--sh-muted-dim, rgba(244, 247, 248, .5));
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.cm-body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: .85rem; line-height: 1.5;
+  color: var(--sh-muted, rgba(244, 247, 248, .82));
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .cm-card { width: 80vw; padding: 1rem; }
+}
+
+@keyframes cm-scroll {
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-marquee { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .cm-track { animation: none; }
+  .cm-group[data-cm-clone="true"] { display: none; }
+}
