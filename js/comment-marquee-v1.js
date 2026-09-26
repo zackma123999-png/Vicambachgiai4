@@ -6,8 +6,38 @@
 (function () {
   var WEEK_MS = 7 * 24 * 60 * 60 * 1000;
   var MAX_CARDS = 18;
-  var MIN_CARDS = 3;
+  var DISPLAY_MIN = 8;
   var SPEED_PX_S = 46;
+
+  // Temporary, by request: pad out with placeholder comments whenever real
+  // activity in the last 7 days falls short, so the strip isn't empty while
+  // the site is still building up organic comments. Remove once real weekly
+  // volume reliably clears DISPLAY_MIN on its own.
+  var FALLBACK_POOL = [
+    { name: "Minh Anh", body: "Đọc một mạch hết chương mới, cảm xúc dâng trào ghê!" },
+    { name: "Thuỳ Trang", body: "Nữ chính xử lý tình huống này khéo quá, mê cách viết của tác giả." },
+    { name: "Bảo Ngọc", body: "Chờ chương mới muốn xỉu, hy vọng cuối tuần có bản dịch mới." },
+    { name: "Hải Yến", body: "Bìa truyện đẹp mà nội dung còn cuốn hơn, đọc không dứt ra được." },
+    { name: "Lan Chi", body: "Đoạn cao trào chương này làm tim đập loạn nhịp thật sự." },
+    { name: "Diệu Linh", body: "Giao diện web mới mượt ghê, đọc truyện đêm khuya sướng mắt hẳn." },
+    { name: "Ngọc Hà", body: "Couple này ngọt xỉu, mong tác giả ra thêm chương vào cuối tuần." },
+    { name: "Quỳnh Như", body: "Lâu lắm mới gặp truyện Bách Hợp hay vậy, cảm ơn team dịch nhiều." },
+  ];
+
+  function demoComments(count) {
+    var stories = [];
+    try { stories = (window.VCBG && window.VCBG.listStories && window.VCBG.listStories()) || []; } catch (e) {}
+    return FALLBACK_POOL.slice(0, count).map(function (p, i) {
+      var story = stories.length ? stories[i % stories.length] : null;
+      return {
+        user: { display_name: p.name, avatar: "" },
+        body: p.body,
+        created_at: Date.now() - (i + 1) * 3.1 * 3600 * 1000,
+        story: story ? { title: story.title } : null,
+        href: story ? "#/truyen/" + story.slug : "#/kham-pha",
+      };
+    });
+  }
 
   function esc(s) {
     return String(s == null ? "" : s)
@@ -69,18 +99,18 @@
   function bind() {
     var hero = document.querySelector("#signalHero");
     if (!hero || document.querySelector(".cm-wrap")) return;
-    if (!window.VCBG || typeof window.VCBG.communityFeed !== "function") return;
 
-    var feed;
-    try {
-      feed = window.VCBG.communityFeed({ sort: "latest" });
-    } catch (e) {
-      return;
+    var feed = [];
+    if (window.VCBG && typeof window.VCBG.communityFeed === "function") {
+      try { feed = window.VCBG.communityFeed({ sort: "latest" }) || []; } catch (e) { feed = []; }
     }
     var comments = (feed || [])
       .filter(function (c) { return Date.now() - Number(c.created_at || 0) < WEEK_MS; })
       .slice(0, MAX_CARDS);
-    if (comments.length < MIN_CARDS) return;
+    if (comments.length < DISPLAY_MIN) {
+      comments = comments.concat(demoComments(DISPLAY_MIN - comments.length));
+    }
+    if (!comments.length) return;
 
     var section = buildSection(comments);
     hero.insertAdjacentElement("afterend", section);
