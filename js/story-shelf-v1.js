@@ -89,6 +89,7 @@
   const DRAG_TO_DEG = 0.5; // độ xoay trên mỗi px vuốt ngang
   const MOMENTUM_DECAY = 0.94; // mỗi khung hình giữ lại 94% vận tốc còn lại
   const MOMENTUM_MIN_DEG = 0.02; // dưới ngưỡng này coi như hết đà, nhường cho tự trôi
+  const MOMENTUM_MAX_DEG = 6; // trần vận tốc mỗi khung hình, tránh trượt ảo quá nhanh
   const IDLE_DRIFT_DEG_PER_FRAME = 0.04; // tốc độ tự trôi khi không chạm/không còn đà
 
   function initShelf(section) {
@@ -254,13 +255,15 @@
       const dx = e.clientX - dragStartX;
       dragMoved = Math.max(dragMoved, Math.abs(dx));
       rotation = dragStartRot + dx * DRAG_TO_DEG;
-      const dt = now - lastMoveTime;
-      if (dt > 0) {
-        // Vận tốc tức thời trong khoảng di chuyển gần nhất — dùng để tính đà
-        // trượt tiếp khi thả tay, mượt hơn nhiều so với chỉ nhìn tổng quãng
-        // đường kéo từ lúc bắt đầu.
-        momentum = ((e.clientX - lastMoveX) * DRAG_TO_DEG / dt) * 16.6667;
-      }
+      // Vận tốc tức thời trong khoảng di chuyển gần nhất — dùng để tính đà
+      // trượt tiếp khi thả tay, mượt hơn nhiều so với chỉ nhìn tổng quãng
+      // đường kéo từ lúc bắt đầu. dt được chặn dưới một sàn nhỏ: một số
+      // thiết bị cảm ứng tần số cao (hoặc trình duyệt gộp sự kiện) có thể
+      // bắn 2 pointermove cách nhau gần như 0ms, khiến phép chia ở đây vọt
+      // lên giá trị ảo rất lớn nếu không chặn.
+      const dt = Math.max(now - lastMoveTime, 8);
+      momentum = Math.max(-MOMENTUM_MAX_DEG, Math.min(MOMENTUM_MAX_DEG,
+        ((e.clientX - lastMoveX) * DRAG_TO_DEG / dt) * 16.6667));
       lastMoveX = e.clientX;
       lastMoveTime = now;
       paint();
