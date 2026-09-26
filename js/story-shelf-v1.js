@@ -143,12 +143,16 @@
       cards.forEach((card, i) => {
         const raw = (i * step + rotation) % 360;
         const rel = Math.abs(raw > 180 ? 360 - raw : raw);
-        const opacity = Math.max(0.12, 1 - rel / 70);
-        const scale = Math.max(0.65, 1 - rel / 200);
+        // Steep enough that even exactly halfway between two card slots
+        // (the crossfade moment while auto-rotating) neither one is still
+        // clearly legible — a brief faint blend, not two covers fighting
+        // for attention.
+        const opacity = Math.max(0.05, 1 - rel / 28);
+        const scale = Math.max(0.5, 1 - rel / 90);
         card.style.transform = `rotateY(${i * step}deg) translateZ(${radius}px) scale(${scale.toFixed(3)})`;
         card.style.opacity = opacity.toFixed(3);
         card.style.zIndex = String(Math.round(1000 - rel));
-        card.style.pointerEvents = rel > 65 ? "none" : "";
+        card.style.pointerEvents = rel > 32 ? "none" : "";
         card.classList.toggle("is-front", rel < step / 2 + 0.01);
         if (rel < bestDelta) { bestDelta = rel; bestIndex = i; }
       });
