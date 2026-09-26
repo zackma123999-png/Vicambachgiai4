@@ -1,6 +1,6 @@
 /* ViCamBachGiai — navy cinematic library */
 *, *::before, *::after { box-sizing: border-box; }
-html, body { margin: 0; }
+html, body { margin: 0; touch-action: manipulation; }
 html { scroll-behavior: smooth; }
 body {
   font-family: "Be Vietnam Pro", "IBM Plex Sans", system-ui, sans-serif;
