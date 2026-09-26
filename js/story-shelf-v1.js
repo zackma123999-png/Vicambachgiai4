@@ -104,6 +104,8 @@
     let autoRaf = 0;
     let hoverPaused = false;
     let radius = 260;
+    let rotAnimRaf = 0;
+    let manualAnim = false;
 
     function anglePerItem() {
       return list.length ? 360 / list.length : 0;
@@ -174,13 +176,43 @@
       if (hero) hero.outerHTML = heroHTML(dataFromCard(card), tabKey);
     }
 
+    // Rotation and each card's opacity/scale must update from the exact same
+    // `rotation` value every single frame — driving the ring's turn via a CSS
+    // transition while paint() (opacity/scale) jumps straight to the target
+    // value makes cards flash to "front" brightness/size while still visually
+    // off to the side mid-turn, which reads as sudden shrinking/overlap. So
+    // the whole rotation is tweened here in JS, calling paint() each step.
+    function cancelRotAnim() {
+      if (rotAnimRaf) { cancelAnimationFrame(rotAnimRaf); rotAnimRaf = 0; }
+      manualAnim = false;
+    }
+
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
     function rotateTo(targetRotation, animate) {
-      rotation = targetRotation;
+      cancelRotAnim();
       if (animate && !reduceMotion()) {
-        ring.classList.add("is-settling");
-        window.setTimeout(() => ring.classList.remove("is-settling"), 420);
+        const from = rotation;
+        const duration = 420;
+        const start = performance.now();
+        manualAnim = true;
+        const tick = (now) => {
+          const t = Math.min(1, (now - start) / duration);
+          rotation = from + (targetRotation - from) * easeOutCubic(t);
+          paint();
+          if (t < 1) {
+            rotAnimRaf = requestAnimationFrame(tick);
+          } else {
+            rotation = targetRotation;
+            paint();
+            cancelRotAnim();
+          }
+        };
+        rotAnimRaf = requestAnimationFrame(tick);
+      } else {
+        rotation = targetRotation;
+        paint();
       }
-      paint();
     }
 
     function stepBy(delta) {
@@ -240,6 +272,7 @@
 
     carousel.addEventListener("pointerdown", (e) => {
       if (e.button !== undefined && e.button !== 0) return;
+      cancelRotAnim();
       dragging = true;
       dragMoved = 0;
       dragStartX = e.clientX;
@@ -307,7 +340,7 @@
     carousel.addEventListener("pointerleave", () => { hoverPaused = false; });
 
     function autoTick() {
-      if (!dragging && !hoverPaused && !reduceMotion() && !ring.querySelector(".shelf-card-face.is-playing")) {
+      if (!dragging && !hoverPaused && !manualAnim && !reduceMotion() && !ring.querySelector(".shelf-card-face.is-playing")) {
         rotation += 0.16;
         paint();
       }
