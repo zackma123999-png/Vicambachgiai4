@@ -1,16 +1,35 @@
-/* "Nhật ký bình luận" — full page browsing every comment across every story,
-   no time limit. Minimal, borderless list rather than boxes-within-boxes;
-   colors/fonts match the rest of the homepage system: --sh-accent cyan,
-   JetBrains Mono for tracked labels/meta, Plus Jakarta Sans for names and
-   body copy. The site's shared .btn/.btn-cyan/.btn-ghost classes are NOT
-   used here — despite the name, .btn-cyan actually renders violet
-   (styles.css), which is the mismatched color this page used to inherit.
-   Functional hooks (.sig-board/.sig-card/.sig-text/.sig-reply) are kept so
-   the existing like/reply/quote/report logic works unchanged — only the
-   visuals here are new. */
-.cl-page { max-width: 720px; padding: 1.4rem 1rem 3rem; }
+/* "Nhật ký bình luận" — reuses the "Tín hiệu độc giả" board's own design and
+   behavior wholesale (timeline connector, diamond markers, glass cards,
+   bounded scroll window, tabs, quote block, compose bar — all from
+   signal-pulse-v1.css / signal-feed-window.css, untouched). This file only
+   recolors the violet/lavender palette to the site's current cyan brand and
+   swaps the font, per request — no layout, spacing or structure is
+   redeclared. Scoped under #clScope so the (still violet) copy of this same
+   board elsewhere never changes.
 
-.cl-head { margin-bottom: 1.6rem; }
+   signal-pulse-v1.css's own selectors are #tin-hieu-prefixed (id
+   specificity), so plain class overrides can't beat it — every rule here is
+   #clScope-prefixed too, for the same specificity, and this file loads after
+   it, so these win. */
+
+#clScope {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* The whole card palette (timeline line, diamond markers, active-card ring,
+   story tag, quote bar, hot label, like/reply/quote icons) derives from
+   these four tokens — overriding them here recolors all of it at once. */
+#clScope #tin-hieu.sig-wrap {
+  --signal-violet: #26c2dc;
+  --signal-cyan: #26c2dc;
+  --signal-coral: #6fd6e8;
+  --signal-gold: #a0e6f0;
+}
+
+.cl-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: .8rem; padding-top: 1.2rem;
+}
 .cl-kicker {
   display: inline-flex; align-items: center; gap: .45rem;
   color: var(--sh-accent, #26c2dc);
@@ -21,178 +40,82 @@
   width: 6px; height: 6px; border-radius: 50%; background: var(--sh-accent, #26c2dc);
   box-shadow: 0 0 .6rem rgba(38, 194, 220, .7);
 }
-.cl-head h1 {
+.cl-theme-toggle {
+  flex-shrink: 0; border: 1px solid rgba(255, 255, 255, .14); border-radius: .6rem;
+  background: rgba(255, 255, 255, .04); color: var(--sh-muted, rgba(244, 247, 248, .74));
+  padding: .4rem .7rem; font-size: .74rem; cursor: pointer;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-size: 1.6rem; font-weight: 800; letter-spacing: -.01em;
-  color: var(--sh-ink, #f4f7f8); margin: .5rem 0 .35rem;
 }
-.cl-head > p {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-size: .85rem; color: var(--sh-muted, rgba(244, 247, 248, .74));
-  max-width: 46ch; margin: 0 0 .9rem;
+.cl-theme-toggle:hover { border-color: rgba(38, 194, 220, .4); color: var(--sh-accent, #26c2dc); }
+
+#clScope .sig-brand h2 { text-shadow: 0 0 1.2rem rgba(38, 194, 220, .14); }
+
+#clScope #tin-hieu .sig-list::before {
+  background: linear-gradient(180deg, transparent, rgba(38, 194, 220, .62) 10%, rgba(100, 220, 235, .48) 55%, rgba(120, 210, 230, .48) 90%, transparent);
 }
-.cl-stats { display: flex; gap: 1.4rem; }
-.cl-stats span {
-  font-family: 'JetBrains Mono', monospace; font-size: .68rem;
-  color: var(--sh-muted-dim, rgba(244, 247, 248, .5));
+#clScope .sig-tab.on {
+  color: #eafcff;
+  background: linear-gradient(180deg, rgba(38, 194, 220, .34), rgba(20, 110, 125, .22));
+  box-shadow: inset 0 0 1.5rem rgba(38, 194, 220, .16), 0 0 1rem rgba(38, 194, 220, .1);
 }
-.cl-stats b {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-weight: 700; color: var(--sh-ink, #f4f7f8); font-variant-numeric: tabular-nums;
+#clScope .sig-tab.on::after {
+  background: linear-gradient(90deg, transparent, #7fe0ef, var(--signal-cyan), transparent);
+  box-shadow: 0 0 .7rem rgba(38, 194, 220, .8);
+}
+#clScope .sig-live-count {
+  border-color: rgba(38, 194, 220, .5);
+  background: linear-gradient(180deg, rgba(20, 110, 125, .22), rgba(13, 21, 37, .6));
+  color: #7fe0ef;
+}
+#clScope .sig-send {
+  border-color: rgba(38, 194, 220, .64);
+  background: linear-gradient(135deg, #26c2dc, #4fcbd1);
+  box-shadow: 0 0 1rem rgba(38, 194, 220, .26);
 }
 
-.cl-toolbar {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-  gap: .7rem; padding-bottom: .8rem; margin-bottom: .4rem;
-  border-bottom: 1px solid rgba(255, 255, 255, .1);
-}
-.cl-tabs { display: flex; gap: 1.1rem; }
-.cl-tab {
-  font-family: 'JetBrains Mono', monospace; font-size: .68rem; font-weight: 600;
-  letter-spacing: .05em; text-transform: uppercase;
-  color: var(--muted, #8b9bb3); text-decoration: none;
-  padding-bottom: .5rem; margin-bottom: -.81rem;
-  border-bottom: 2px solid transparent;
-}
-.cl-tab.on { color: var(--sh-ink, #f4f7f8); border-color: var(--sh-accent, #26c2dc); }
+/* Highlight flash for a card arrived at via ?highlight=<id> (homepage
+   comment marquee) or a real deep link. */
+#clScope .sig-card.is-highlight .sig-main { border-color: rgba(38, 194, 220, .55); box-shadow: 0 0 1.2rem rgba(38, 194, 220, .3); }
 
-.cl-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
-.cl-search {
-  display: flex; align-items: center; gap: .35rem;
-  background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .1);
-  border-radius: .55rem; padding: .3rem .3rem .3rem .65rem;
+/* ---- light mode, toggled per-visit for this page only ---- */
+#clScope[data-theme="light"] {
+  background: #f4f7fb; color: #16202c; border-radius: 20px; padding-bottom: 1rem;
 }
-.cl-search input {
-  border: 0; background: none; outline: 0; width: 9rem;
-  color: var(--ink, #e8eef8); font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: .82rem;
+#clScope[data-theme="light"] .cl-theme-toggle { border-color: rgba(15, 23, 42, .16); color: #45566b; }
+#clScope[data-theme="light"] .sig-brand p,
+#clScope[data-theme="light"] .sig-meta time,
+#clScope[data-theme="light"] .sig-scroll-status { color: #55677e; }
+#clScope[data-theme="light"] .sig-brand h2 { color: #16202c; text-shadow: none; }
+#clScope[data-theme="light"] .sig-tools {
+  background: linear-gradient(155deg, #ffffff, #f3f6fa);
+  border-color: rgba(15, 23, 42, .1);
 }
-.cl-search input::placeholder { color: var(--sh-muted-dim, rgba(244, 247, 248, .5)); }
-.cl-search button {
-  display: flex; align-items: center; justify-content: center;
-  width: 26px; height: 26px; border-radius: .4rem; border: 0;
-  background: none; color: var(--sh-muted, rgba(244, 247, 248, .74)); cursor: pointer;
+#clScope[data-theme="light"] .sig-tabs { background: rgba(15, 23, 42, .04); border-color: rgba(15, 23, 42, .1); }
+#clScope[data-theme="light"] .sig-tab { color: #55677e; border-right-color: rgba(15, 23, 42, .08); }
+#clScope[data-theme="light"] .sig-tab.on { color: #04525f; }
+#clScope[data-theme="light"] .sig-filter select {
+  background: linear-gradient(180deg, #ffffff, #f3f6fa);
+  border-color: rgba(15, 23, 42, .12); color: #16202c;
 }
-.cl-search button svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
-.cl-search button:hover { color: var(--sh-accent, #26c2dc); }
-
-.cl-controls select {
-  background: rgba(255, 255, 255, .04); color: var(--ink, #e8eef8);
-  border: 1px solid rgba(255, 255, 255, .1); border-radius: .55rem;
-  padding: .5rem .6rem; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: .8rem;
-  max-width: 10rem;
+#clScope[data-theme="light"] .sig-filter::after { color: #55677e; }
+#clScope[data-theme="light"] .sig-main {
+  background: linear-gradient(145deg, #ffffff, #f6f9fc);
+  border-color: rgba(15, 23, 42, .1);
+  box-shadow: 0 .5rem 1.4rem rgba(15, 23, 42, .06);
 }
-.cl-mine {
-  display: inline-flex; align-items: center; gap: .35rem;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: .8rem;
-  color: var(--sh-muted, rgba(244, 247, 248, .74)); white-space: nowrap;
+#clScope[data-theme="light"] .sig-meta b,
+#clScope[data-theme="light"] .sig-text { color: #16202c; }
+#clScope[data-theme="light"] .sig-quote {
+  border-color: rgba(15, 23, 42, .08);
+  background: linear-gradient(90deg, rgba(38, 194, 220, .08), rgba(15, 23, 42, .02));
 }
-.cl-mine input { accent-color: var(--sh-accent, #26c2dc); }
-
-.cl-list { display: flex; flex-direction: column; border: 0; border-radius: 0; background: none; padding: 0; }
-.cl-card.is-hidden { display: none; }
-
-.cl-card {
-  /* .sig-card (styles.css) is a CSS-grid card elsewhere on the site —
-     reused only for the like/reply/quote .closest(".sig-card") JS hooks;
-     this page draws a plain, borderless, divider-separated list instead. */
-  display: block; cursor: pointer;
-  margin: 0 -1rem; padding: 1.1rem 1rem;
-  border: 0; border-bottom: 1px solid rgba(255, 255, 255, .08); border-radius: 0;
-  background: none; transition: background-color .15s ease;
+#clScope[data-theme="light"] .sig-quote p { color: #33455a; }
+#clScope[data-theme="light"] .sig-reply { background: rgba(38, 194, 220, .05); border-color: rgba(15, 23, 42, .08); }
+#clScope[data-theme="light"] .sig-compose {
+  background: linear-gradient(180deg, #ffffff, #f3f6fa);
+  border-color: rgba(15, 23, 42, .1);
 }
-.cl-card:hover, .cl-card:focus-within { background: rgba(255, 255, 255, .025); }
-.cl-card:last-child { border-bottom: 0; }
-.cl-card.is-highlight { background: rgba(38, 194, 220, .1); }
-
-.cl-card-top { display: flex; align-items: flex-start; gap: .65rem; }
-.cl-avatar {
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  width: 36px; height: 36px; border-radius: 50%; overflow: hidden;
-  background: rgba(38, 194, 220, .16); color: var(--sh-accent, #26c2dc);
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700; font-size: .88rem;
-}
-.cl-avatar.sm { width: 26px; height: 26px; font-size: .74rem; }
-.cl-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.cl-who { flex: 1; min-width: 0; }
-.cl-who-row { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
-.cl-who-row b {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700;
-  font-size: .9rem; color: var(--sh-ink, #f4f7f8);
-}
-.cl-badge {
-  font-family: 'JetBrains Mono', monospace; font-size: .58rem; font-weight: 700;
-  letter-spacing: .06em; padding: .1rem .4rem; border-radius: .3rem;
-  background: rgba(38, 194, 220, .18); color: var(--sh-accent, #26c2dc);
-}
-.cl-meta {
-  display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-top: .15rem;
-  font-family: 'JetBrains Mono', monospace; font-size: .64rem;
-  color: var(--sh-muted-dim, rgba(244, 247, 248, .5));
-}
-.cl-hot { color: #e6c47b; }
-.cl-story-tag { color: var(--sh-accent, #26c2dc); text-decoration: none; }
-.cl-story-tag:hover { text-decoration: underline; }
-
-.cl-quote {
-  margin: .7rem 0 0; padding: .5rem 0 .5rem .8rem;
-  border-left: 2px solid var(--sh-accent, #26c2dc);
-}
-.cl-quote p {
-  margin: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-style: italic;
-  font-size: .82rem; color: var(--sh-muted, rgba(244, 247, 248, .74));
-}
-.cl-quote cite {
-  display: block; margin-top: .3rem; font-style: normal;
-  font-family: 'JetBrains Mono', monospace; font-size: .6rem;
-  color: var(--sh-muted-dim, rgba(244, 247, 248, .5));
-}
-
-.cl-body, .cl-text {
-  margin: .6rem 0 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-size: .87rem; line-height: 1.55; color: var(--sh-muted, rgba(244, 247, 248, .86));
-}
-
-.cl-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin-top: .7rem; }
-.cl-like, .cl-act {
-  font-family: 'JetBrains Mono', monospace; font-size: .68rem; font-weight: 600;
-  letter-spacing: .02em; padding: 0; border: 0; background: none;
-  color: var(--sh-muted-dim, rgba(244, 247, 248, .55)); cursor: pointer;
-}
-.cl-like::before { content: "♥ "; }
-.cl-like.on { color: #f0b4d2; }
-.cl-act:hover, .cl-like:hover { color: var(--sh-accent, #26c2dc); }
-.cl-act-danger:hover { color: #e06c6c; }
-
-.cl-reply {
-  display: flex; gap: .5rem; margin: .8rem 0 0 1.5rem; padding-top: 0;
-  border: 0; background: none;
-}
-.cl-reply.is-more { display: none; }
-.cl-reply-body { flex: 1; min-width: 0; }
-.cl-to { margin: 0; font-family: 'JetBrains Mono', monospace; font-size: .6rem; color: var(--sh-muted-dim, rgba(244, 247, 248, .5)); }
-.cl-more-replies {
-  margin: .6rem 0 0 1.5rem;
-  background: none; border: 0; padding: 0; cursor: pointer;
-  font-family: 'JetBrains Mono', monospace; font-size: .66rem;
-  color: var(--sh-accent, #26c2dc);
-}
-
-.cl-more {
-  display: block; margin: .8rem auto 1.4rem; padding: .5rem 1rem;
-  background: none; border: 1px solid rgba(255, 255, 255, .12); border-radius: .5rem;
-  color: var(--sh-muted, rgba(244, 247, 248, .74)); cursor: pointer;
-  font-family: 'JetBrains Mono', monospace; font-size: .68rem;
-}
-.cl-more:hover { border-color: rgba(38, 194, 220, .4); color: var(--sh-accent, #26c2dc); }
-
-.cl-btn {
-  display: block; width: 100%; text-align: center;
-  padding: .8rem 1rem; border-radius: .7rem; border: 0;
-  background: var(--sh-accent, #26c2dc); color: #04222a;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700; font-size: .88rem;
-  cursor: pointer;
-}
-
-@media (min-width: 640px) {
-  .cl-head h1 { font-size: 1.9rem; }
-}
+#clScope[data-theme="light"] .sig-fake { background: rgba(15, 23, 42, .04); border-color: rgba(15, 23, 42, .12); color: #55677e; }
+#clScope[data-theme="light"] .sig-empty { color: #55677e; }
+#clScope[data-theme="light"] .sig-card::before { background: #f4f7fb; }
+#clScope[data-theme="light"] .sig-card.is-highlight .sig-main { border-color: rgba(38, 194, 220, .6); box-shadow: 0 0 1.2rem rgba(38, 194, 220, .22); }
