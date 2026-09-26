@@ -52,7 +52,7 @@
   height: min(78vw, 380px);
   min-height: 260px;
   perspective: 1400px;
-  touch-action: pan-y;
+  touch-action: none;
   cursor: grab;
   outline: none;
 }
