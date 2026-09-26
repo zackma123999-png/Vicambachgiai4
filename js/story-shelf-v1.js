@@ -342,14 +342,25 @@
     carousel.addEventListener("pointerenter", () => { hoverPaused = true; });
     carousel.addEventListener("pointerleave", () => { hoverPaused = false; });
 
-    function autoTick() {
-      if (!dragging && !hoverPaused && !manualAnim && !reduceMotion() && !ring.querySelector(".shelf-card-face.is-playing")) {
-        rotation += 0.32;
-        paint();
-      }
-      autoRaf = requestAnimationFrame(autoTick);
+    // Auto-advance holds each card still and sharp, then makes one quick
+    // snap to the next — it does NOT crawl continuously. A constant slow
+    // rotation spends most of its time part-way between two cards, and with
+    // few items (e.g. only 2 in Trạm Preview) that halfway point sits both
+    // cards at the exact same, symmetric opacity: a lingering translucent
+    // double-exposure. Snapping quickly (reusing the same eased rotateTo()
+    // as the arrow buttons) means that ambiguous in-between state only ever
+    // shows for one brief transition, not for seconds at a stretch.
+    function scheduleAutoAdvance() {
+      window.clearTimeout(autoRaf);
+      if (reduceMotion()) return;
+      autoRaf = window.setTimeout(() => {
+        if (!dragging && !hoverPaused && !manualAnim && !ring.querySelector(".shelf-card-face.is-playing")) {
+          stepBy(1);
+        }
+        scheduleAutoAdvance();
+      }, 3200);
     }
-    if (!reduceMotion()) autoRaf = requestAnimationFrame(autoTick);
+    scheduleAutoAdvance();
 
     window.addEventListener("resize", () => { measure(); layout(); }, { passive: true });
 
