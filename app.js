@@ -1244,11 +1244,9 @@
         <h2 class="shelf-title">Trạm Preview</h2>
       </header>
       <div class="shelf-stage">
-        <button type="button" class="shelf-nav shelf-nav-prev" data-shelf-prev aria-label="Truyện trước">‹</button>
         <div class="shelf-carousel" data-shelf-carousel data-active-tab="preview">
           <div class="shelf-ring" data-shelf-ring>${list.map((item) => shelfCardHTML(item)).join("")}</div>
         </div>
-        <button type="button" class="shelf-nav shelf-nav-next" data-shelf-next aria-label="Truyện sau">›</button>
       </div>
       ${shelfHeroHTML(leadItem)}
       <script type="application/json" data-shelf-payload>${jsonScriptPayload(payload)}</script>
