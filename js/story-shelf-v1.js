@@ -1,9 +1,10 @@
-// KỆ TRUYỆN (Trạm Preview): vòng bìa 3D xoay theo hành động CUỘN TRANG,
-// giống hệt cơ chế demo vicambachgiai4-gallery-demo — cuộn xuống/lên thì
-// vòng xoay theo, ngừng cuộn thì tự trôi rất chậm liên tục. Không còn nút
-// mũi tên, không kéo tay, không tự nhảy theo hẹn giờ. Mỗi bìa vẫn là <a>
-// dẫn tới trang truyện; panel thông tin bên dưới mang nút "Đọc truyện" /
-// "Xem video" (phát tại chỗ trên bìa đang ở giữa, không điều hướng).
+// KỆ TRUYỆN (Trạm Preview): vòng bìa 3D xoay bằng cách VUỐT NGANG bằng tay
+// (hoặc kéo chuột) — quét ngón tay qua trái/phải thì bìa trượt theo ngay,
+// thả tay ra thì trượt tiếp theo đà rồi chậm dần, xoay vòng liên tục không
+// giới hạn điểm đầu/cuối. Khi không ai chạm vào thì tự trôi chậm để vẫn
+// cảm giác "sống". Mỗi bìa vẫn là <a> dẫn tới trang truyện; panel thông
+// tin bên dưới mang nút "Đọc truyện" / "Xem video" (phát tại chỗ trên bìa
+// đang ở giữa, không điều hướng).
 (function () {
   const esc = (value) => {
     const node = document.createElement("span");
@@ -84,12 +85,11 @@
     face.innerHTML = faceInnerHTML(item);
   }
 
-  // Idle auto-drift speed — deliberately very slow (matches the reference
-  // demo's 0.02deg/frame ≈ one full revolution every few minutes at 60fps):
-  // it's just an ambient "still alive" cue, not the primary interaction.
-  // Scrolling the page is what actually drives the ring around.
-  const IDLE_DRIFT_DEG_PER_FRAME = 0.02;
-  const SCROLL_IDLE_MS = 150;
+  // Tuning for the swipe/momentum feel:
+  const DRAG_TO_DEG = 0.5; // độ xoay trên mỗi px vuốt ngang
+  const MOMENTUM_DECAY = 0.94; // mỗi khung hình giữ lại 94% vận tốc còn lại
+  const MOMENTUM_MIN_DEG = 0.02; // dưới ngưỡng này coi như hết đà, nhường cho tự trôi
+  const IDLE_DRIFT_DEG_PER_FRAME = 0.04; // tốc độ tự trôi khi không chạm/không còn đà
 
   function initShelf(section) {
     if (!section || section.dataset.shelfBound === "true") return;
@@ -112,9 +112,14 @@
     let rotation = 0;
     let frontIndex = -1;
     let radius = 260;
-    let isScrolling = false;
-    let scrollIdleTimer = 0;
-    let idleRaf = 0;
+    let dragging = false;
+    let dragStartX = 0;
+    let dragStartRot = 0;
+    let dragMoved = 0;
+    let lastMoveX = 0;
+    let lastMoveTime = 0;
+    let momentum = 0; // độ/khung hình, áp dụng sau khi thả tay
+    let dragWatchdog = 0;
 
     function anglePerItem() {
       return list.length ? 360 / list.length : 0;
@@ -178,64 +183,116 @@
       if (hero) hero.outerHTML = heroHTML(dataFromCard(card));
     }
 
-    // The ring's rotation is a direct function of how far down the page has
-    // been scrolled — exactly the reference demo's mechanism: rotation =
-    // (scrollY / maxScrollY) * 360deg. Scrolling the page down turns the
-    // ring one way, scrolling up turns it back.
-    function scrollRotationDeg() {
-      const doc = document.documentElement;
-      const scrollable = doc.scrollHeight - window.innerHeight;
-      const progress = scrollable > 0 ? window.scrollY / scrollable : 0;
-      return progress * 360;
-    }
-
-    function onScroll() {
-      isScrolling = true;
-      window.clearTimeout(scrollIdleTimer);
-      rotation = scrollRotationDeg();
-      paint();
-      scrollIdleTimer = window.setTimeout(() => { isScrolling = false; }, SCROLL_IDLE_MS);
-    }
-
-    // While not actively scrolling (and nothing else needs stillness — an
-    // open video, or the visitor's own reduced-motion preference), drift on
-    // its own very slowly so the shelf still feels alive between scrolls.
-    function idleDrift() {
-      if (!isScrolling && !reduceMotion() && !ring.querySelector(".shelf-card-face.is-playing")) {
-        rotation += IDLE_DRIFT_DEG_PER_FRAME;
-        paint();
-      }
-      idleRaf = requestAnimationFrame(idleDrift);
-    }
-
     function buildRing() {
       ring.innerHTML = list.map((item) => cardHTML(item)).join("");
       frontIndex = -1;
       measure();
-      rotation = scrollRotationDeg();
       paint();
+    }
+
+    // A single rAF loop drives everything the ring does on its own (never
+    // while a finger/mouse is actively dragging it, since pointermove already
+    // sets `rotation` directly then): first bleed off any swipe momentum,
+    // then once that's spent, fall back to a slow ambient drift so the shelf
+    // still feels alive when nobody is touching it. Playing a video, or the
+    // visitor's own reduced-motion preference, pauses only the ambient
+    // drift — never the momentum from their own swipe, since that's a direct
+    // response to something they just did, not automatic motion.
+    function tick() {
+      if (!dragging) {
+        if (Math.abs(momentum) > MOMENTUM_MIN_DEG) {
+          rotation += momentum;
+          momentum *= MOMENTUM_DECAY;
+          paint();
+        } else if (!reduceMotion() && !ring.querySelector(".shelf-card-face.is-playing")) {
+          rotation += IDLE_DRIFT_DEG_PER_FRAME;
+          paint();
+        }
+      }
+      requestAnimationFrame(tick);
     }
 
     // iOS Safari ignores the page's user-scalable=no and, in practice, does
     // not reliably honor touch-action for the pinch gesture either — the
     // only thing that actually stops it here is preventDefault() on the
-    // multi-touch move/gesture events themselves. Single-finger scrolling
-    // (which is what now drives the ring) is untouched by this.
+    // multi-touch move/gesture events themselves.
     carousel.addEventListener("touchmove", (e) => {
       if (e.touches && e.touches.length > 1) e.preventDefault();
     }, { passive: false });
     carousel.addEventListener("gesturestart", (e) => e.preventDefault());
     carousel.addEventListener("gesturechange", (e) => e.preventDefault());
 
-    // A cover on the Trạm Preview tab never navigates on its own — reading
-    // or watching the teaser both go through the explicit buttons in the
-    // info panel instead, so a stray tap while scrolling can't yank the
-    // visitor off the homepage. The site's global router is a document-level
-    // click listener that reads any `a[href="#/..."]` click and navigates —
-    // it never checks `defaultPrevented`, so `preventDefault()` alone does
-    // NOT stop it; `stopPropagation()` is the only thing that keeps this
-    // click from ever reaching that listener.
+    // pointermove/up listen on window rather than the carousel, and we never
+    // call setPointerCapture: capturing the pointer on the carousel also
+    // silently retargets the FOLLOWING click event's e.target to the
+    // carousel itself (a real browser quirk) — so a tap on something inside
+    // the ring (the video close button, a card) would never resolve to the
+    // actual element that was tapped. Tracking via window avoids that trap
+    // while still following the drag past the carousel's own edges.
+    //
+    // A device that starts a touch/pointer sequence but never delivers a
+    // matching pointerup/pointercancel (a system gesture stealing it
+    // mid-way, a dropped event on a flaky mobile browser) would otherwise
+    // leave `dragging` stuck true forever, silently freezing the ring. This
+    // watchdog is a hard ceiling: if no real pointerup shows up within 5s,
+    // force the drag state closed so the ring can never wedge on it.
+    carousel.addEventListener("pointerdown", (e) => {
+      if (e.button !== undefined && e.button !== 0) return;
+      dragging = true;
+      momentum = 0;
+      dragMoved = 0;
+      dragStartX = e.clientX;
+      dragStartRot = rotation;
+      lastMoveX = e.clientX;
+      lastMoveTime = performance.now();
+      window.clearTimeout(dragWatchdog);
+      dragWatchdog = window.setTimeout(() => { dragging = false; }, 5000);
+    });
+    window.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      const now = performance.now();
+      const dx = e.clientX - dragStartX;
+      dragMoved = Math.max(dragMoved, Math.abs(dx));
+      rotation = dragStartRot + dx * DRAG_TO_DEG;
+      const dt = now - lastMoveTime;
+      if (dt > 0) {
+        // Vận tốc tức thời trong khoảng di chuyển gần nhất — dùng để tính đà
+        // trượt tiếp khi thả tay, mượt hơn nhiều so với chỉ nhìn tổng quãng
+        // đường kéo từ lúc bắt đầu.
+        momentum = ((e.clientX - lastMoveX) * DRAG_TO_DEG / dt) * 16.6667;
+      }
+      lastMoveX = e.clientX;
+      lastMoveTime = now;
+      paint();
+    });
+    function endDrag() {
+      if (!dragging) return;
+      window.clearTimeout(dragWatchdog);
+      dragging = false;
+      if (dragMoved > 6) {
+        section.dataset.shelfJustDragged = "true";
+        window.setTimeout(() => { delete section.dataset.shelfJustDragged; }, 0);
+      } else {
+        momentum = 0;
+      }
+    }
+    window.addEventListener("pointerup", endDrag);
+    window.addEventListener("pointercancel", endDrag);
+
+    // A real drag must never fire the link/button underneath it. A cover on
+    // the Trạm Preview tab also never navigates on its own even without a
+    // drag — reading or watching the teaser both go through the explicit
+    // buttons in the info panel instead. The site's global router is a
+    // document-level click listener that reads any `a[href="#/..."]` click
+    // and navigates — it never checks `defaultPrevented`, so
+    // `preventDefault()` alone does NOT stop it; `stopPropagation()` is the
+    // only thing that keeps a click from ever reaching that listener.
     ring.addEventListener("click", (e) => {
+      if (section.dataset.shelfJustDragged === "true") {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
       const card = e.target.closest("[data-shelf-card]");
       if (!card) return;
       const closeIcon = e.target.closest(".shelf-card-close");
@@ -268,9 +325,8 @@
       if (frontCard) playOnCard(frontCard, dataFromCard(frontCard));
     });
 
-    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", () => { measure(); paint(); }, { passive: true });
-    idleRaf = requestAnimationFrame(idleDrift);
+    requestAnimationFrame(tick);
 
     buildRing();
   }
