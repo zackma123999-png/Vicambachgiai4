@@ -273,6 +273,14 @@
     // card) would never resolve to the actual element that was tapped.
     // Tracking via window avoids that trap entirely while still following
     // the drag past the carousel's own edges.
+    // A device that starts a touch/pointer sequence but never delivers a
+    // matching pointerup/pointercancel (a system gesture stealing it mid-way,
+    // a dropped event on a flaky mobile browser, etc.) would otherwise leave
+    // `dragging` stuck true forever — silently freezing the carousel, since
+    // every drag/auto-advance check gates on `!dragging`. This watchdog is a
+    // hard ceiling: if no real pointerup shows up within 5s of a touch start,
+    // force the drag state closed so the carousel can never wedge on it.
+    let dragWatchdog = 0;
     carousel.addEventListener("pointerdown", (e) => {
       if (e.button !== undefined && e.button !== 0) return;
       cancelRotAnim();
@@ -281,6 +289,8 @@
       dragStartX = e.clientX;
       dragStartRot = rotation;
       dragStartTime = Date.now();
+      window.clearTimeout(dragWatchdog);
+      dragWatchdog = window.setTimeout(() => { dragging = false; }, 5000);
     });
     window.addEventListener("pointermove", (e) => {
       if (!dragging) return;
@@ -291,6 +301,7 @@
     });
     function endDrag() {
       if (!dragging) return;
+      window.clearTimeout(dragWatchdog);
       dragging = false;
       const wasRealDrag = dragMoved > 6;
       if (wasRealDrag) {
@@ -365,12 +376,32 @@
     // double-exposure. Snapping quickly (reusing the same eased rotateTo()
     // as the arrow buttons) means that ambiguous in-between state only ever
     // shows for one brief transition, not for seconds at a stretch.
+    //
+    // Watchdog: `dragging`/`hoverPaused`/`manualAnim` are three independent
+    // flags gating the advance, each set by its own event listener — if any
+    // one of them were ever left stuck true by a missed/misordered browser
+    // event, the whole carousel would silently freeze forever with no way
+    // to recover. Rather than trust every flag never misfires, track how
+    // long it's actually been since the ring last moved and force an
+    // advance (clearing the stuck flags) once that gap gets implausibly
+    // long. An open video is the one legitimate reason to pause for a
+    // while, so it resets the clock instead of tripping the watchdog.
+    const STUCK_WATCHDOG_MS = 12000;
+    let lastAdvanceAt = Date.now();
     function scheduleAutoAdvance() {
       window.clearTimeout(autoRaf);
-      if (reduceMotion()) return;
+      if (reduceMotion() || list.length < 2) return;
       autoRaf = window.setTimeout(() => {
-        if (!dragging && !hoverPaused && !manualAnim && !ring.querySelector(".shelf-card-face.is-playing")) {
-          stepBy(1);
+        if (ring.querySelector(".shelf-card-face.is-playing")) {
+          lastAdvanceAt = Date.now();
+        } else {
+          const blocked = dragging || hoverPaused || manualAnim;
+          const stuck = Date.now() - lastAdvanceAt > STUCK_WATCHDOG_MS;
+          if (!blocked || stuck) {
+            if (stuck) { dragging = false; hoverPaused = false; cancelRotAnim(); }
+            stepBy(1);
+          }
+          lastAdvanceAt = Date.now();
         }
         scheduleAutoAdvance();
       }, 3200);
