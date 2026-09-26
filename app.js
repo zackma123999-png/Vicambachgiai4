@@ -1186,6 +1186,8 @@
     const post = tiktokPostId(s.tiktok_intro_url);
     const genre = ((s.genres || [])[0] || (s.tags || [])[0] || {}).name || "";
     const teaser = String(s.synopsis || "").replace(/\s+/g, " ").trim().slice(0, 200);
+    const firstChapter = VCBG.listChapters(s.id, { sort: "asc" })[0];
+    const readHref = firstChapter ? `#/truyen/${esc(s.slug)}/chuong-${firstChapter.number}` : `#/truyen/${esc(s.slug)}`;
     return {
       id: s.id,
       slug: s.slug,
@@ -1196,7 +1198,15 @@
       genre,
       post,
       teaser,
+      readHref,
     };
+  }
+  const SHELF_TEASER_LEN = 130;
+  function shelfTeaserHTML(item) {
+    const full = item.teaser || "Một câu chuyện mới đang được chuẩn bị tại ViCamBachGiai.";
+    const truncated = full.length > SHELF_TEASER_LEN;
+    const shown = truncated ? full.slice(0, SHELF_TEASER_LEN).trim() : full;
+    return `${esc(shown)}${truncated ? `… <a class="shelf-hero-more" href="${esc(item.readHref)}">Xem tiếp</a>` : ""}`;
   }
   function jsonScriptPayload(value) {
     return JSON.stringify(value)
@@ -1204,28 +1214,24 @@
       .replace(/</g, "\\u003c")
       .replace(/>/g, "\\u003e");
   }
-  function shelfCardHTML(item, tabKey) {
-    const isPreview = tabKey === "preview";
-    const dataAttrs = `data-slug="${esc(item.slug)}" data-title="${esc(item.title)}" data-author="${esc(item.author)}" data-cover="${esc(item.cover)}" data-status="${esc(item.status)}" data-genre="${esc(item.genre)}" data-post="${esc(item.post)}" data-teaser="${esc(item.teaser)}"`;
+  function shelfCardHTML(item) {
+    const dataAttrs = `data-slug="${esc(item.slug)}" data-title="${esc(item.title)}" data-author="${esc(item.author)}" data-cover="${esc(item.cover)}" data-status="${esc(item.status)}" data-genre="${esc(item.genre)}" data-post="${esc(item.post)}" data-teaser="${esc(item.teaser)}" data-read-href="${esc(item.readHref)}"`;
     const face = `<span class="shelf-card-face">
         ${item.cover ? `<img src="${esc(item.cover)}" alt="Bìa ${esc(item.title)}" loading="lazy">` : `<b aria-hidden="true">V</b>`}
-        ${isPreview && item.post ? `<span class="shelf-card-play" role="button" tabindex="-1" aria-label="Phát teaser ${esc(item.title)} ngay tại đây">▶</span>` : ""}
       </span>`;
-    return isPreview
-      ? `<button type="button" class="shelf-card" data-shelf-card ${dataAttrs} aria-label="Chọn truyện ${esc(item.title)}">${face}</button>`
-      : `<a class="shelf-card" data-shelf-card href="#/truyen/${esc(item.slug)}" ${dataAttrs} aria-label="Mở truyện ${esc(item.title)}">${face}</a>`;
+    return `<a class="shelf-card" data-shelf-card href="#/truyen/${esc(item.slug)}" ${dataAttrs} aria-label="Mở truyện ${esc(item.title)}">${face}</a>`;
   }
-  function shelfHeroHTML(item, tabKey) {
+  function shelfHeroHTML(item) {
     if (!item) return "";
-    const isPreview = tabKey === "preview";
     return `<div class="shelf-hero" data-shelf-hero>
-      <span class="shelf-hero-now">${isPreview ? (item.post ? "Sẵn sàng phát — bấm ▶ trên bìa" : "Teaser đang chuẩn bị") : esc(item.status)}</span>
       <h3>${esc(item.title)}</h3>
       <p class="shelf-hero-author">${esc(item.author || "Chưa cập nhật tác giả")}</p>
-      ${isPreview
-        ? `<div class="shelf-hero-pills"><span>${esc(item.status)}</span>${item.genre ? `<span>${esc(item.genre)}</span>` : ""}</div>
-           <p class="shelf-hero-teaser">${esc(item.teaser || "Một câu chuyện mới đang được chuẩn bị tại ViCamBachGiai.")}</p>`
-        : `<a class="shelf-hero-cta" href="#/truyen/${esc(item.slug)}">Xem chi tiết ›</a>`}
+      <div class="shelf-hero-pills"><span>${esc(item.status)}</span>${item.genre ? `<span>${esc(item.genre)}</span>` : ""}</div>
+      <p class="shelf-hero-teaser">${shelfTeaserHTML(item)}</p>
+      <div class="shelf-hero-actions">
+        ${item.post ? `<button type="button" class="shelf-hero-play" data-shelf-hero-play data-post="${esc(item.post)}" data-title="${esc(item.title)}" data-cover="${esc(item.cover)}" aria-label="Xem video ${esc(item.title)} ngay tại đây">▶ Xem video</button>` : ""}
+        <a class="shelf-hero-cta" href="${esc(item.readHref)}">Đọc truyện ›</a>
+      </div>
     </div>`;
   }
   function storyShelfHTML(groups) {
@@ -1252,11 +1258,11 @@
       <div class="shelf-stage">
         <button type="button" class="shelf-nav shelf-nav-prev" data-shelf-prev aria-label="Truyện trước">‹</button>
         <div class="shelf-carousel" data-shelf-carousel data-active-tab="${initial.key}">
-          <div class="shelf-ring" data-shelf-ring>${initial.list.map((item) => shelfCardHTML(item, initial.key)).join("")}</div>
+          <div class="shelf-ring" data-shelf-ring>${initial.list.map((item) => shelfCardHTML(item)).join("")}</div>
         </div>
         <button type="button" class="shelf-nav shelf-nav-next" data-shelf-next aria-label="Truyện sau">›</button>
       </div>
-      ${shelfHeroHTML(leadItem, initial.key)}
+      ${shelfHeroHTML(leadItem)}
       <script type="application/json" data-shelf-payload>${jsonScriptPayload(payload)}</script>
     </section>`;
   }

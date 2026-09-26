@@ -104,29 +104,6 @@
   font-size: 2.4rem;
   color: var(--sh-accent-soft);
 }
-.shelf-card-play {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.7);
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: rgba(4, 20, 26, 0.75);
-  color: var(--sh-ink);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.15rem;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.shelf-card.is-front .shelf-card-play {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translate(-50%, -50%) scale(1);
-}
 .shelf-card-close {
   position: absolute;
   top: 0.5rem;
@@ -161,17 +138,8 @@
   margin-top: 1.2rem;
   text-align: center;
 }
-.shelf-hero-now {
-  display: inline-block;
-  font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 0.1em;
-  color: var(--sh-accent-soft);
-  font-size: 0.78rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
 .shelf-hero h3 {
-  margin: 0.3rem 0 0.15rem;
+  margin: 0 0 0.15rem;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   color: var(--sh-ink);
   font-size: 1.2rem;
@@ -183,23 +151,58 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.68rem;
   letter-spacing: 0.04em;
-  padding: 0.2rem 0.55rem;
+  padding: 0.2rem 0.6rem;
   border-radius: 999px;
-  border: 1px solid var(--sh-line);
-  color: var(--sh-accent-soft);
-}
-.shelf-hero-teaser { margin: 0 auto; max-width: 46rem; color: var(--sh-muted); font-size: 0.9rem; line-height: 1.55; }
-.shelf-hero-cta {
-  display: inline-block;
-  margin-top: 0.3rem;
-  color: var(--sh-accent-ink);
   background: var(--sh-accent);
+  color: var(--sh-accent-ink);
+  font-weight: 700;
+}
+.shelf-hero-teaser {
+  margin: 0 auto;
+  max-width: 46rem;
+  color: var(--sh-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  text-align: justify;
+  text-align-last: center;
+}
+.shelf-hero-more {
+  color: var(--sh-accent-soft);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.shelf-hero-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+}
+.shelf-hero-cta,
+.shelf-hero-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   padding: 0.45rem 1rem;
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 700;
   text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
 }
+.shelf-hero-cta {
+  color: var(--sh-accent-ink);
+  background: var(--sh-accent);
+  border: none;
+}
+.shelf-hero-play {
+  color: var(--sh-accent-soft);
+  background: transparent;
+  border: 1px solid var(--sh-line);
+}
+.shelf-hero-play:hover { background: rgba(38, 194, 220, 0.12); }
 
 @media (max-width: 640px) {
   .shelf-carousel { height: min(90vw, 340px); }
