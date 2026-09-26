@@ -1177,21 +1177,131 @@
       </div>
     </section>`;
   }
+  // KỆ TRUYỆN: unified homepage carousel merging Trạm Preview + the 3 status
+  // rails (Đang lên sóng/Đã hoàn thành/Sắp ra mắt) into one rotating shelf.
+  // Behaviour parity with the standalone pages: the "preview" tab switches an
+  // inline hero + plays the TikTok teaser (never navigates); the status tabs
+  // are plain links to the story page, same as rail()/storyCard().
+  function shelfItemData(s) {
+    const post = tiktokPostId(s.tiktok_intro_url);
+    const genre = ((s.genres || [])[0] || (s.tags || [])[0] || {}).name || "";
+    const teaser = String(s.synopsis || "").replace(/\s+/g, " ").trim().slice(0, 200);
+    return {
+      id: s.id,
+      slug: s.slug,
+      title: s.title || "",
+      author: s.author || "",
+      cover: s.cover || "",
+      status: storyStatusLabel(s),
+      genre,
+      post,
+      teaser,
+    };
+  }
+  function jsonScriptPayload(value) {
+    return JSON.stringify(value)
+      .replace(/&/g, "\\u0026")
+      .replace(/</g, "\\u003c")
+      .replace(/>/g, "\\u003e");
+  }
+  function shelfCardHTML(item, tabKey) {
+    const isPreview = tabKey === "preview";
+    const dataAttrs = `data-slug="${esc(item.slug)}" data-title="${esc(item.title)}" data-author="${esc(item.author)}" data-cover="${esc(item.cover)}" data-status="${esc(item.status)}" data-genre="${esc(item.genre)}" data-post="${esc(item.post)}" data-teaser="${esc(item.teaser)}"`;
+    const face = `<span class="shelf-card-face">
+        ${item.cover ? `<img src="${esc(item.cover)}" alt="Bìa ${esc(item.title)}" loading="lazy">` : `<b aria-hidden="true">V</b>`}
+        <span class="shelf-card-shade"></span>
+        <span class="shelf-card-status">${esc(item.status)}</span>
+        ${isPreview && item.post ? `<span class="shelf-card-play" aria-hidden="true">▶</span>` : ""}
+        <span class="shelf-card-title">${esc(item.title)}</span>
+      </span>`;
+    return isPreview
+      ? `<button type="button" class="shelf-card" data-shelf-card ${dataAttrs} aria-label="Chọn truyện ${esc(item.title)}">${face}</button>`
+      : `<a class="shelf-card" data-shelf-card href="#/truyen/${esc(item.slug)}" ${dataAttrs} aria-label="Mở truyện ${esc(item.title)}">${face}</a>`;
+  }
+  function shelfHeroHTML(item, tabKey) {
+    if (!item) return "";
+    if (tabKey === "preview") {
+      return `<div class="shelf-hero" data-shelf-hero>
+        <div class="shelf-hero-media">
+          ${item.cover ? `<img class="shelf-hero-cover" src="${esc(item.cover)}" alt="Bìa ${esc(item.title)}">` : `<span class="shelf-hero-no-cover" aria-hidden="true">V</span>`}
+          ${item.post
+            ? `<button type="button" class="shelf-hero-play" data-shelf-play aria-label="Phát teaser ${esc(item.title)} ngay tại đây"><span aria-hidden="true">▶</span><small>Phát tại đây</small></button>`
+            : `<span class="shelf-hero-pending"><i aria-hidden="true"></i>Teaser đang chuẩn bị</span>`}
+        </div>
+        <div class="shelf-hero-copy">
+          <span class="shelf-hero-now"><i aria-hidden="true"></i>${item.post ? "Sẵn sàng phát" : "Đang chuẩn bị"}</span>
+          <h3>${esc(item.title)}</h3>
+          <p class="shelf-hero-author">${esc(item.author || "Chưa cập nhật tác giả")}</p>
+          <div class="shelf-hero-pills"><span>${esc(item.status)}</span>${item.genre ? `<span>${esc(item.genre)}</span>` : ""}</div>
+          <p class="shelf-hero-teaser">${esc(item.teaser || "Một câu chuyện mới đang được chuẩn bị tại ViCamBachGiai.")}</p>
+        </div>
+      </div>`;
+    }
+    return `<div class="shelf-hero shelf-hero-simple" data-shelf-hero>
+      <div class="shelf-hero-copy">
+        <span class="shelf-hero-now">${esc(item.status)}</span>
+        <h3>${esc(item.title)}</h3>
+        <p class="shelf-hero-author">${esc(item.author || "—")}</p>
+        <a class="shelf-hero-cta" href="#/truyen/${esc(item.slug)}">Xem chi tiết ›</a>
+      </div>
+    </div>`;
+  }
+  function storyShelfHTML(groups) {
+    const tabDefs = [
+      { key: "preview", label: "Trạm Preview" },
+      { key: "ongoing", label: "Đang lên sóng" },
+      { key: "completed", label: "Đã hoàn thành" },
+      { key: "upcoming", label: "Sắp ra mắt" },
+    ];
+    const tabs = tabDefs.map((t) => ({ ...t, list: (groups[t.key] || []).filter(Boolean) })).filter((t) => t.list.length);
+    if (!tabs.length) return "";
+    const initial = tabs[0];
+    const leadItem = initial.key === "preview"
+      ? (initial.list.find((it) => it.post) || initial.list[0])
+      : initial.list[0];
+    const payload = {};
+    tabs.forEach((t) => { payload[t.key] = t.list; });
+    return `<section class="wrap shelf" id="keTruyen" data-shelf aria-labelledby="shelfTitle">
+      <header class="shelf-head">
+        <div class="shelf-head-copy"><small>KỆ TRUYỆN</small><h2 id="shelfTitle">Kệ Truyện ViCamBachGiai</h2><p>Trạm Preview · Đang lên sóng · Đã hoàn thành · Sắp ra mắt — xoay để khám phá</p></div>
+        <div class="shelf-tabs" role="tablist" aria-label="Chọn khu vực kệ truyện">
+          ${tabs.map((t, i) => `<button type="button" class="shelf-tab${i === 0 ? " is-active" : ""}" role="tab" aria-selected="${i === 0 ? "true" : "false"}" data-shelf-tab="${t.key}">${esc(t.label)}</button>`).join("")}
+        </div>
+      </header>
+      <div class="shelf-stage">
+        <button type="button" class="shelf-nav shelf-nav-prev" data-shelf-prev aria-label="Truyện trước">‹</button>
+        <div class="shelf-carousel" data-shelf-carousel data-active-tab="${initial.key}">
+          <div class="shelf-ring" data-shelf-ring>${initial.list.map((item) => shelfCardHTML(item, initial.key)).join("")}</div>
+        </div>
+        <button type="button" class="shelf-nav shelf-nav-next" data-shelf-next aria-label="Truyện sau">›</button>
+      </div>
+      ${shelfHeroHTML(leadItem, initial.key)}
+      <script type="application/json" data-shelf-payload>${jsonScriptPayload(payload)}</script>
+    </section>`;
+  }
   function pageHome() {
     const featured = VCBG.listStories({ featured: true });
     const ongoing = homePrioritySort(VCBG.listStories({ status: "ongoing" }).filter((s) => !s.upcoming));
     const updated = VCBG.listStories({ sort: "updated" }).filter((s) => !s.upcoming);
     const done = homePrioritySort(VCBG.listStories({ status: "completed" }).filter((s) => !s.upcoming));
     const soon = homePrioritySort(VCBG.listStories({ upcoming: true }));
+    const previewStories = homePrioritySort(VCBG.listStories({ sort: "updated" }).filter((story) => tiktokPostId(story.tiktok_intro_url)));
     const slideMap = new Map();
     featured.concat(ongoing, updated, done, soon).forEach((s) => {
       if (s && s.id && !slideMap.has(s.id)) slideMap.set(s.id, s);
     });
     const slides = Array.from(slideMap.values());
+    const shelfGroups = {
+      preview: previewStories.map(shelfItemData),
+      ongoing: ongoing.map(shelfItemData),
+      completed: done.map(shelfItemData),
+      upcoming: soon.map(shelfItemData),
+    };
     setMeta("ViCamBachGiai — Thư viện Bách Hợp", VCBG.settings().tagline);
     app().innerHTML =
       header("home") +
       signalHeroHTML(slides) +
+      storyShelfHTML(shelfGroups) +
       resonanceHomePanel() +
       footer();
     bindChrome();
