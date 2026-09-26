@@ -386,11 +386,19 @@
     // advance (clearing the stuck flags) once that gap gets implausibly
     // long. An open video is the one legitimate reason to pause for a
     // while, so it resets the clock instead of tripping the watchdog.
+    // Auto-advance itself is not skipped for prefers-reduced-motion: it's a
+    // content change (which cover is shown), not a motion effect. rotateTo()
+    // already reads reduceMotion() on its own and swaps the smooth tween for
+    // an instant jump in that case — that's the right amount of restraint.
+    // Fully disabling the schedule here as well would mean anyone with
+    // Reduce Motion on (a common iOS accessibility/battery setting, easy to
+    // have on without realising it) sees the carousel as simply frozen,
+    // with no cue that arrows/dragging still work.
     const STUCK_WATCHDOG_MS = 12000;
     let lastAdvanceAt = Date.now();
     function scheduleAutoAdvance() {
       window.clearTimeout(autoRaf);
-      if (reduceMotion() || list.length < 2) return;
+      if (list.length < 2) return;
       autoRaf = window.setTimeout(() => {
         if (ring.querySelector(".shelf-card-face.is-playing")) {
           lastAdvanceAt = Date.now();
