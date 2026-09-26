@@ -1403,8 +1403,8 @@
           <h1>Nhật ký bình luận</h1>
           <p>Toàn bộ cảm nghĩ độc giả để lại trên mọi truyện — lưu giữ lâu dài, không giới hạn thời gian.</p>
           <div class="cl-stats">
-            <div><b>${fmtCount(total)}</b><span>Bình luận</span></div>
-            <div><b>${fmtCount(talking)}</b><span>Đang thảo luận</span></div>
+            <div><b id="clTotal">${fmtCount(total)}</b><span>Bình luận</span></div>
+            <div><b id="clTalking">${fmtCount(talking)}</b><span>Đang thảo luận</span></div>
           </div>
         </section>
         <div class="cl-tabs">
@@ -1432,6 +1432,55 @@
       footer();
     bindChrome();
     bindCommentLog();
+    /* Live refresh, same mechanism the old "Tín hiệu độc giả" board used
+       (VCBG.watchCommunityFeed): when a new comment/reply/like lands anywhere
+       on the site, patch just #clList + the two stat numbers in place —
+       never the whole page, so an in-progress search/filter form the reader
+       is mid-typing never gets reset out from under them. runRender() tears
+       this watch down on every navigation; re-subscribing here (which itself
+       tears down any previous subscription first) is what keeps exactly one
+       alive while this page is open. */
+    if (typeof window.__vcbgCommentLogUnwatch === "function") {
+      window.__vcbgCommentLogUnwatch();
+      window.__vcbgCommentLogUnwatch = null;
+    }
+    if (VCBG.watchCommunityFeed) {
+      window.__vcbgCommentLogUnwatch = VCBG.watchCommunityFeed(() => {
+        window.clearTimeout(window.__vcbgCommentLogPaintTimer);
+        window.__vcbgCommentLogPaintTimer = window.setTimeout(() => {
+          if (parseHash().name !== "comment-log") return;
+          const list = $("#clList");
+          if (!list) return;
+          const freshFeed = VCBG.communityFeed({ sort, storyId });
+          let freshShown = freshFeed;
+          if (mineOnly) freshShown = freshShown.filter((c) => c.user_id === me.id);
+          if (q) {
+            const needle = q.toLowerCase();
+            freshShown = freshShown.filter(
+              (c) =>
+                String(c.body || "").toLowerCase().includes(needle) ||
+                String((c.story && c.story.title) || "").toLowerCase().includes(needle)
+            );
+          }
+          list.innerHTML = freshShown.length
+            ? freshShown.map(cardHTML).join("")
+            : `<div class="empty">${q || mineOnly || storyId ? "Không tìm thấy bình luận phù hợp." : "Chưa có bình luận nào."}</div>`;
+          const oldMore = $("#clMore");
+          if (oldMore) oldMore.remove();
+          if (freshShown.length > PAGE_SIZE) {
+            list.insertAdjacentHTML(
+              "afterend",
+              `<button type="button" class="btn btn-ghost cl-more" id="clMore">Xem thêm bình luận ▾</button>`
+            );
+          }
+          const totalEl = $("#clTotal");
+          const talkEl = $("#clTalking");
+          if (totalEl) totalEl.textContent = fmtCount(freshFeed.total || 0);
+          if (talkEl) talkEl.textContent = fmtCount(freshFeed.talking || 0);
+          bindCommentLog();
+        }, 200);
+      });
+    }
   }
   function bindCommentLog() {
     bindSignalActs();
@@ -3736,6 +3785,10 @@
       }
     }, 9000);
     const route = parseHash();
+    if (route.name !== "comment-log" && typeof window.__vcbgCommentLogUnwatch === "function") {
+      window.__vcbgCommentLogUnwatch();
+      window.__vcbgCommentLogUnwatch = null;
+    }
     /* A route that is both public (no login required, unlike /doc, /thu-vien,
        /tai-khoan, /admin…) and content-driven can paint immediately once any
        story data is on hand — a real cached catalog, or the bundled hero
