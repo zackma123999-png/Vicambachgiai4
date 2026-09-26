@@ -1407,6 +1407,28 @@
     };
     const tab = (id, label) => `<a class="cl-tab${sort === id ? " on" : ""}" href="${qs({ sort: id })}">${esc(label)}</a>`;
     const PAGE_SIZE = 8;
+    const QUOTE_MAX = 160;
+    const highlightId = route.q.highlight || "";
+    const truncQuote = (s) => {
+      const clean = String(s || "").replace(/\s+/g, " ").trim();
+      return clean.length > QUOTE_MAX ? clean.slice(0, QUOTE_MAX).trim() + "…" : clean;
+    };
+    const quoteAttr = (c) => {
+      const parts = [];
+      if (c.story) parts.push(c.story.title);
+      if (c.chapter) parts.push("Chương " + c.chapter.number + (c.chapter.title ? " – " + c.chapter.title : ""));
+      return parts.join(" · ");
+    };
+    // Same URL shape reader-comment-drawer-v2.js already watches for
+    // (?comment=<id>&para=<key>) — it scrolls to and highlights that exact
+    // paragraph in the chapter reader. Falls back to the plain story/chapter
+    // link when there's no chapter to jump into (e.g. demo placeholders).
+    const deepHref = (c) => {
+      if (!c.chapter) return c.href;
+      const p = new URLSearchParams({ comment: String(c.id) });
+      if (c.para_key) p.set("para", c.para_key);
+      return c.href + "?" + p.toString();
+    };
     const replyHTML = (c, r, hidden) => {
       const who = (r.user && r.user.display_name) || "Ẩn danh";
       const parent = (c.user && c.user.display_name) || "bạn";
@@ -1427,16 +1449,20 @@
       const rest = replies.slice(1);
       const canReport = !c.isDemo && me && me.id !== c.user_id;
       const canDelete = !c.isDemo && me && (me.id === c.user_id || VCBG.isAdmin());
-      return `<article class="cl-card sig-card${index >= PAGE_SIZE ? " is-hidden" : ""}" data-cid="${esc(c.id)}"${c.isDemo ? ' data-demo="true"' : ""}>
+      const attr = quoteAttr(c);
+      return `<article class="cl-card sig-card${index >= PAGE_SIZE ? " is-hidden" : ""}" data-cid="${esc(c.id)}" data-goto="${esc(deepHref(c))}"${c.isDemo ? ' data-demo="true"' : ""}>
         <div class="cl-card-top">
           ${avatarHTML(c.user, "cl-avatar")}
           <div class="cl-who">
             <div class="cl-who-row"><b>${esc(who)}</b>${c.staff ? `<span class="cl-badge">ViCam</span>` : ""}</div>
-            <div class="cl-meta"><time>${esc(fmtRel(c.created_at))}</time>${c.hot ? `<span class="cl-hot">★ Đang được chú ý</span>` : ""}</div>
+            <div class="cl-meta">
+              <time>${esc(fmtRel(c.created_at))}</time>
+              ${c.story ? `<a class="cl-story-tag" href="${esc(c.href)}">${esc(c.story.title)}</a>` : ""}
+              ${c.hot ? `<span class="cl-hot">★ Đang được chú ý</span>` : ""}
+            </div>
           </div>
-          ${c.story ? `<a class="cl-story-tag" href="${esc(c.href)}">${esc(c.story.title)}</a>` : ""}
         </div>
-        ${c.quote ? `<blockquote class="cl-quote"><p>“${esc(c.quote)}”</p></blockquote>` : ""}
+        ${c.quote ? `<blockquote class="cl-quote"><p>“${esc(truncQuote(c.quote))}”</p>${attr ? `<cite>${esc(attr)}</cite>` : ""}</blockquote>` : ""}
         <p class="cl-body sig-text">${esc(c.body)}</p>
         <div class="cl-acts">
           <button type="button" class="cl-like${c.liked ? " on" : ""}" data-like="${esc(c.id)}" aria-pressed="${!!c.liked}">${c.like_count || 0}</button>
@@ -1454,40 +1480,61 @@
     app().innerHTML =
       header() +
       `<main class="wrap cl-page">
-        <section class="cl-hero">
+        <header class="cl-head">
           <span class="cl-kicker"><i aria-hidden="true"></i>NHẬT KÝ BÌNH LUẬN</span>
           <h1>Nhật ký bình luận</h1>
           <p>Toàn bộ cảm nghĩ độc giả để lại trên mọi truyện — lưu giữ lâu dài, không giới hạn thời gian.</p>
           <div class="cl-stats">
-            <div><b id="clTotal">${fmtCount(total)}</b><span>Bình luận</span></div>
-            <div><b id="clTalking">${fmtCount(talking)}</b><span>Đang thảo luận</span></div>
+            <span><b id="clTotal">${fmtCount(total)}</b> bình luận</span>
+            <span><b id="clTalking">${fmtCount(talking)}</b> đang thảo luận</span>
           </div>
-        </section>
-        <div class="cl-tabs">
-          ${tab("latest", "Mới nhất")}
-          ${tab("hot", "Nhiều tương tác")}
-          ${tab("talk", "Đang thảo luận")}
+        </header>
+        <div class="cl-toolbar">
+          <nav class="cl-tabs">
+            ${tab("latest", "Mới nhất")}
+            ${tab("hot", "Nhiều tương tác")}
+            ${tab("talk", "Đang thảo luận")}
+          </nav>
+          <form class="cl-controls" id="clForm">
+            <div class="cl-search">
+              <input type="search" name="q" value="${esc(q)}" placeholder="Tìm trong bình luận…">
+              <button type="submit" aria-label="Tìm"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"></circle><path d="m16 16 4.2 4.2"></path></svg></button>
+            </div>
+            <select name="story">
+              <option value="">Tất cả truyện</option>
+              ${stories.map((s) => `<option value="${esc(s.id)}" ${s.id === storyId ? "selected" : ""}>${esc(s.title)}</option>`).join("")}
+            </select>
+            ${me ? `<label class="cl-mine"><input type="checkbox" name="mine" ${mineOnly ? "checked" : ""}><span>Chỉ của tôi</span></label>` : ""}
+          </form>
         </div>
-        <form class="cl-controls" id="clForm">
-          <input type="search" name="q" value="${esc(q)}" placeholder="Tìm trong bình luận…">
-          <select name="story">
-            <option value="">Tất cả truyện</option>
-            ${stories.map((s) => `<option value="${esc(s.id)}" ${s.id === storyId ? "selected" : ""}>${esc(s.title)}</option>`).join("")}
-          </select>
-          ${me ? `<label class="cl-mine"><input type="checkbox" name="mine" ${mineOnly ? "checked" : ""}> Chỉ của tôi</label>` : ""}
-          <button class="btn btn-cyan" type="submit">Lọc</button>
-        </form>
         <div class="cl-list sig-board" id="clList">
           ${shown.length ? shown.map(cardHTML).join("") : `<div class="empty">${q || mineOnly || storyId ? "Không tìm thấy bình luận phù hợp." : "Chưa có bình luận nào."}</div>`}
         </div>
-        ${shown.length > PAGE_SIZE ? `<button type="button" class="btn btn-ghost cl-more" id="clMore">Xem thêm bình luận ▾</button>` : ""}
+        ${shown.length > PAGE_SIZE ? `<button type="button" class="cl-more" id="clMore">Xem thêm bình luận ▾</button>` : ""}
         <div class="cl-compose">
-          <button type="button" class="btn btn-cyan" id="clOpen">${me ? "Chia sẻ cảm nghĩ của bạn…" : "Đăng nhập để chia sẻ cảm nghĩ…"}</button>
+          <button type="button" class="cl-btn" id="clOpen">${me ? "Chia sẻ cảm nghĩ của bạn…" : "Đăng nhập để chia sẻ cảm nghĩ…"}</button>
         </div>
       </main>` +
       footer();
+    // Came here from a marquee card (?highlight=<commentId>): scroll to and
+    // briefly flash that exact comment. VCBG.watchCommunityFeed refreshes
+    // once right on subscription (see below) and would otherwise regenerate
+    // #clList and silently drop this class a moment after it's applied, so
+    // this same routine also re-runs after every list patch, not just here.
+    const applyHighlight = () => {
+      if (!highlightId) return;
+      requestAnimationFrame(() => {
+        const target = $(`.cl-card[data-cid="${CSS.escape(highlightId)}"]`);
+        if (!target) return;
+        target.classList.remove("is-hidden");
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+        target.classList.add("is-highlight");
+        setTimeout(() => target.classList.remove("is-highlight"), 2200);
+      });
+    };
     bindChrome();
     bindCommentLog();
+    applyHighlight();
     /* Live refresh, same mechanism the old "Tín hiệu độc giả" board used
        (VCBG.watchCommunityFeed): when a new comment/reply/like lands anywhere
        on the site, patch just #clList + the two stat numbers in place —
@@ -1534,7 +1581,7 @@
           if (freshShown.length > PAGE_SIZE) {
             list.insertAdjacentHTML(
               "afterend",
-              `<button type="button" class="btn btn-ghost cl-more" id="clMore">Xem thêm bình luận ▾</button>`
+              `<button type="button" class="cl-more" id="clMore">Xem thêm bình luận ▾</button>`
             );
           }
           const totalEl = $("#clTotal");
@@ -1542,6 +1589,7 @@
           if (totalEl) totalEl.textContent = fmtCount(freshTotal);
           if (talkEl) talkEl.textContent = fmtCount(freshTalking);
           bindCommentLog();
+          applyHighlight();
         }, 200);
       });
     }
@@ -1566,6 +1614,21 @@
         });
         const str = out.toString();
         go("/nhat-ky-binh-luan" + (str ? "?" + str : ""));
+      };
+    if (form) {
+      const storySelect = $("select[name=story]", form);
+      if (storySelect) storySelect.onchange = () => form.requestSubmit();
+      const mineBox = $("input[name=mine]", form);
+      if (mineBox) mineBox.onchange = () => form.requestSubmit();
+    }
+    const list = $("#clList");
+    if (list)
+      list.onclick = (e) => {
+        if (e.target.closest("a, button, input, select, label")) return;
+        const card = e.target.closest(".cl-card");
+        if (!card) return;
+        if (card.hasAttribute("data-demo")) return toast("Đây là bình luận minh hoạ tạm thời.");
+        if (card.dataset.goto) go(card.dataset.goto);
       };
     const more = $("#clMore");
     if (more)
