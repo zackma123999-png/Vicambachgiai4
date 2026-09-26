@@ -1204,11 +1204,30 @@
       .replace(/</g, "\\u003c")
       .replace(/>/g, "\\u003e");
   }
-  // KỆ TRUYỆN v2: hero cuộn toàn màn hình (kiểu "scroll-scrub"), 4 bước ứng
-  // với 4 hạng mục cũ (Trạm Preview/Đang lên sóng/Đã hoàn thành/Sắp ra mắt).
-  // Mỗi bước hiện đúng 1 truyện tiêu biểu của hạng mục đó; bấm vào bìa vẫn
-  // giữ đúng chức năng gốc — Trạm Preview phát video ngay tại chỗ, các hạng
-  // mục còn lại điều hướng thẳng tới trang truyện.
+  function shelfCardHTML(item, tabKey) {
+    const isPreview = tabKey === "preview";
+    const dataAttrs = `data-slug="${esc(item.slug)}" data-title="${esc(item.title)}" data-author="${esc(item.author)}" data-cover="${esc(item.cover)}" data-status="${esc(item.status)}" data-genre="${esc(item.genre)}" data-post="${esc(item.post)}" data-teaser="${esc(item.teaser)}"`;
+    const face = `<span class="shelf-card-face">
+        ${item.cover ? `<img src="${esc(item.cover)}" alt="Bìa ${esc(item.title)}" loading="lazy">` : `<b aria-hidden="true">V</b>`}
+        ${isPreview && item.post ? `<span class="shelf-card-play" role="button" tabindex="-1" aria-label="Phát teaser ${esc(item.title)} ngay tại đây">▶</span>` : ""}
+      </span>`;
+    return isPreview
+      ? `<button type="button" class="shelf-card" data-shelf-card ${dataAttrs} aria-label="Chọn truyện ${esc(item.title)}">${face}</button>`
+      : `<a class="shelf-card" data-shelf-card href="#/truyen/${esc(item.slug)}" ${dataAttrs} aria-label="Mở truyện ${esc(item.title)}">${face}</a>`;
+  }
+  function shelfHeroHTML(item, tabKey) {
+    if (!item) return "";
+    const isPreview = tabKey === "preview";
+    return `<div class="shelf-hero" data-shelf-hero>
+      <span class="shelf-hero-now">${isPreview ? (item.post ? "Sẵn sàng phát — bấm ▶ trên bìa" : "Teaser đang chuẩn bị") : esc(item.status)}</span>
+      <h3>${esc(item.title)}</h3>
+      <p class="shelf-hero-author">${esc(item.author || "Chưa cập nhật tác giả")}</p>
+      ${isPreview
+        ? `<div class="shelf-hero-pills"><span>${esc(item.status)}</span>${item.genre ? `<span>${esc(item.genre)}</span>` : ""}</div>
+           <p class="shelf-hero-teaser">${esc(item.teaser || "Một câu chuyện mới đang được chuẩn bị tại ViCamBachGiai.")}</p>`
+        : `<a class="shelf-hero-cta" href="#/truyen/${esc(item.slug)}">Xem chi tiết ›</a>`}
+    </div>`;
+  }
   function storyShelfHTML(groups) {
     const tabDefs = [
       { key: "preview", label: "Trạm Preview" },
@@ -1218,44 +1237,27 @@
     ];
     const tabs = tabDefs.map((t) => ({ ...t, list: (groups[t.key] || []).filter(Boolean) })).filter((t) => t.list.length);
     if (!tabs.length) return "";
-    const n = tabs.length;
-    const steps = tabs.map((t, i) => {
-      const leadIdx = t.key === "preview" ? Math.max(0, t.list.findIndex((it) => it.post)) : 0;
-      const item = t.list[leadIdx];
-      return {
-        key: t.key,
-        label: t.label,
-        from: i / n,
-        to: (i + 1) / n,
-        item,
-      };
-    });
-    const first = steps[0];
-    const dataAttrs = (item) => `data-slug="${esc(item.slug)}" data-title="${esc(item.title)}" data-author="${esc(item.author)}" data-cover="${esc(item.cover)}" data-status="${esc(item.status)}" data-genre="${esc(item.genre)}" data-post="${esc(item.post)}" data-teaser="${esc(item.teaser)}"`;
-    return `<section class="wrap scrollhero" id="keTruyen" data-scrollhero aria-label="Kệ truyện ViCamBachGiai">
-      <div class="sch-stage" data-sch-stage>
-        <div class="sch-bg">
-          <img class="sch-bg-img sch-bg-a" src="${esc(first.item.cover)}" alt="">
-          <img class="sch-bg-img sch-bg-b" alt="">
-          <span class="sch-bg-scrim"></span>
+    const initial = tabs[0];
+    const leadItem = initial.key === "preview"
+      ? (initial.list.find((it) => it.post) || initial.list[0])
+      : initial.list[0];
+    const payload = {};
+    tabs.forEach((t) => { payload[t.key] = t.list; });
+    return `<section class="wrap shelf" id="keTruyen" data-shelf aria-label="Kệ truyện ViCamBachGiai">
+      <header class="shelf-head">
+        <div class="shelf-tabs" role="tablist" aria-label="Chọn khu vực kệ truyện">
+          ${tabs.map((t, i) => `<button type="button" class="shelf-tab${i === 0 ? " is-active" : ""}" role="tab" aria-selected="${i === 0 ? "true" : "false"}" data-shelf-tab="${t.key}">${esc(t.label)}</button>`).join("")}
         </div>
-        <div class="sch-copy">
-          <small class="sch-kicker">KỆ TRUYỆN</small>
-          <h2 class="sch-title">ViCamBachGiai</h2>
+      </header>
+      <div class="shelf-stage">
+        <button type="button" class="shelf-nav shelf-nav-prev" data-shelf-prev aria-label="Truyện trước">‹</button>
+        <div class="shelf-carousel" data-shelf-carousel data-active-tab="${initial.key}">
+          <div class="shelf-ring" data-shelf-ring>${initial.list.map((item) => shelfCardHTML(item, initial.key)).join("")}</div>
         </div>
-        <div class="sch-card" data-sch-card>
-          <span class="sch-card-num" data-sch-num>01 / ${String(n).padStart(2, "0")}</span>
-          <h3 class="sch-card-title" data-sch-title>${esc(first.label)}</h3>
-          <p class="sch-card-desc" data-sch-desc>${esc(first.item.title)} — ${esc(first.item.author || "")}</p>
-          <a class="sch-card-cta" data-sch-cta href="#/truyen/${esc(first.item.slug)}" ${dataAttrs(first.item)}>${first.item.post ? "Bấm để phát ▶" : "Xem chi tiết ›"}</a>
-          <div class="sch-ticks">
-            ${steps.map((_, i) => `<i class="sch-tick" data-sch-tick><span></span></i>`).join("")}
-          </div>
-        </div>
-        <div class="sch-progress"><span class="sch-progress-fill" data-sch-progress></span></div>
+        <button type="button" class="shelf-nav shelf-nav-next" data-shelf-next aria-label="Truyện sau">›</button>
       </div>
-      <div class="sch-spacer" data-sch-spacer></div>
-      <script type="application/json" data-sch-payload>${jsonScriptPayload(steps.map((s) => ({ key: s.key, label: s.label, from: s.from, to: s.to, item: s.item })))}</script>
+      ${shelfHeroHTML(leadItem, initial.key)}
+      <script type="application/json" data-shelf-payload>${jsonScriptPayload(payload)}</script>
     </section>`;
   }
   function pageHome() {
