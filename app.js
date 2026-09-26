@@ -1209,10 +1209,7 @@
     const dataAttrs = `data-slug="${esc(item.slug)}" data-title="${esc(item.title)}" data-author="${esc(item.author)}" data-cover="${esc(item.cover)}" data-status="${esc(item.status)}" data-genre="${esc(item.genre)}" data-post="${esc(item.post)}" data-teaser="${esc(item.teaser)}"`;
     const face = `<span class="shelf-card-face">
         ${item.cover ? `<img src="${esc(item.cover)}" alt="Bìa ${esc(item.title)}" loading="lazy">` : `<b aria-hidden="true">V</b>`}
-        <span class="shelf-card-shade"></span>
-        <span class="shelf-card-status">${esc(item.status)}</span>
         ${isPreview && item.post ? `<span class="shelf-card-play" role="button" tabindex="-1" aria-label="Phát teaser ${esc(item.title)} ngay tại đây">▶</span>` : ""}
-        <span class="shelf-card-title">${esc(item.title)}</span>
       </span>`;
     return isPreview
       ? `<button type="button" class="shelf-card" data-shelf-card ${dataAttrs} aria-label="Chọn truyện ${esc(item.title)}">${face}</button>`
@@ -1246,9 +1243,8 @@
       : initial.list[0];
     const payload = {};
     tabs.forEach((t) => { payload[t.key] = t.list; });
-    return `<section class="wrap shelf" id="keTruyen" data-shelf aria-labelledby="shelfTitle">
+    return `<section class="wrap shelf" id="keTruyen" data-shelf aria-label="Kệ truyện ViCamBachGiai">
       <header class="shelf-head">
-        <div class="shelf-head-copy"><small>KỆ TRUYỆN</small><h2 id="shelfTitle">Kệ Truyện ViCamBachGiai</h2><p>Trạm Preview · Đang lên sóng · Đã hoàn thành · Sắp ra mắt — xoay để khám phá</p></div>
         <div class="shelf-tabs" role="tablist" aria-label="Chọn khu vực kệ truyện">
           ${tabs.map((t, i) => `<button type="button" class="shelf-tab${i === 0 ? " is-active" : ""}" role="tab" aria-selected="${i === 0 ? "true" : "false"}" data-shelf-tab="${t.key}">${esc(t.label)}</button>`).join("")}
         </div>

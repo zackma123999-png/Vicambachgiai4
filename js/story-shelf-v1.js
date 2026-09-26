@@ -27,10 +27,7 @@
   function faceInnerHTML(item, tabKey) {
     const isPreview = tabKey === "preview";
     return `${item.cover ? `<img src="${esc(item.cover)}" alt="Bìa ${esc(item.title)}" loading="lazy">` : `<b aria-hidden="true">V</b>`}
-      <span class="shelf-card-shade"></span>
-      <span class="shelf-card-status">${esc(item.status)}</span>
-      ${isPreview && item.post ? `<span class="shelf-card-play" role="button" tabindex="-1" aria-label="Phát teaser ${esc(item.title)} ngay tại đây">▶</span>` : ""}
-      <span class="shelf-card-title">${esc(item.title)}</span>`;
+      ${isPreview && item.post ? `<span class="shelf-card-play" role="button" tabindex="-1" aria-label="Phát teaser ${esc(item.title)} ngay tại đây">▶</span>` : ""}`;
   }
 
   function cardFaceHTML(item, tabKey) {
@@ -131,14 +128,13 @@
     }
 
     function layout() {
-      const cards = Array.from(ring.children);
-      const step = anglePerItem();
-      cards.forEach((card, i) => {
-        card.style.transform = `rotateY(${i * step}deg) translateZ(${radius}px)`;
-      });
       paint();
     }
 
+    // Opacity/scale fall off steeply with angle from the front so that mid-
+    // rotation (dragging, or between two items) never shows several covers
+    // at similar strength blending into a translucent mush — only the front
+    // card reads clearly, neighbours are a faint hint, the rest all but gone.
     function paint() {
       const cards = Array.from(ring.children);
       const step = anglePerItem();
@@ -147,10 +143,12 @@
       cards.forEach((card, i) => {
         const raw = (i * step + rotation) % 360;
         const rel = Math.abs(raw > 180 ? 360 - raw : raw);
-        const opacity = Math.max(0.28, 1 - rel / 150);
-        card.style.opacity = String(opacity);
+        const opacity = Math.max(0.12, 1 - rel / 70);
+        const scale = Math.max(0.65, 1 - rel / 200);
+        card.style.transform = `rotateY(${i * step}deg) translateZ(${radius}px) scale(${scale.toFixed(3)})`;
+        card.style.opacity = opacity.toFixed(3);
         card.style.zIndex = String(Math.round(1000 - rel));
-        card.style.pointerEvents = rel > 100 ? "none" : "";
+        card.style.pointerEvents = rel > 65 ? "none" : "";
         card.classList.toggle("is-front", rel < step / 2 + 0.01);
         if (rel < bestDelta) { bestDelta = rel; bestIndex = i; }
       });
@@ -296,7 +294,7 @@
 
     function autoTick() {
       if (!dragging && !hoverPaused && !reduceMotion() && !ring.querySelector(".shelf-card-face.is-playing")) {
-        rotation += 0.03;
+        rotation += 0.16;
         paint();
       }
       autoRaf = requestAnimationFrame(autoTick);
