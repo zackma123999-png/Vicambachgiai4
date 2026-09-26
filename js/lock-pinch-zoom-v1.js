@@ -1,14 +1,12 @@
 // Prevent pinch-to-zoom across the whole site. The viewport meta tag
 // already declares user-scalable=no, but iOS Safari (10+) deliberately
-// ignores that for accessibility reasons — it always allows pinch-zoom
-// regardless of what the page requests. The only thing that reliably still
-// stops it is intercepting the gesture in JS: WebKit's non-standard `scale`
-// property on touch events during an active pinch, and the `gesturestart`
-// event WebKit fires right before native zoom kicks in.
+// ignores that for accessibility reasons. The actual fix lives in CSS —
+// `touch-action: manipulation` on html/body in styles.css, which IS
+// respected by iOS Safari because it's a standard CSS property, not the
+// meta-tag hack Apple blocks. `scale` only exists on gesturestart/
+// gesturechange (WebKit's proprietary gesture events), never on touchmove,
+// so this is just a harmless backstop, not the primary mechanism.
 (function () {
-  document.addEventListener("touchmove", function (e) {
-    if (e.scale !== undefined && e.scale !== 1) e.preventDefault();
-  }, { passive: false });
   document.addEventListener("gesturestart", function (e) { e.preventDefault(); });
   document.addEventListener("gesturechange", function (e) { e.preventDefault(); });
 })();
