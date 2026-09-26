@@ -133,12 +133,13 @@
       paint();
     }
 
-    // Opacity falls off steeply with angle from the front so that mid-
-    // rotation (dragging, or between two items) never shows several covers
-    // at similar strength blending into a translucent mush — only the front
-    // card reads clearly, neighbours are a faint hint, the rest all but gone.
-    // Cards keep their full size at every angle (no shrink-with-distance)
-    // so the ring never looks like it's "collapsing" while it turns.
+    // Opacity/scale ease off gradually with angle from the front — gradually,
+    // not steeply, so a card reads clearly well before it reaches dead
+    // centre (otherwise every card looks faded during the turn, and only
+    // the one sitting exactly in the middle is ever legible). Scale still
+    // shrinks a little the further a card turns away, for a sense of depth,
+    // but paint() always derives both from the same `rotation` used for the
+    // ring's own transform, so they can never fall out of sync mid-turn.
     function paint() {
       const cards = Array.from(ring.children);
       const step = anglePerItem();
@@ -147,15 +148,12 @@
       cards.forEach((card, i) => {
         const raw = (i * step + rotation) % 360;
         const rel = Math.abs(raw > 180 ? 360 - raw : raw);
-        // Steep enough that even exactly halfway between two card slots
-        // (the crossfade moment while auto-rotating) neither one is still
-        // clearly legible — a brief faint blend, not two covers fighting
-        // for attention.
-        const opacity = Math.max(0.05, 1 - rel / 28);
-        card.style.transform = `rotateY(${i * step}deg) translateZ(${radius}px)`;
+        const opacity = Math.max(0.35, 1 - rel / 65);
+        const scale = Math.max(0.78, 1 - rel / 210);
+        card.style.transform = `rotateY(${i * step}deg) translateZ(${radius}px) scale(${scale.toFixed(3)})`;
         card.style.opacity = opacity.toFixed(3);
         card.style.zIndex = String(Math.round(1000 - rel));
-        card.style.pointerEvents = rel > 32 ? "none" : "";
+        card.style.pointerEvents = rel > 65 ? "none" : "";
         card.classList.toggle("is-front", rel < step / 2 + 0.01);
         if (rel < bestDelta) { bestDelta = rel; bestIndex = i; }
       });
