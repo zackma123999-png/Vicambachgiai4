@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Circular Gallery Demo",
-  description: "shadcn/ui circular-gallery component demo",
+  title: "Kệ Truyện Xoay 3D",
+  description: "Demo circular-gallery với bìa truyện thật của ViCamBachGiai",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

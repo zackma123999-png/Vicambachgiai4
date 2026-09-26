@@ -132,7 +132,7 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                   <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/80 to-transparent text-white">
                     <h2 className="text-xl font-bold">{item.common}</h2>
                     <em className="text-sm italic opacity-80">{item.binomial}</em>
-                    <p className="text-xs mt-2 opacity-70">Photo by: {item.photo.by}</p>
+                    <p className="text-xs mt-2 opacity-70">{item.photo.by}</p>
                   </div>
                 </div>
               </div>
