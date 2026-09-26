@@ -29,8 +29,14 @@
   height: min(78vw, 380px);
   min-height: 260px;
   perspective: 1400px;
+  /* pan-y: chỉ cho trình duyệt tự xử lý cuộn DỌC — vuốt NGANG trên carousel
+     là của JS (xoay vòng bìa), không để trình duyệt tranh chấp/làm chậm cử
+     chỉ đó bằng cách cố nhận diện thành thao tác pan của riêng nó. */
+  touch-action: pan-y;
+  cursor: grab;
   outline: none;
 }
+.shelf-carousel:active { cursor: grabbing; }
 .shelf-ring {
   position: absolute;
   inset: 0;
