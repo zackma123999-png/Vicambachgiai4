@@ -12,9 +12,11 @@
   transform: translateY(22px);
   filter: blur(3px);
 }
+[data-reveal="hidden"][data-reveal-from="right"] { transform: translateX(42px); }
+[data-reveal="hidden"][data-reveal-from="left"] { transform: translateX(-42px); }
 [data-reveal="visible"] {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate(0, 0);
   filter: blur(0);
   transition:
     opacity var(--reveal-duration) var(--reveal-ease) var(--reveal-delay, 0s),

@@ -10,17 +10,18 @@
     { selector: ".signal-hero .sh-tags, .signal-hero .sh-overline, .signal-hero .sh-title, .signal-hero .sh-author, .signal-hero .sh-stats, .signal-hero .sh-ctas, .signal-hero .sh-trust", step: 70 },
     // Section headers and page titles across the site.
     { selector: ".rail-head, .medal-picks-head, .preview-station-head, h1.hero-title, .section > h2, .story-copy > *", step: 55 },
-    // The homepage "resonance" panel — its own pieces, not one flat block.
-    { selector: ".reshome-card > *", step: 60 },
+    // The homepage "resonance" panel — its own pieces, sliding in from the right.
+    { selector: ".reshome-card > *", step: 60, from: "right" },
     // Card grids and list rows — staggered per grid, capped so a long shelf doesn't crawl in.
     { selector: ".card-grid > *, .rail[data-rail] > *, .medal-picks-list > *, .preview-station-rail > *, .chapter-list > li", step: 55, cap: 8 },
-    // Footer — reveals once scrolled to, on every page.
-    { selector: ".foot2-body > *:not(.foot2-cols), .foot2-cols > .foot2-section, .foot2-copy", step: 60 },
+    // Footer — reveals once scrolled to, sliding in from the left, on every page.
+    { selector: ".foot2-body > *:not(.foot2-cols), .foot2-cols > .foot2-section, .foot2-copy", step: 60, from: "left" },
   ];
 
-  function mark(el, delayMs) {
+  function mark(el, delayMs, from) {
     if (el.dataset.reveal) return;
     el.dataset.reveal = "hidden";
+    if (from) el.dataset.revealFrom = from;
     el.style.setProperty("--reveal-delay", (delayMs / 1000).toFixed(3) + "s");
   }
 
@@ -32,7 +33,7 @@
         var parent = el.parentElement;
         var i = perParentIndex.get(parent) || 0;
         perParentIndex.set(parent, i + 1);
-        mark(el, Math.min(i, cap) * group.step);
+        mark(el, Math.min(i, cap) * group.step, group.from);
       });
     });
   }
