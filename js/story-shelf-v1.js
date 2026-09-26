@@ -24,15 +24,17 @@
     };
   }
 
-  function cardFaceHTML(item, tabKey) {
+  function faceInnerHTML(item, tabKey) {
     const isPreview = tabKey === "preview";
-    return `<span class="shelf-card-face">
-      ${item.cover ? `<img src="${esc(item.cover)}" alt="Bìa ${esc(item.title)}" loading="lazy">` : `<b aria-hidden="true">V</b>`}
+    return `${item.cover ? `<img src="${esc(item.cover)}" alt="Bìa ${esc(item.title)}" loading="lazy">` : `<b aria-hidden="true">V</b>`}
       <span class="shelf-card-shade"></span>
       <span class="shelf-card-status">${esc(item.status)}</span>
-      ${isPreview && item.post ? `<span class="shelf-card-play" aria-hidden="true">▶</span>` : ""}
-      <span class="shelf-card-title">${esc(item.title)}</span>
-    </span>`;
+      ${isPreview && item.post ? `<span class="shelf-card-play" role="button" tabindex="-1" aria-label="Phát teaser ${esc(item.title)} ngay tại đây">▶</span>` : ""}
+      <span class="shelf-card-title">${esc(item.title)}</span>`;
+  }
+
+  function cardFaceHTML(item, tabKey) {
+    return `<span class="shelf-card-face">${faceInnerHTML(item, tabKey)}</span>`;
   }
 
   function cardAttrs(item) {
@@ -47,49 +49,34 @@
 
   function heroHTML(item, tabKey) {
     if (!item) return "";
-    if (tabKey === "preview") {
-      return `<div class="shelf-hero" data-shelf-hero>
-        <div class="shelf-hero-media">
-          ${item.cover ? `<img class="shelf-hero-cover" src="${esc(item.cover)}" alt="Bìa ${esc(item.title)}">` : `<span class="shelf-hero-no-cover" aria-hidden="true">V</span>`}
-          ${item.post
-            ? `<button type="button" class="shelf-hero-play" data-shelf-play aria-label="Phát teaser ${esc(item.title)} ngay tại đây"><span aria-hidden="true">▶</span><small>Phát tại đây</small></button>`
-            : `<span class="shelf-hero-pending"><i aria-hidden="true"></i>Teaser đang chuẩn bị</span>`}
-        </div>
-        <div class="shelf-hero-copy">
-          <span class="shelf-hero-now"><i aria-hidden="true"></i>${item.post ? "Sẵn sàng phát" : "Đang chuẩn bị"}</span>
-          <h3>${esc(item.title)}</h3>
-          <p class="shelf-hero-author">${esc(item.author || "Chưa cập nhật tác giả")}</p>
-          <div class="shelf-hero-pills"><span>${esc(item.status)}</span>${item.genre ? `<span>${esc(item.genre)}</span>` : ""}</div>
-          <p class="shelf-hero-teaser">${esc(item.teaser || "Một câu chuyện mới đang được chuẩn bị tại ViCamBachGiai.")}</p>
-        </div>
-      </div>`;
-    }
-    return `<div class="shelf-hero shelf-hero-simple" data-shelf-hero>
-      <div class="shelf-hero-copy">
-        <span class="shelf-hero-now">${esc(item.status)}</span>
-        <h3>${esc(item.title)}</h3>
-        <p class="shelf-hero-author">${esc(item.author || "—")}</p>
-        <a class="shelf-hero-cta" href="#/truyen/${esc(item.slug)}">Xem chi tiết ›</a>
-      </div>
+    const isPreview = tabKey === "preview";
+    return `<div class="shelf-hero" data-shelf-hero>
+      <span class="shelf-hero-now">${isPreview ? (item.post ? "Sẵn sàng phát — bấm ▶ trên bìa" : "Teaser đang chuẩn bị") : esc(item.status)}</span>
+      <h3>${esc(item.title)}</h3>
+      <p class="shelf-hero-author">${esc(item.author || "Chưa cập nhật tác giả")}</p>
+      ${isPreview
+        ? `<div class="shelf-hero-pills"><span>${esc(item.status)}</span>${item.genre ? `<span>${esc(item.genre)}</span>` : ""}</div>
+           <p class="shelf-hero-teaser">${esc(item.teaser || "Một câu chuyện mới đang được chuẩn bị tại ViCamBachGiai.")}</p>`
+        : `<a class="shelf-hero-cta" href="#/truyen/${esc(item.slug)}">Xem chi tiết ›</a>`}
     </div>`;
   }
 
-  function playHero(section, item) {
-    const hero = section.querySelector("[data-shelf-hero]");
-    if (!hero || !item.post) return;
-    hero.innerHTML = `<div class="shelf-hero-media shelf-hero-playing">
-      <header class="shelf-hero-playing-head">
-        <span><i aria-hidden="true"></i>Đang phát tại đây</span>
-        <button type="button" class="shelf-hero-close" data-shelf-close aria-label="Đóng video">× <small>Đóng</small></button>
-      </header>
-      <div class="shelf-hero-video">
+  function playOnCard(card, item) {
+    if (!item.post) return;
+    const face = card.querySelector(".shelf-card-face");
+    if (!face) return;
+    face.classList.add("is-playing");
+    face.innerHTML = `<span class="shelf-card-close" role="button" tabindex="-1" aria-label="Đóng video">×</span>
+      <div class="shelf-card-video">
         <iframe title="Teaser TikTok ${esc(item.title)}" src="https://www.tiktok.com/player/v1/${item.post}?autoplay=1&muted=0&loop=0&controls=1&progress_bar=1&play_button=1&volume_control=1&fullscreen_button=1&description=0&music_info=0&rel=0&native_context_menu=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
-      </div>
-    </div>
-    <div class="shelf-hero-copy">
-      <h3>${esc(item.title)}</h3>
-      <p class="shelf-hero-author">${esc(item.author || "")}</p>
-    </div>`;
+      </div>`;
+  }
+
+  function closeCardVideo(card, item, tabKey) {
+    const face = card.querySelector(".shelf-card-face");
+    if (!face) return;
+    face.classList.remove("is-playing");
+    face.innerHTML = faceInnerHTML(item, tabKey);
   }
 
   function initShelf(section) {
@@ -267,26 +254,24 @@
       }
       const card = e.target.closest("[data-shelf-card]");
       if (!card) return;
+      const closeIcon = e.target.closest(".shelf-card-close");
+      if (closeIcon) {
+        e.preventDefault();
+        closeCardVideo(card, dataFromCard(card), tabKey);
+        return;
+      }
+      const playIcon = e.target.closest(".shelf-card-play");
+      if (playIcon && tabKey === "preview") {
+        e.preventDefault();
+        playOnCard(card, dataFromCard(card));
+        return;
+      }
       if (tabKey === "preview") {
         e.preventDefault();
         const cards = Array.from(ring.children);
         selectIndex(cards.indexOf(card));
       }
     }, true);
-
-    section.addEventListener("click", (e) => {
-      if (e.target.closest("[data-shelf-play]")) {
-        e.preventDefault();
-        const cards = Array.from(ring.children);
-        const front = cards[frontIndex];
-        if (front) playHero(section, dataFromCard(front));
-      } else if (e.target.closest("[data-shelf-close]")) {
-        e.preventDefault();
-        const cards = Array.from(ring.children);
-        const front = cards[frontIndex];
-        if (front) onFrontChange(front);
-      }
-    });
 
     carousel.addEventListener("keydown", (e) => {
       if (!["ArrowLeft", "ArrowRight"].includes(e.key)) return;
@@ -298,7 +283,7 @@
     carousel.addEventListener("pointerleave", () => { hoverPaused = false; });
 
     function autoTick() {
-      if (!dragging && !hoverPaused && !reduceMotion() && !section.querySelector(".shelf-hero-playing")) {
+      if (!dragging && !hoverPaused && !reduceMotion() && !ring.querySelector(".shelf-card-face.is-playing")) {
         rotation += 0.03;
         paint();
       }
