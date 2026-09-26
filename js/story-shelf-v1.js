@@ -124,8 +124,8 @@
       // end up closer together than their own width and pile on top of
       // each other. 2 items sit at opposite sides of the ring regardless of
       // radius, so the formula (which blows up as count -> 2) doesn't apply.
-      const r = count <= 2 ? cardW * 0.6 : ((cardW / 2) / Math.tan(Math.PI / count)) * 1.12;
-      radius = Math.round(Math.max(cardW * 0.55, Math.min(r, w * 0.95, 480)));
+      const r = count <= 2 ? cardW * 0.75 : ((cardW / 2) / Math.tan(Math.PI / count)) * 1.35;
+      radius = Math.round(Math.max(cardW * 0.7, Math.min(r, w * 0.95, 520)));
       carousel.style.setProperty("--shelf-radius", radius + "px");
     }
 
@@ -133,10 +133,12 @@
       paint();
     }
 
-    // Opacity/scale fall off steeply with angle from the front so that mid-
+    // Opacity falls off steeply with angle from the front so that mid-
     // rotation (dragging, or between two items) never shows several covers
     // at similar strength blending into a translucent mush — only the front
     // card reads clearly, neighbours are a faint hint, the rest all but gone.
+    // Cards keep their full size at every angle (no shrink-with-distance)
+    // so the ring never looks like it's "collapsing" while it turns.
     function paint() {
       const cards = Array.from(ring.children);
       const step = anglePerItem();
@@ -150,8 +152,7 @@
         // clearly legible — a brief faint blend, not two covers fighting
         // for attention.
         const opacity = Math.max(0.05, 1 - rel / 28);
-        const scale = Math.max(0.5, 1 - rel / 90);
-        card.style.transform = `rotateY(${i * step}deg) translateZ(${radius}px) scale(${scale.toFixed(3)})`;
+        card.style.transform = `rotateY(${i * step}deg) translateZ(${radius}px)`;
         card.style.opacity = opacity.toFixed(3);
         card.style.zIndex = String(Math.round(1000 - rel));
         card.style.pointerEvents = rel > 32 ? "none" : "";
@@ -193,7 +194,7 @@
       cancelRotAnim();
       if (animate && !reduceMotion()) {
         const from = rotation;
-        const duration = 420;
+        const duration = 240;
         const start = performance.now();
         manualAnim = true;
         const tick = (now) => {
@@ -341,7 +342,7 @@
 
     function autoTick() {
       if (!dragging && !hoverPaused && !manualAnim && !reduceMotion() && !ring.querySelector(".shelf-card-face.is-playing")) {
-        rotation += 0.16;
+        rotation += 0.32;
         paint();
       }
       autoRaf = requestAnimationFrame(autoTick);
