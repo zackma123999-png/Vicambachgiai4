@@ -128,14 +128,12 @@
       const cardW = (firstCard && firstCard.getBoundingClientRect().width) || Math.min(w * 0.58, 240);
       // Regular-polygon carousel formula: radius = (cardWidth/2) / tan(π/count)
       // is the distance at which adjacent card faces exactly touch edge to
-      // edge without overlapping. A flat width-based guess (the old code)
-      // ignores card size and item count entirely, so on narrow viewports
-      // (small radius, but cards still near their max CSS width) neighbours
-      // end up closer together than their own width and pile on top of
-      // each other. 2 items sit at opposite sides of the ring regardless of
-      // radius, so the formula (which blows up as count -> 2) doesn't apply.
-      const r = count <= 2 ? cardW * 0.75 : ((cardW / 2) / Math.tan(Math.PI / count)) * 1.35;
-      radius = Math.round(Math.max(cardW * 0.7, Math.min(r, w * 0.95, 520)));
+      // edge without overlapping. The extra multiplier (and generous caps
+      // below) push the ring well past that minimum on purpose — a big ring
+      // whose side cards bleed toward/off the screen edges reads as a large,
+      // sweeping carousel instead of a tight cluster of covers.
+      const r = count <= 2 ? cardW * 0.8 : ((cardW / 2) / Math.tan(Math.PI / count)) * 1.42;
+      radius = Math.round(Math.max(cardW * 0.75, Math.min(r, w * 1.0, 560)));
       carousel.style.setProperty("--shelf-radius", radius + "px");
     }
 
@@ -150,10 +148,11 @@
     // the far/opposite side sits at the same X/Y screen position as the
     // front card (only deeper in Z), so any lingering opacity there shows
     // as a translucent ghost bleeding through the card that's supposed to
-    // be sharp and alone in the centre. Scale shrinks a little the further
-    // a card turns away, for a sense of depth; both derive from the same
-    // `rotation` used for the ring's own transform every frame, so they can
-    // never fall out of sync mid-turn.
+    // be sharp and alone in the centre. Scale shrinks noticeably the
+    // further a card turns away, for a strong near/far sense of depth as
+    // the (now much wider) ring sweeps toward the screen edges; both derive
+    // from the same `rotation` used for the ring's own transform every
+    // frame, so they can never fall out of sync mid-turn.
     function paint() {
       const cards = Array.from(ring.children);
       const step = anglePerItem();
@@ -163,7 +162,7 @@
         const raw = (i * step + rotation) % 360;
         const rel = Math.abs(raw > 180 ? 360 - raw : raw);
         const opacity = Math.max(0.04, 1 - Math.pow(rel / 140, 1.8));
-        const scale = Math.max(0.78, 1 - rel / 210);
+        const scale = Math.max(0.5, 1 - rel / 130);
         card.style.transform = `rotateY(${i * step}deg) translateZ(${radius}px) scale(${scale.toFixed(3)})`;
         card.style.opacity = opacity.toFixed(3);
         card.style.zIndex = String(Math.round(1000 - rel));
@@ -250,23 +249,6 @@
       layout();
       if (leadIdx > 0) selectIndex(leadIdx);
     }
-
-    function switchTab(nextKey) {
-      if (nextKey === tabKey || !payload[nextKey]) return;
-      tabKey = nextKey;
-      list = payload[tabKey] || [];
-      carousel.dataset.activeTab = tabKey;
-      section.querySelectorAll("[data-shelf-tab]").forEach((btn) => {
-        const active = btn.dataset.shelfTab === tabKey;
-        btn.classList.toggle("is-active", active);
-        btn.setAttribute("aria-selected", active ? "true" : "false");
-      });
-      buildRing();
-    }
-
-    section.querySelectorAll("[data-shelf-tab]").forEach((btn) => {
-      btn.addEventListener("click", () => switchTab(btn.dataset.shelfTab));
-    });
 
     const prevBtn = section.querySelector("[data-shelf-prev]");
     const nextBtn = section.querySelector("[data-shelf-next]");
@@ -366,8 +348,14 @@
       stepBy(e.key === "ArrowRight" ? 1 : -1);
     });
 
-    carousel.addEventListener("pointerenter", () => { hoverPaused = true; });
-    carousel.addEventListener("pointerleave", () => { hoverPaused = false; });
+    // Only a real mouse hover should pause auto-advance. On touch devices,
+    // a tap fires pointerenter (setting hoverPaused = true) but the browser
+    // very often never fires a matching pointerleave once the finger just
+    // lifts off in place — leaving hoverPaused stuck true forever and the
+    // carousel frozen after the very first touch. Touch already pauses via
+    // `dragging` during the touch itself, so it needs no separate handling.
+    carousel.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") hoverPaused = true; });
+    carousel.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") hoverPaused = false; });
 
     // Auto-advance holds each card still and sharp, then makes one quick
     // snap to the next — it does NOT crawl continuously. A constant slow

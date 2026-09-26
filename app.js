@@ -1235,30 +1235,18 @@
     </div>`;
   }
   function storyShelfHTML(groups) {
-    const tabDefs = [
-      { key: "preview", label: "Trạm Preview" },
-      { key: "ongoing", label: "Đang lên sóng" },
-      { key: "completed", label: "Đã hoàn thành" },
-      { key: "upcoming", label: "Sắp ra mắt" },
-    ];
-    const tabs = tabDefs.map((t) => ({ ...t, list: (groups[t.key] || []).filter(Boolean) })).filter((t) => t.list.length);
-    if (!tabs.length) return "";
-    const initial = tabs[0];
-    const leadItem = initial.key === "preview"
-      ? (initial.list.find((it) => it.post) || initial.list[0])
-      : initial.list[0];
-    const payload = {};
-    tabs.forEach((t) => { payload[t.key] = t.list; });
-    return `<section class="wrap shelf" id="keTruyen" data-shelf aria-label="Kệ truyện ViCamBachGiai">
+    const list = (groups.preview || []).filter(Boolean);
+    if (!list.length) return "";
+    const leadItem = list.find((it) => it.post) || list[0];
+    const payload = { preview: list };
+    return `<section class="wrap shelf" id="keTruyen" data-shelf aria-label="Trạm Preview ViCamBachGiai">
       <header class="shelf-head">
-        <div class="shelf-tabs" role="tablist" aria-label="Chọn khu vực kệ truyện">
-          ${tabs.map((t, i) => `<button type="button" class="shelf-tab${i === 0 ? " is-active" : ""}" role="tab" aria-selected="${i === 0 ? "true" : "false"}" data-shelf-tab="${t.key}">${esc(t.label)}</button>`).join("")}
-        </div>
+        <h2 class="shelf-title">Trạm Preview</h2>
       </header>
       <div class="shelf-stage">
         <button type="button" class="shelf-nav shelf-nav-prev" data-shelf-prev aria-label="Truyện trước">‹</button>
-        <div class="shelf-carousel" data-shelf-carousel data-active-tab="${initial.key}">
-          <div class="shelf-ring" data-shelf-ring>${initial.list.map((item) => shelfCardHTML(item)).join("")}</div>
+        <div class="shelf-carousel" data-shelf-carousel data-active-tab="preview">
+          <div class="shelf-ring" data-shelf-ring>${list.map((item) => shelfCardHTML(item)).join("")}</div>
         </div>
         <button type="button" class="shelf-nav shelf-nav-next" data-shelf-next aria-label="Truyện sau">›</button>
       </div>
@@ -1278,17 +1266,11 @@
       if (s && s.id && !slideMap.has(s.id)) slideMap.set(s.id, s);
     });
     const slides = Array.from(slideMap.values());
-    const shelfGroups = {
-      preview: previewStories.map(shelfItemData),
-      ongoing: ongoing.map(shelfItemData),
-      completed: done.map(shelfItemData),
-      upcoming: soon.map(shelfItemData),
-    };
     setMeta("ViCamBachGiai — Thư viện Bách Hợp", VCBG.settings().tagline);
     app().innerHTML =
       header("home") +
       signalHeroHTML(slides) +
-      storyShelfHTML(shelfGroups) +
+      storyShelfHTML({ preview: previewStories.map(shelfItemData) }) +
       resonanceHomePanel() +
       footer();
     bindChrome();
