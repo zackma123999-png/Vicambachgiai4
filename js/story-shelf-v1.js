@@ -114,7 +114,19 @@
 
     function measure() {
       const w = carousel.clientWidth || 320;
-      radius = Math.max(120, Math.min(300, Math.round(w * 0.36)));
+      const count = list.length || 1;
+      const firstCard = ring.children[0];
+      const cardW = (firstCard && firstCard.getBoundingClientRect().width) || Math.min(w * 0.58, 240);
+      // Regular-polygon carousel formula: radius = (cardWidth/2) / tan(π/count)
+      // is the distance at which adjacent card faces exactly touch edge to
+      // edge without overlapping. A flat width-based guess (the old code)
+      // ignores card size and item count entirely, so on narrow viewports
+      // (small radius, but cards still near their max CSS width) neighbours
+      // end up closer together than their own width and pile on top of
+      // each other. 2 items sit at opposite sides of the ring regardless of
+      // radius, so the formula (which blows up as count -> 2) doesn't apply.
+      const r = count <= 2 ? cardW * 0.6 : ((cardW / 2) / Math.tan(Math.PI / count)) * 1.12;
+      radius = Math.round(Math.max(cardW * 0.55, Math.min(r, w * 0.95, 480)));
       carousel.style.setProperty("--shelf-radius", radius + "px");
     }
 
