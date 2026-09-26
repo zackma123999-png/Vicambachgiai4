@@ -1371,14 +1371,14 @@
   // once organic volume holds up.
   const CL_DEMO_MIN = 12;
   const CL_DEMO_POOL = [
-    { name: "Minh Anh", body: "Đọc một mạch hết chương mới, cảm xúc dâng trào ghê!" },
+    { name: "Minh Anh", quote: "Trái tim này, từ lúc gặp em, đã không còn thuộc về anh nữa.", body: "Đọc một mạch hết chương mới, cảm xúc dâng trào ghê!" },
     { name: "Thuỳ Trang", body: "Nữ chính xử lý tình huống này khéo quá, mê cách viết của tác giả." },
     { name: "Bảo Ngọc", body: "Chờ chương mới muốn xỉu, hy vọng cuối tuần có bản dịch mới." },
     { name: "Hải Yến", body: "Bìa truyện đẹp mà nội dung còn cuốn hơn, đọc không dứt ra được." },
-    { name: "Lan Chi", body: "Đoạn cao trào chương này làm tim đập loạn nhịp thật sự." },
+    { name: "Lan Chi", quote: "Anh sẽ không để ai được lại gần em thêm một lần nào nữa.", body: "Đoạn cao trào chương này làm tim đập loạn nhịp thật sự." },
     { name: "Diệu Linh", body: "Giao diện web mới mượt ghê, đọc truyện đêm khuya sướng mắt hẳn." },
     { name: "Ngọc Hà", body: "Couple này ngọt xỉu, mong tác giả ra thêm chương vào cuối tuần." },
-    { name: "Quỳnh Như", body: "Lâu lắm mới gặp truyện Bách Hợp hay vậy, cảm ơn team dịch nhiều." },
+    { name: "Quỳnh Như", quote: "Nếu kiếp sau còn được gặp lại, mong ta sẽ đến sớm hơn.", body: "Câu này đọc xong ngồi thẫn thờ luôn, hay quá trời." },
     { name: "Tuyết Mai", body: "Đọc lại lần thứ ba vẫn thấy hay, mạch truyện lôi cuốn từ đầu." },
     { name: "Phương Anh", body: "Cách xây dựng nhân vật phụ cũng chỉn chu, không hề bị lu mờ." },
     { name: "Gia Hân", body: "Bản dịch mượt mà, đọc không hề bị vấp câu chữ nào." },
@@ -1393,6 +1393,7 @@
         user_id: "demo-cl-user-" + i,
         user: { display_name: p.name, avatar: "" },
         body: p.body,
+        quote: p.quote || "",
         created_at: now - (i + 1) * 9.5 * 3600 * 1000,
         story: story ? { title: story.title } : null,
         href: story ? "#/truyen/" + story.slug : "#/kham-pha",
