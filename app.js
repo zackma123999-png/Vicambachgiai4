@@ -189,6 +189,7 @@
     if (parts[0] === "sap-ra-mat") return { name: "rail-upcoming", q };
     if (parts[0] === "kim-bai-de-cu") return { name: "medal-picks", q };
     if (parts[0] === "tram-preview") return { name: "preview-station", q };
+    if (parts[0] === "nhat-ky-binh-luan") return { name: "comment-log", q };
     if (parts[0] === "dang-nhap") return { name: "login", q };
     if (parts[0] === "dang-ky") return { name: "register", q };
     if (parts[0] === "quen-mat-khau") return { name: "forgot", q };
@@ -473,6 +474,7 @@
         ${mmLink("#/sap-ra-mat", "clock", "Sắp ra mắt")}
         ${mmLink("#/kim-bai-de-cu", "medal", "Kim bài đề cử")}
         ${mmLink("#/tram-preview", "play", "Trạm preview")}
+        ${mmLink("#/nhat-ky-binh-luan", "pulse", "Nhật ký bình luận")}
       </div>
       ${isAdmin || u ? `<div class="mm-group">
         ${isAdmin ? mmLink("#/admin", "shield", "Quản trị") : ""}
@@ -1320,6 +1322,169 @@
     bindChrome();
   }
 
+  function pageCommentLog(route) {
+    const sort = ["latest", "hot", "talk"].includes(route.q.sort) ? route.q.sort : "latest";
+    const storyId = route.q.story || "";
+    const q = String(route.q.q || "").trim();
+    const me = VCBG.currentUser();
+    const mineOnly = route.q.mine === "1" && !!me;
+    const stories = VCBG.listStories({ sort: "updated" });
+    const feed = VCBG.communityFeed({ sort, storyId });
+    const total = feed.total || 0;
+    const talking = feed.talking || 0;
+    let shown = feed;
+    if (mineOnly) shown = shown.filter((c) => c.user_id === me.id);
+    if (q) {
+      const needle = q.toLowerCase();
+      shown = shown.filter(
+        (c) =>
+          String(c.body || "").toLowerCase().includes(needle) ||
+          String((c.story && c.story.title) || "").toLowerCase().includes(needle)
+      );
+    }
+    const qs = (extra) => {
+      const merged = Object.assign({ sort, story: storyId, mine: mineOnly ? "1" : "", q }, extra);
+      const p = new URLSearchParams();
+      Object.keys(merged).forEach((k) => { if (merged[k]) p.set(k, merged[k]); });
+      const str = p.toString();
+      return "#/nhat-ky-binh-luan" + (str ? "?" + str : "");
+    };
+    const tab = (id, label) => `<a class="cl-tab${sort === id ? " on" : ""}" href="${qs({ sort: id })}">${esc(label)}</a>`;
+    const PAGE_SIZE = 8;
+    const replyHTML = (c, r, hidden) => {
+      const who = (r.user && r.user.display_name) || "Ẩn danh";
+      const parent = (c.user && c.user.display_name) || "bạn";
+      return `<article class="cl-reply sig-reply${hidden ? " is-more" : ""}" data-rid="${esc(r.id)}">
+        ${avatarHTML(r.user, "cl-avatar sm")}
+        <div class="cl-reply-body">
+          <div class="cl-meta"><b>${esc(who)}</b><time>${esc(fmtRel(r.created_at))}</time></div>
+          <p class="cl-to">Trả lời ${esc(parent)}</p>
+          <p class="cl-text">${esc(r.body)}</p>
+          <div class="cl-acts"><button type="button" class="cl-act" data-reply="${esc(c.id)}" data-to="${esc(who)}">Trả lời</button></div>
+        </div>
+      </article>`;
+    };
+    const cardHTML = (c, index) => {
+      const who = (c.user && c.user.display_name) || "Ẩn danh";
+      const replies = c.replies || [];
+      const firstR = replies.slice(0, 1);
+      const rest = replies.slice(1);
+      const canReport = me && me.id !== c.user_id;
+      const canDelete = me && (me.id === c.user_id || VCBG.isAdmin());
+      return `<article class="cl-card sig-card${index >= PAGE_SIZE ? " is-hidden" : ""}" data-cid="${esc(c.id)}">
+        <div class="cl-card-top">
+          ${avatarHTML(c.user, "cl-avatar")}
+          <div class="cl-who">
+            <div class="cl-who-row"><b>${esc(who)}</b>${c.staff ? `<span class="cl-badge">ViCam</span>` : ""}</div>
+            <div class="cl-meta"><time>${esc(fmtRel(c.created_at))}</time>${c.hot ? `<span class="cl-hot">★ Đang được chú ý</span>` : ""}</div>
+          </div>
+          ${c.story ? `<a class="cl-story-tag" href="${esc(c.href)}">${esc(c.story.title)}</a>` : ""}
+        </div>
+        ${c.quote ? `<blockquote class="cl-quote"><p>“${esc(c.quote)}”</p></blockquote>` : ""}
+        <p class="cl-body sig-text">${esc(c.body)}</p>
+        <div class="cl-acts">
+          <button type="button" class="cl-like${c.liked ? " on" : ""}" data-like="${esc(c.id)}" aria-pressed="${!!c.liked}">${c.like_count || 0}</button>
+          <button type="button" class="cl-act" data-reply="${esc(c.id)}" data-to="${esc(who)}">Trả lời</button>
+          <button type="button" class="cl-act" data-quote="${esc(c.id)}">Trích dẫn</button>
+          ${canReport ? `<button type="button" class="cl-act" data-report-comment="bình luận ${esc(c.id)}" data-story-title="${esc((c.story && c.story.title) || "Bình luận")}">Báo cáo</button>` : ""}
+          ${canDelete ? `<button type="button" class="cl-act cl-act-danger" data-del="${esc(c.id)}">Xóa</button>` : ""}
+        </div>
+        ${firstR.map((r) => replyHTML(c, r, false)).join("")}
+        ${rest.map((r) => replyHTML(c, r, true)).join("")}
+        ${rest.length ? `<button type="button" class="cl-more-replies" data-more="${esc(c.id)}">Xem ${rest.length} phản hồi khác ▾</button>` : ""}
+      </article>`;
+    };
+    setMeta("Nhật ký bình luận — ViCamBachGiai", "Toàn bộ cảm nghĩ độc giả để lại trên mọi truyện, lưu giữ lâu dài.");
+    app().innerHTML =
+      header() +
+      `<main class="wrap cl-page">
+        <section class="cl-hero">
+          <span class="cl-kicker"><i aria-hidden="true"></i>NHẬT KÝ BÌNH LUẬN</span>
+          <h1>Nhật ký bình luận</h1>
+          <p>Toàn bộ cảm nghĩ độc giả để lại trên mọi truyện — lưu giữ lâu dài, không giới hạn thời gian.</p>
+          <div class="cl-stats">
+            <div><b>${fmtCount(total)}</b><span>Bình luận</span></div>
+            <div><b>${fmtCount(talking)}</b><span>Đang thảo luận</span></div>
+          </div>
+        </section>
+        <div class="cl-tabs">
+          ${tab("latest", "Mới nhất")}
+          ${tab("hot", "Nhiều tương tác")}
+          ${tab("talk", "Đang thảo luận")}
+        </div>
+        <form class="cl-controls" id="clForm">
+          <input type="search" name="q" value="${esc(q)}" placeholder="Tìm trong bình luận…">
+          <select name="story">
+            <option value="">Tất cả truyện</option>
+            ${stories.map((s) => `<option value="${esc(s.id)}" ${s.id === storyId ? "selected" : ""}>${esc(s.title)}</option>`).join("")}
+          </select>
+          ${me ? `<label class="cl-mine"><input type="checkbox" name="mine" ${mineOnly ? "checked" : ""}> Chỉ của tôi</label>` : ""}
+          <button class="btn btn-cyan" type="submit">Lọc</button>
+        </form>
+        <div class="cl-list sig-board" id="clList">
+          ${shown.length ? shown.map(cardHTML).join("") : `<div class="empty">${q || mineOnly || storyId ? "Không tìm thấy bình luận phù hợp." : "Chưa có bình luận nào."}</div>`}
+        </div>
+        ${shown.length > PAGE_SIZE ? `<button type="button" class="btn btn-ghost cl-more" id="clMore">Xem thêm bình luận ▾</button>` : ""}
+        <div class="cl-compose">
+          <button type="button" class="btn btn-cyan" id="clOpen">${me ? "Chia sẻ cảm nghĩ của bạn…" : "Đăng nhập để chia sẻ cảm nghĩ…"}</button>
+        </div>
+      </main>` +
+      footer();
+    bindChrome();
+    bindCommentLog();
+  }
+  function bindCommentLog() {
+    bindSignalActs();
+    const form = $("#clForm");
+    if (form)
+      form.onsubmit = (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const current = new URLSearchParams(location.hash.split("?")[1] || "");
+        const merged = {
+          sort: current.get("sort") || "latest",
+          story: fd.get("story") || "",
+          mine: fd.get("mine") ? "1" : "",
+          q: String(fd.get("q") || "").trim(),
+        };
+        const out = new URLSearchParams();
+        Object.keys(merged).forEach((k) => {
+          if (merged[k]) out.set(k, merged[k]);
+        });
+        const str = out.toString();
+        go("/nhat-ky-binh-luan" + (str ? "?" + str : ""));
+      };
+    const more = $("#clMore");
+    if (more)
+      more.onclick = () => {
+        const hidden = $$(".cl-card.is-hidden");
+        hidden.slice(0, 8).forEach((el) => el.classList.remove("is-hidden"));
+        if (!$$(".cl-card.is-hidden").length) more.remove();
+      };
+    const open = () => openSignalBox({});
+    if ($("#clOpen")) $("#clOpen").onclick = open;
+    $$("#clList [data-report-comment]").forEach((b) => {
+      b.onclick = () => {
+        const p = new URLSearchParams({
+          compose: "report",
+          source: b.dataset.reportComment || "",
+          draft: b.dataset.storyTitle ? "Truyện liên quan: " + b.dataset.storyTitle : "",
+        });
+        go("/hop-thu?" + p.toString());
+      };
+    });
+    $$("#clList [data-del]").forEach((b) => {
+      b.onclick = () => {
+        try {
+          VCBG.deleteOwnComment(b.dataset.del);
+          toast("Đã xóa bình luận.");
+          go(currentPath || "/nhat-ky-binh-luan");
+        } catch (e) {
+          toast(e.message);
+        }
+      };
+    });
+  }
   function pageExplore(route) {
     const q = route.q.q || "";
     const genre = route.q.genre || "";
@@ -3669,6 +3834,7 @@
       else if (route.name === "rail-upcoming") pageStatusRail("upcoming");
       else if (route.name === "medal-picks") pageMedalPicks();
       else if (route.name === "preview-station") pagePreviewStation();
+      else if (route.name === "comment-log") pageCommentLog(route);
       else if (route.name === "account") pageAccount();
       else if (route.name === "notifs") pageNotifs();
       else if (route.name === "mailbox") pageMailbox();

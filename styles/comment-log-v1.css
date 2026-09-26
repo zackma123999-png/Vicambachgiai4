@@ -1,0 +1,190 @@
+/* "Nhật ký bình luận" — full page browsing every comment across every story,
+   no time limit. Fresh layout, but reuses the same visual system as the
+   homepage: --sh-accent cyan, JetBrains Mono for tracked labels/meta,
+   Plus Jakarta Sans for names and body copy, black cards like the homepage
+   comment marquee. Functional hooks (.sig-board/.sig-card/.sig-text/.sig-reply)
+   are kept so the existing like/reply/quote/report logic works unchanged —
+   only the visuals here are new. */
+.cl-page { max-width: 860px; padding: 1.4rem 1rem 3rem; }
+
+.cl-hero {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 1.2rem;
+  padding: 1.8rem 1.5rem;
+  margin-bottom: 1.4rem;
+  overflow: hidden;
+  background: radial-gradient(120% 140% at 100% 0%, rgba(38, 194, 220, .16), transparent 60%), #0b0c10;
+}
+.cl-kicker {
+  display: inline-flex; align-items: center; gap: .45rem;
+  color: var(--sh-accent, #26c2dc);
+  font-family: 'JetBrains Mono', monospace; font-weight: 600;
+  font-size: .68rem; letter-spacing: .18em;
+}
+.cl-kicker i {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--sh-accent, #26c2dc);
+  box-shadow: 0 0 .6rem rgba(38, 194, 220, .7);
+}
+.cl-hero h1 {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 1.7rem; font-weight: 800; letter-spacing: -.01em;
+  color: var(--sh-ink, #f4f7f8); margin: .5rem 0 .4rem;
+}
+.cl-hero > p {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: .88rem; color: var(--sh-muted, rgba(244, 247, 248, .74));
+  max-width: 46ch; margin: 0;
+}
+.cl-stats { display: flex; gap: 1.8rem; margin-top: 1.3rem; }
+.cl-stats b {
+  display: block; font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 700; font-size: 1.3rem; color: var(--sh-ink, #f4f7f8);
+  font-variant-numeric: tabular-nums;
+}
+.cl-stats span {
+  display: block; margin-top: .3rem;
+  font-family: 'JetBrains Mono', monospace; font-size: .6rem;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--sh-muted-dim, rgba(244, 247, 248, .5));
+}
+
+.cl-tabs { display: flex; gap: .5rem; margin-bottom: .8rem; flex-wrap: wrap; }
+.cl-tab {
+  font-family: 'JetBrains Mono', monospace; font-size: .68rem; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: .5rem .85rem; border-radius: .6rem;
+  border: 1px solid rgba(255, 255, 255, .1);
+  color: var(--muted, #8b9bb3); text-decoration: none;
+}
+.cl-tab.on {
+  color: #04222a; background: var(--sh-accent, #26c2dc); border-color: var(--sh-accent, #26c2dc);
+}
+
+.cl-controls {
+  display: flex; flex-wrap: wrap; gap: .6rem; align-items: center;
+  margin-bottom: 1.2rem; padding: .9rem; border-radius: .9rem;
+  background: rgba(255, 255, 255, .03); border: 1px solid rgba(255, 255, 255, .08);
+}
+.cl-controls input[type="search"] {
+  flex: 1 1 180px; min-width: 140px;
+  background: #171512; color: var(--ink, #e8eef8);
+  border: 1px solid var(--line, rgba(148, 187, 233, .12)); border-radius: .6rem;
+  padding: .55rem .75rem; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: .85rem;
+}
+.cl-controls select {
+  background: #171512; color: var(--ink, #e8eef8);
+  border: 1px solid var(--line, rgba(148, 187, 233, .12)); border-radius: .6rem;
+  padding: .55rem .75rem; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: .82rem;
+  max-width: 12rem;
+}
+.cl-mine {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: .82rem;
+  color: var(--sh-muted, rgba(244, 247, 248, .74)); white-space: nowrap;
+}
+
+.cl-list {
+  /* .sig-board (styles.css) is a bordered/gradient box elsewhere on the site —
+     reused only for the like/reply .closest(".sig-board") JS hook; reset its
+     decorative box styling since this page draws its own card list. */
+  display: flex; flex-direction: column; gap: .8rem;
+  border: 0; border-radius: 0; background: none; padding: 0;
+}
+.cl-card.is-hidden { display: none; }
+
+.cl-card {
+  /* .sig-card (styles.css) is a CSS-grid card elsewhere on the site — this
+     class is only reused here so the existing like/reply/quote JS hooks
+     (.closest(".sig-card")) keep working; the layout itself is this page's own. */
+  display: block;
+  background: #0b0c10; border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 1rem; padding: 1.1rem 1.2rem;
+}
+.cl-card-top { display: flex; align-items: flex-start; gap: .7rem; }
+.cl-avatar {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 38px; height: 38px; border-radius: 50%; overflow: hidden;
+  background: rgba(38, 194, 220, .16); color: var(--sh-accent, #26c2dc);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700; font-size: .9rem;
+}
+.cl-avatar.sm { width: 28px; height: 28px; font-size: .76rem; }
+.cl-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.cl-who { flex: 1; min-width: 0; }
+.cl-who-row { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+.cl-who-row b {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700;
+  font-size: .92rem; color: var(--sh-ink, #f4f7f8);
+}
+.cl-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: .58rem; font-weight: 700;
+  letter-spacing: .06em; padding: .1rem .4rem; border-radius: .3rem;
+  background: rgba(38, 194, 220, .18); color: var(--sh-accent, #26c2dc);
+}
+.cl-meta {
+  display: flex; align-items: center; gap: .5rem; margin-top: .15rem;
+  font-family: 'JetBrains Mono', monospace; font-size: .64rem;
+  color: var(--sh-muted-dim, rgba(244, 247, 248, .5));
+}
+.cl-hot { color: #e6c47b; }
+.cl-story-tag {
+  flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: .62rem; font-weight: 600;
+  letter-spacing: .03em; padding: .3rem .55rem; border-radius: .5rem;
+  border: 1px solid rgba(38, 194, 220, .35); color: var(--sh-accent, #26c2dc);
+  text-decoration: none; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.cl-quote {
+  margin: .7rem 0 0; padding: .5rem .8rem;
+  border-left: 2px solid var(--sh-accent, #26c2dc);
+  background: rgba(38, 194, 220, .07); border-radius: 0 .5rem .5rem 0;
+}
+.cl-quote p {
+  margin: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-style: italic;
+  font-size: .82rem; color: var(--sh-muted, rgba(244, 247, 248, .74));
+}
+
+.cl-body, .cl-text {
+  margin: .6rem 0 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: .88rem; line-height: 1.55; color: var(--sh-muted, rgba(244, 247, 248, .86));
+}
+
+.cl-acts { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .8rem; }
+.cl-like, .cl-act {
+  font-family: 'JetBrains Mono', monospace; font-size: .66rem; font-weight: 600;
+  letter-spacing: .03em; padding: .35rem .65rem; border-radius: .5rem;
+  border: 1px solid rgba(255, 255, 255, .1); background: transparent;
+  color: var(--sh-muted, rgba(244, 247, 248, .74)); cursor: pointer;
+}
+.cl-like::before { content: "♥ "; }
+.cl-like.on { color: #f0b4d2; border-color: rgba(240, 180, 210, .45); }
+.cl-act:hover, .cl-like:hover { border-color: rgba(38, 194, 220, .45); color: var(--sh-accent, #26c2dc); }
+.cl-act-danger:hover { border-color: rgba(224, 108, 108, .5); color: #e06c6c; }
+
+.cl-reply {
+  /* .sig-reply (styles.css) is a bordered grid card elsewhere on the site —
+     reused only for the "xem thêm phản hồi" .is-more toggle; reset its own
+     box styling in favor of this page's plain indented layout. */
+  display: flex; gap: .55rem; margin: .8rem 0 0 1.6rem;
+  padding: .8rem 0 0; border: 0; border-top: 1px dashed rgba(255, 255, 255, .08);
+  border-radius: 0; background: none;
+}
+.cl-reply.is-more { display: none; }
+.cl-reply-body { flex: 1; min-width: 0; }
+.cl-to { margin: 0; font-family: 'JetBrains Mono', monospace; font-size: .6rem; color: var(--sh-muted-dim, rgba(244, 247, 248, .5)); }
+.cl-more-replies {
+  margin: .6rem 0 0 1.6rem;
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font-family: 'JetBrains Mono', monospace; font-size: .68rem;
+  color: var(--sh-accent, #26c2dc);
+}
+
+.cl-more { display: block; margin: 0 auto 1.4rem; }
+.cl-compose { margin-top: .6rem; }
+.cl-compose .btn { width: 100%; }
+
+@media (min-width: 640px) {
+  .cl-hero { padding: 2.2rem 2rem; }
+  .cl-hero h1 { font-size: 2rem; }
+  .cl-story-tag { max-width: none; }
+}
