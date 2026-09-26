@@ -905,6 +905,7 @@
     $$("[data-like]").forEach((b) => {
       if (b.closest(".sig-board"))
         b.onclick = () => {
+          if (b.closest("[data-demo]")) return toast("Đây là bình luận minh hoạ tạm thời.");
           try {
             const r = VCBG.likeComment(b.dataset.like);
             b.textContent = r.count;
@@ -918,10 +919,14 @@
     });
     $$("[data-reply]").forEach((b) => {
       if (b.closest(".sig-board"))
-        b.onclick = () => openSignalBox({ commentId: b.dataset.reply, replyTo: b.dataset.to || "" });
+        b.onclick = () => {
+          if (b.closest("[data-demo]")) return toast("Đây là bình luận minh hoạ tạm thời.");
+          openSignalBox({ commentId: b.dataset.reply, replyTo: b.dataset.to || "" });
+        };
     });
     $$("[data-quote]").forEach((b) => {
       b.onclick = () => {
+        if (b.closest("[data-demo]")) return toast("Đây là bình luận minh hoạ tạm thời.");
         const card = b.closest(".sig-card");
         const text = card && card.querySelector(".sig-text");
         openSignalBox({ quote: text ? text.textContent : "" });
@@ -1322,6 +1327,46 @@
     bindChrome();
   }
 
+  // Temporary, by request: placeholder comments to pad out "Nhật ký bình
+  // luận" while the site doesn't have enough real ones yet. See the isDemo
+  // guards in cardHTML/bindSignalActs — these never behave like real
+  // comments (no like/reply/quote/report/delete). Remove the whole block
+  // once organic volume holds up.
+  const CL_DEMO_MIN = 12;
+  const CL_DEMO_POOL = [
+    { name: "Minh Anh", body: "Đọc một mạch hết chương mới, cảm xúc dâng trào ghê!" },
+    { name: "Thuỳ Trang", body: "Nữ chính xử lý tình huống này khéo quá, mê cách viết của tác giả." },
+    { name: "Bảo Ngọc", body: "Chờ chương mới muốn xỉu, hy vọng cuối tuần có bản dịch mới." },
+    { name: "Hải Yến", body: "Bìa truyện đẹp mà nội dung còn cuốn hơn, đọc không dứt ra được." },
+    { name: "Lan Chi", body: "Đoạn cao trào chương này làm tim đập loạn nhịp thật sự." },
+    { name: "Diệu Linh", body: "Giao diện web mới mượt ghê, đọc truyện đêm khuya sướng mắt hẳn." },
+    { name: "Ngọc Hà", body: "Couple này ngọt xỉu, mong tác giả ra thêm chương vào cuối tuần." },
+    { name: "Quỳnh Như", body: "Lâu lắm mới gặp truyện Bách Hợp hay vậy, cảm ơn team dịch nhiều." },
+    { name: "Tuyết Mai", body: "Đọc lại lần thứ ba vẫn thấy hay, mạch truyện lôi cuốn từ đầu." },
+    { name: "Phương Anh", body: "Cách xây dựng nhân vật phụ cũng chỉn chu, không hề bị lu mờ." },
+    { name: "Gia Hân", body: "Bản dịch mượt mà, đọc không hề bị vấp câu chữ nào." },
+    { name: "Thanh Trúc", body: "Cảnh cuối chương làm mình xúc động muốn khóc luôn." },
+  ];
+  function demoCommentLogEntries(count, stories) {
+    const now = Date.now();
+    return CL_DEMO_POOL.slice(0, count).map((p, i) => {
+      const story = stories && stories.length ? stories[i % stories.length] : null;
+      return {
+        id: "demo-cl-" + i,
+        user_id: "demo-cl-user-" + i,
+        user: { display_name: p.name, avatar: "" },
+        body: p.body,
+        created_at: now - (i + 1) * 9.5 * 3600 * 1000,
+        story: story ? { title: story.title } : null,
+        href: story ? "#/truyen/" + story.slug : "#/kham-pha",
+        like_count: Math.max(1, 14 - i),
+        liked: false,
+        hot: i === 0,
+        replies: [],
+        isDemo: true,
+      };
+    });
+  }
   function pageCommentLog(route) {
     const sort = ["latest", "hot", "talk"].includes(route.q.sort) ? route.q.sort : "latest";
     const storyId = route.q.story || "";
@@ -1330,8 +1375,8 @@
     const mineOnly = route.q.mine === "1" && !!me;
     const stories = VCBG.listStories({ sort: "updated" });
     const feed = VCBG.communityFeed({ sort, storyId });
-    const total = feed.total || 0;
-    const talking = feed.talking || 0;
+    let total = feed.total || 0;
+    let talking = feed.talking || 0;
     let shown = feed;
     if (mineOnly) shown = shown.filter((c) => c.user_id === me.id);
     if (q) {
@@ -1341,6 +1386,17 @@
           String(c.body || "").toLowerCase().includes(needle) ||
           String((c.story && c.story.title) || "").toLowerCase().includes(needle)
       );
+    }
+    // Temporary, by request: pad out with placeholder comments when the site
+    // doesn't have enough real ones yet, so the page isn't a blank "Chưa có
+    // bình luận nào" wall. Only on the unfiltered default view, so a real
+    // search/story/"chỉ của tôi" filter still shows its true (possibly empty)
+    // result. Remove once organic comment volume holds up on its own.
+    if (!storyId && !q && !mineOnly && shown.length < CL_DEMO_MIN) {
+      const padding = demoCommentLogEntries(CL_DEMO_MIN - shown.length, stories);
+      shown = shown.concat(padding);
+      total += padding.length;
+      talking += Math.min(padding.length, 3);
     }
     const qs = (extra) => {
       const merged = Object.assign({ sort, story: storyId, mine: mineOnly ? "1" : "", q }, extra);
@@ -1369,9 +1425,9 @@
       const replies = c.replies || [];
       const firstR = replies.slice(0, 1);
       const rest = replies.slice(1);
-      const canReport = me && me.id !== c.user_id;
-      const canDelete = me && (me.id === c.user_id || VCBG.isAdmin());
-      return `<article class="cl-card sig-card${index >= PAGE_SIZE ? " is-hidden" : ""}" data-cid="${esc(c.id)}">
+      const canReport = !c.isDemo && me && me.id !== c.user_id;
+      const canDelete = !c.isDemo && me && (me.id === c.user_id || VCBG.isAdmin());
+      return `<article class="cl-card sig-card${index >= PAGE_SIZE ? " is-hidden" : ""}" data-cid="${esc(c.id)}"${c.isDemo ? ' data-demo="true"' : ""}>
         <div class="cl-card-top">
           ${avatarHTML(c.user, "cl-avatar")}
           <div class="cl-who">
@@ -1462,6 +1518,14 @@
                 String((c.story && c.story.title) || "").toLowerCase().includes(needle)
             );
           }
+          let freshTotal = freshFeed.total || 0;
+          let freshTalking = freshFeed.talking || 0;
+          if (!storyId && !q && !mineOnly && freshShown.length < CL_DEMO_MIN) {
+            const padding = demoCommentLogEntries(CL_DEMO_MIN - freshShown.length, stories);
+            freshShown = freshShown.concat(padding);
+            freshTotal += padding.length;
+            freshTalking += Math.min(padding.length, 3);
+          }
           list.innerHTML = freshShown.length
             ? freshShown.map(cardHTML).join("")
             : `<div class="empty">${q || mineOnly || storyId ? "Không tìm thấy bình luận phù hợp." : "Chưa có bình luận nào."}</div>`;
@@ -1475,8 +1539,8 @@
           }
           const totalEl = $("#clTotal");
           const talkEl = $("#clTalking");
-          if (totalEl) totalEl.textContent = fmtCount(freshFeed.total || 0);
-          if (talkEl) talkEl.textContent = fmtCount(freshFeed.talking || 0);
+          if (totalEl) totalEl.textContent = fmtCount(freshTotal);
+          if (talkEl) talkEl.textContent = fmtCount(freshTalking);
           bindCommentLog();
         }, 200);
       });
