@@ -1,8 +1,10 @@
 // KỆ TRUYỆN: 3D rotating carousel merging Trạm Preview + the 3 status rails
-// into one homepage area. Preview cards switch an inline hero + play the
-// TikTok teaser (never navigate). Status-tab cards are real <a> links to the
-// story page, exactly like the old rail()/storyCard() — dragging the shelf
-// must never accidentally "click" one of those links.
+// into one homepage area. Every cover is the same plain <a> link to the
+// story page; the info panel below carries the "Đọc truyện" / "Xem video"
+// buttons. On the Trạm Preview tab a cover click is intercepted (see the
+// ring click handler) to bring that card to front instead of navigating,
+// so the teaser video can still play inline without leaving the page —
+// dragging the shelf must never accidentally "click" through either.
 (function () {
   const esc = (value) => {
     const node = document.createElement("span");
@@ -21,40 +23,48 @@
       genre: card.dataset.genre || "",
       post: card.dataset.post || "",
       teaser: card.dataset.teaser || "",
+      readHref: card.dataset.readHref || "",
     };
   }
 
-  function faceInnerHTML(item, tabKey) {
-    const isPreview = tabKey === "preview";
-    return `${item.cover ? `<img src="${esc(item.cover)}" alt="Bìa ${esc(item.title)}" loading="lazy">` : `<b aria-hidden="true">V</b>`}
-      ${isPreview && item.post ? `<span class="shelf-card-play" role="button" tabindex="-1" aria-label="Phát teaser ${esc(item.title)} ngay tại đây">▶</span>` : ""}`;
+  // Covers are bare (no on-cover play icon) — the video trigger lives in the
+  // info panel below instead, so it never has to compete with the drag/
+  // rotate gesture on the carousel itself.
+  function faceInnerHTML(item) {
+    return item.cover ? `<img src="${esc(item.cover)}" alt="Bìa ${esc(item.title)}" loading="lazy">` : `<b aria-hidden="true">V</b>`;
   }
 
-  function cardFaceHTML(item, tabKey) {
-    return `<span class="shelf-card-face">${faceInnerHTML(item, tabKey)}</span>`;
+  function cardFaceHTML(item) {
+    return `<span class="shelf-card-face">${faceInnerHTML(item)}</span>`;
   }
 
   function cardAttrs(item) {
-    return `data-slug="${esc(item.slug)}" data-title="${esc(item.title)}" data-author="${esc(item.author)}" data-cover="${esc(item.cover)}" data-status="${esc(item.status)}" data-genre="${esc(item.genre)}" data-post="${esc(item.post)}" data-teaser="${esc(item.teaser)}"`;
+    return `data-slug="${esc(item.slug)}" data-title="${esc(item.title)}" data-author="${esc(item.author)}" data-cover="${esc(item.cover)}" data-status="${esc(item.status)}" data-genre="${esc(item.genre)}" data-post="${esc(item.post)}" data-teaser="${esc(item.teaser)}" data-read-href="${esc(item.readHref)}"`;
   }
 
-  function cardHTML(item, tabKey) {
-    return tabKey === "preview"
-      ? `<button type="button" class="shelf-card" data-shelf-card ${cardAttrs(item)} aria-label="Chọn truyện ${esc(item.title)}">${cardFaceHTML(item, tabKey)}</button>`
-      : `<a class="shelf-card" data-shelf-card href="#/truyen/${esc(item.slug)}" ${cardAttrs(item)} aria-label="Mở truyện ${esc(item.title)}">${cardFaceHTML(item, tabKey)}</a>`;
+  function cardHTML(item) {
+    return `<a class="shelf-card" data-shelf-card href="#/truyen/${esc(item.slug)}" ${cardAttrs(item)} aria-label="Mở truyện ${esc(item.title)}">${cardFaceHTML(item)}</a>`;
   }
 
-  function heroHTML(item, tabKey) {
+  const TEASER_LEN = 130;
+  function teaserHTML(item) {
+    const full = item.teaser || "Một câu chuyện mới đang được chuẩn bị tại ViCamBachGiai.";
+    const truncated = full.length > TEASER_LEN;
+    const shown = truncated ? full.slice(0, TEASER_LEN).trim() : full;
+    return `${esc(shown)}${truncated ? `… <a class="shelf-hero-more" href="${esc(item.readHref)}">Xem tiếp</a>` : ""}`;
+  }
+
+  function heroHTML(item) {
     if (!item) return "";
-    const isPreview = tabKey === "preview";
     return `<div class="shelf-hero" data-shelf-hero>
-      <span class="shelf-hero-now">${isPreview ? (item.post ? "Sẵn sàng phát — bấm ▶ trên bìa" : "Teaser đang chuẩn bị") : esc(item.status)}</span>
       <h3>${esc(item.title)}</h3>
       <p class="shelf-hero-author">${esc(item.author || "Chưa cập nhật tác giả")}</p>
-      ${isPreview
-        ? `<div class="shelf-hero-pills"><span>${esc(item.status)}</span>${item.genre ? `<span>${esc(item.genre)}</span>` : ""}</div>
-           <p class="shelf-hero-teaser">${esc(item.teaser || "Một câu chuyện mới đang được chuẩn bị tại ViCamBachGiai.")}</p>`
-        : `<a class="shelf-hero-cta" href="#/truyen/${esc(item.slug)}">Xem chi tiết ›</a>`}
+      <div class="shelf-hero-pills"><span>${esc(item.status)}</span>${item.genre ? `<span>${esc(item.genre)}</span>` : ""}</div>
+      <p class="shelf-hero-teaser">${teaserHTML(item)}</p>
+      <div class="shelf-hero-actions">
+        ${item.post ? `<button type="button" class="shelf-hero-play" data-shelf-hero-play data-post="${esc(item.post)}" data-title="${esc(item.title)}" aria-label="Xem video ${esc(item.title)} ngay tại đây">▶ Xem video</button>` : ""}
+        <a class="shelf-hero-cta" href="${esc(item.readHref)}">Đọc truyện ›</a>
+      </div>
     </div>`;
   }
 
@@ -69,11 +79,11 @@
       </div>`;
   }
 
-  function closeCardVideo(card, item, tabKey) {
+  function closeCardVideo(card, item) {
     const face = card.querySelector(".shelf-card-face");
     if (!face) return;
     face.classList.remove("is-playing");
-    face.innerHTML = faceInnerHTML(item, tabKey);
+    face.innerHTML = faceInnerHTML(item);
   }
 
   function initShelf(section) {
@@ -176,7 +186,7 @@
       });
       if (!card) return;
       const hero = section.querySelector("[data-shelf-hero]");
-      if (hero) hero.outerHTML = heroHTML(dataFromCard(card), tabKey);
+      if (hero) hero.outerHTML = heroHTML(dataFromCard(card));
     }
 
     // Rotation and each card's opacity/scale must update from the exact same
@@ -232,7 +242,7 @@
     }
 
     function buildRing() {
-      ring.innerHTML = list.map((item) => cardHTML(item, tabKey)).join("");
+      ring.innerHTML = list.map((item) => cardHTML(item)).join("");
       rotation = 0;
       frontIndex = -1;
       const leadIdx = tabKey === "preview" ? Math.max(0, list.findIndex((it) => it.post)) : 0;
@@ -273,6 +283,14 @@
     carousel.addEventListener("gesturestart", (e) => e.preventDefault());
     carousel.addEventListener("gesturechange", (e) => e.preventDefault());
 
+    // pointermove/up listen on window rather than the carousel, and we never
+    // call setPointerCapture: capturing the pointer on the carousel also
+    // silently retargets the FOLLOWING click event's e.target to the
+    // carousel itself (a real browser quirk, not just a drag artifact) —
+    // so any tap on something inside the ring (the video close button, a
+    // card) would never resolve to the actual element that was tapped.
+    // Tracking via window avoids that trap entirely while still following
+    // the drag past the carousel's own edges.
     carousel.addEventListener("pointerdown", (e) => {
       if (e.button !== undefined && e.button !== 0) return;
       cancelRotAnim();
@@ -281,19 +299,17 @@
       dragStartX = e.clientX;
       dragStartRot = rotation;
       dragStartTime = Date.now();
-      try { carousel.setPointerCapture(e.pointerId); } catch (_) {}
     });
-    carousel.addEventListener("pointermove", (e) => {
+    window.addEventListener("pointermove", (e) => {
       if (!dragging) return;
       const dx = e.clientX - dragStartX;
       dragMoved = Math.max(dragMoved, Math.abs(dx));
       rotation = dragStartRot + dx * 0.35;
       paint();
     });
-    function endDrag(e) {
+    function endDrag() {
       if (!dragging) return;
       dragging = false;
-      try { carousel.releasePointerCapture(e.pointerId); } catch (_) {}
       const wasRealDrag = dragMoved > 6;
       if (wasRealDrag) {
         const step = anglePerItem();
@@ -302,8 +318,8 @@
         window.setTimeout(() => { delete section.dataset.shelfJustDragged; }, 0);
       }
     }
-    carousel.addEventListener("pointerup", endDrag);
-    carousel.addEventListener("pointercancel", endDrag);
+    window.addEventListener("pointerup", endDrag);
+    window.addEventListener("pointercancel", endDrag);
 
     // A real drag must never fire the link/button underneath it.
     ring.addEventListener("click", (e) => {
@@ -317,13 +333,14 @@
       const closeIcon = e.target.closest(".shelf-card-close");
       if (closeIcon) {
         e.preventDefault();
-        closeCardVideo(card, dataFromCard(card), tabKey);
+        closeCardVideo(card, dataFromCard(card));
         return;
       }
-      const playIcon = e.target.closest(".shelf-card-play");
-      if (playIcon && tabKey === "preview") {
+      const face = card.querySelector(".shelf-card-face");
+      if (face && face.classList.contains("is-playing")) {
+        // A video is already open on this card (any tab) — never navigate
+        // away from underneath it just because the cover itself is a link.
         e.preventDefault();
-        playOnCard(card, dataFromCard(card));
         return;
       }
       if (tabKey === "preview") {
@@ -332,6 +349,16 @@
         selectIndex(cards.indexOf(card));
       }
     }, true);
+
+    // The "Xem video" button lives in the info panel (not on the cover), and
+    // always plays on whichever card is currently front-facing.
+    section.addEventListener("click", (e) => {
+      const playBtn = e.target.closest("[data-shelf-hero-play]");
+      if (!playBtn) return;
+      e.preventDefault();
+      const frontCard = ring.querySelector(".shelf-card.is-front");
+      if (frontCard) playOnCard(frontCard, dataFromCard(frontCard));
+    });
 
     carousel.addEventListener("keydown", (e) => {
       if (!["ArrowLeft", "ArrowRight"].includes(e.key)) return;
