@@ -9,9 +9,13 @@
     // The homepage hero — the very first thing seen when the site opens.
     { selector: ".signal-hero .sh-tags, .signal-hero .sh-overline, .signal-hero .sh-title, .signal-hero .sh-author, .signal-hero .sh-stats, .signal-hero .sh-ctas, .signal-hero .sh-trust", step: 70 },
     // Section headers and page titles across the site.
-    { selector: ".rail-head, .medal-picks-head, .preview-station-head, .reshome-card, h1.hero-title, .story-copy > *", step: 55 },
-    // Card grids — staggered per grid, capped so a long shelf doesn't crawl in.
-    { selector: ".card-grid > *, .rail[data-rail] > *, .medal-picks-list > *, .preview-station-rail > *", step: 55, cap: 8 },
+    { selector: ".rail-head, .medal-picks-head, .preview-station-head, h1.hero-title, .section > h2, .story-copy > *", step: 55 },
+    // The homepage "resonance" panel — its own pieces, not one flat block.
+    { selector: ".reshome-card > *", step: 60 },
+    // Card grids and list rows — staggered per grid, capped so a long shelf doesn't crawl in.
+    { selector: ".card-grid > *, .rail[data-rail] > *, .medal-picks-list > *, .preview-station-rail > *, .chapter-list > li", step: 55, cap: 8 },
+    // Footer — reveals once scrolled to, on every page.
+    { selector: ".foot2-body > *:not(.foot2-cols), .foot2-cols > .foot2-section, .foot2-copy", step: 60 },
   ];
 
   function mark(el, delayMs) {
