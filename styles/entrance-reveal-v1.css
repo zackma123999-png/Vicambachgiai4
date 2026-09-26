@@ -1,0 +1,32 @@
+/* Entrance reveal: headline text, section headers and card grids fade/rise into
+   place on open and on scroll, instead of appearing all at once like a static page.
+   Progressive enhancement — js/entrance-reveal-v1.js is what actually hides an
+   element (by setting data-reveal="hidden"); without it nothing here ever fires. */
+:root {
+  --reveal-duration: .68s;
+  --reveal-ease: cubic-bezier(.16, .84, .44, 1);
+}
+
+[data-reveal="hidden"] {
+  opacity: 0;
+  transform: translateY(22px);
+  filter: blur(3px);
+}
+[data-reveal="visible"] {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+  transition:
+    opacity var(--reveal-duration) var(--reveal-ease) var(--reveal-delay, 0s),
+    transform var(--reveal-duration) var(--reveal-ease) var(--reveal-delay, 0s),
+    filter calc(var(--reveal-duration) * .8) var(--reveal-ease) var(--reveal-delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+}
