@@ -228,6 +228,16 @@
     if (prevBtn) prevBtn.addEventListener("click", () => stepBy(-1));
     if (nextBtn) nextBtn.addEventListener("click", () => stepBy(1));
 
+    // iOS Safari ignores the page's user-scalable=no and, in practice, does
+    // not reliably honor touch-action: none for the pinch gesture either —
+    // the only thing that actually stops it there is preventDefault() on the
+    // multi-touch move/gesture events themselves.
+    carousel.addEventListener("touchmove", (e) => {
+      if (e.touches && e.touches.length > 1) e.preventDefault();
+    }, { passive: false });
+    carousel.addEventListener("gesturestart", (e) => e.preventDefault());
+    carousel.addEventListener("gesturechange", (e) => e.preventDefault());
+
     carousel.addEventListener("pointerdown", (e) => {
       if (e.button !== undefined && e.button !== 0) return;
       dragging = true;
