@@ -1,0 +1,167 @@
+/* KỆ TRUYỆN v2 — hero cuộn toàn màn hình, thay cho thẻ lật cũ.
+   Font/màu dùng đúng biến --sh-* và font stack của banner, đồng bộ với
+   phần còn lại của trang, không tạo bảng riêng. */
+.scrollhero {
+  position: relative;
+  margin: 0;
+}
+.sch-stage {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sh-ink);
+}
+.sch-bg { position: absolute; inset: 0; }
+.sch-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.sch-bg-img.is-visible { opacity: 1; }
+.sch-bg-a:not(.is-visible):first-child { opacity: 1; }
+.sch-bg-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(5, 8, 15, 0.25) 0%, rgba(5, 8, 15, 0.55) 55%, rgba(5, 8, 15, 0.92) 100%);
+}
+.sch-video { position: absolute; inset: 0; background: #000; }
+.sch-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.sch-video-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 3;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(4, 10, 20, 0.75);
+  color: var(--sh-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.sch-copy {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 0 1.25rem;
+}
+.sch-kicker {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--sh-accent-soft);
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+.sch-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: clamp(2rem, 6vw, 3.6rem);
+  font-weight: 700;
+  color: var(--sh-ink);
+}
+
+.sch-card {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: clamp(3.5rem, 10vh, 5.5rem);
+  transform: translateX(-50%);
+  width: min(90vw, 380px);
+  padding: 1.15rem 1.3rem;
+  border-radius: 18px;
+  background: rgba(10, 15, 25, 0.7);
+  border: 1px solid var(--sh-line);
+  backdrop-filter: blur(10px);
+  text-align: left;
+}
+.sch-card-num {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--sh-accent-soft);
+  margin-bottom: 0.45rem;
+}
+.sch-card-title {
+  margin: 0 0 0.3rem;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--sh-ink);
+}
+.sch-card-desc {
+  margin: 0 0 0.85rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--sh-muted);
+}
+.sch-card-cta {
+  display: inline-block;
+  color: var(--sh-accent-ink);
+  background: var(--sh-accent);
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  margin-bottom: 0.9rem;
+}
+.sch-ticks {
+  display: flex;
+  gap: 0.35rem;
+}
+.sch-tick {
+  flex: 1;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+  display: block;
+}
+.sch-tick span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--sh-accent);
+  transition: width 0.3s ease;
+}
+.sch-tick.is-done span { width: 100%; transition: none; }
+.sch-tick.is-current span { width: 100%; }
+
+.sch-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.sch-progress-fill {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--sh-accent);
+}
+
+.sch-spacer { position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sch-bg-img, .sch-tick span { transition: none !important; }
+}
