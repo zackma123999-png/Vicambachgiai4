@@ -632,9 +632,16 @@
     const sort = ["latest", "hot", "talk"].includes(q.get("sig")) ? q.get("sig") : "latest";
     const storyId = q.get("sigstory") || "";
     const feed = VCBG.communityFeed({ sort, storyId });
-    const shown = feed;
+    let shown = feed;
     const stories = VCBG.listStories({ sort: "updated" });
     const me = VCBG.currentUser();
+    // Temporary, by request: pad out with placeholder comments while the
+    // site doesn't have enough real ones yet, only on the unfiltered
+    // (all-stories) view so picking a specific story still shows its true,
+    // possibly empty, result. See isDemo guards below and in bindSignalActs.
+    if (!storyId && shown.length < CL_DEMO_MIN) {
+      shown = shown.concat(demoCommentLogEntries(CL_DEMO_MIN - shown.length, stories));
+    }
     const tab = (id, lab) =>
       `<button type="button" class="sig-tab${sort === id ? " on" : ""}" data-sig="${id}">${lab}</button>`;
     const replyHTML = (c, r, hidden) => {
@@ -656,14 +663,13 @@
         </div>
       </article>`;
     };
-    const signalTones = ["violet", "cyan", "coral", "gold"];
     const cardHTML = (c, index) => {
       const who = (c.user && c.user.display_name) || "Ẩn danh";
       const replies = c.replies || [];
       const firstR = replies.slice(0, 1);
       const rest = replies.slice(1);
-      const tone = signalTones[index % signalTones.length];
-      return `<article class="sig-card sig-tone-${tone}" data-cid="${esc(c.id)}">
+      const canReport = !c.isDemo && me && me.id !== c.user_id;
+      return `<article class="sig-card sig-tone-cyan" data-cid="${esc(c.id)}" data-goto="${esc(deepHref(c))}"${c.isDemo ? ' data-demo="true"' : ""}>
         ${avatarHTML(c.user)}
         <div class="sig-main">
           <div class="sig-meta">
@@ -674,7 +680,7 @@
           ${c.story ? `<a class="sig-story-tag" href="${esc(c.href)}">${esc(c.story.title)}</a>` : ""}
           ${
             c.quote
-              ? `<blockquote class="sig-quote"><span aria-hidden="true">“</span><p>${esc(c.quote)}</p></blockquote>`
+              ? `<blockquote class="sig-quote"><span aria-hidden="true">“</span><p>${esc(c.quote)}</p>${quoteAttr(c) ? `<cite>${esc(quoteAttr(c))}</cite>` : ""}</blockquote>`
               : ""
           }
           <p class="sig-text">${esc(c.body)}</p>
@@ -682,7 +688,7 @@
             <button type="button" class="sig-chip${c.liked ? " on" : ""}" data-like="${esc(c.id)}" aria-pressed="${c.liked}">${c.like_count || 0}</button>
             <button type="button" class="sig-act" data-reply="${esc(c.id)}" data-to="${esc(who)}">Trả lời</button>
             <button type="button" class="sig-act" data-quote="${esc(c.id)}">Trích dẫn</button>
-            ${me && me.id !== c.user_id ? `<button type="button" class="sig-act" data-report-comment="bình luận ${esc(c.id)}" data-story-title="${esc((c.story && c.story.title) || "Bình luận")}">Báo cáo</button>` : ""}
+            ${canReport ? `<button type="button" class="sig-act" data-report-comment="bình luận ${esc(c.id)}" data-story-title="${esc((c.story && c.story.title) || "Bình luận")}">Báo cáo</button>` : ""}
           </div>
           ${firstR.map((r) => replyHTML(c, r, false)).join("")}
           ${rest.map((r) => replyHTML(c, r, true)).join("")}
@@ -707,7 +713,7 @@
               <p>Những cảm xúc vừa được gửi lại.</p>
             </div>
           </div>
-          <span class="sig-live-count"><i></i>${feed.total || 0} bình luận gần đây</span>
+          <span class="sig-live-count"><i></i>${fmtCount(shown.length)} bình luận gần đây</span>
         </header>
         <div class="sig-tools">
           <div class="sig-tabs">
@@ -888,7 +894,7 @@
       window.__vcbgCommunityUnwatch = VCBG.watchCommunityFeed(() => {
         window.clearTimeout(window.__vcbgCommunityPaintTimer);
         window.__vcbgCommunityPaintTimer = window.setTimeout(() => {
-          if (parseHash().name !== "home") return;
+          if (!["home", "comment-log"].includes(parseHash().name)) return;
           const current = $("#tin-hieu");
           if (!current) return;
           const holder = document.createElement("div");
@@ -897,6 +903,7 @@
           if (!fresh) return;
           current.replaceWith(fresh);
           bindLowerHome(true);
+          applyCommentHighlight();
         }, 60);
       });
     }
@@ -938,6 +945,15 @@
         if (!card) return;
         card.querySelectorAll(".sig-reply.is-more").forEach((n) => n.classList.remove("is-more"));
         b.remove();
+      };
+    });
+    // Clicking anywhere on a comment card (that isn't itself a button/link)
+    // jumps straight into the chapter reader at that exact paragraph.
+    $$(".sig-card[data-goto]").forEach((card) => {
+      card.onclick = (e) => {
+        if (e.target.closest("a, button, input, select, label")) return;
+        if (card.hasAttribute("data-demo")) return toast("Đây là bình luận minh hoạ tạm thời.");
+        if (card.dataset.goto) go(card.dataset.goto);
       };
     });
   }
@@ -1367,299 +1383,77 @@
       };
     });
   }
+  function quoteAttr(c) {
+    const parts = [];
+    if (c.story) parts.push(c.story.title);
+    if (c.chapter) parts.push("Chương " + c.chapter.number + (c.chapter.title ? " – " + c.chapter.title : ""));
+    return parts.join(" · ");
+  }
+  // Same URL shape reader-comment-drawer-v2.js already watches for
+  // (?comment=<id>&para=<key>) — it scrolls to and highlights that exact
+  // paragraph in the chapter reader. Falls back to the plain story/chapter
+  // link when there's no chapter to jump into (e.g. demo placeholders).
+  function deepHref(c) {
+    if (!c.chapter) return c.href;
+    const p = new URLSearchParams({ comment: String(c.id) });
+    if (c.para_key) p.set("para", c.para_key);
+    return c.href + "?" + p.toString();
+  }
+  // Came here from a marquee card (?highlight=<commentId>): scroll to and
+  // briefly flash that exact comment. Called both on initial mount and after
+  // every #tin-hieu repaint (bindLowerHome's realtime refresh), since a
+  // repaint regenerates the card fresh and would otherwise silently drop the
+  // flash class a moment after it's applied.
+  function applyCommentHighlight() {
+    const highlightId = (parseHash().q && parseHash().q.highlight) || "";
+    if (!highlightId) return;
+    requestAnimationFrame(() => {
+      const target = $(`.sig-card[data-cid="${CSS.escape(highlightId)}"]`);
+      if (!target) return;
+      target.classList.remove("is-hidden");
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      target.classList.add("is-highlight");
+      setTimeout(() => target.classList.remove("is-highlight"), 2200);
+    });
+  }
+  function initCommentLogTheme() {
+    const scope = $("#clScope");
+    const btn = $("#clThemeToggle");
+    if (!scope || !btn) return;
+    const KEY = "vcbg.commentLog.theme";
+    const apply = (light) => {
+      scope.dataset.theme = light ? "light" : "dark";
+      btn.textContent = light ? "☾ Chế độ tối" : "☀ Chế độ sáng";
+      btn.setAttribute("aria-pressed", String(light));
+    };
+    let light = false;
+    try {
+      light = localStorage.getItem(KEY) === "light";
+    } catch (e) {}
+    apply(light);
+    btn.onclick = () => {
+      light = !light;
+      apply(light);
+      try {
+        localStorage.setItem(KEY, light ? "light" : "dark");
+      } catch (e) {}
+    };
+  }
   function pageCommentLog(route) {
-    const sort = ["latest", "hot", "talk"].includes(route.q.sort) ? route.q.sort : "latest";
-    const storyId = route.q.story || "";
-    const q = String(route.q.q || "").trim();
-    const me = VCBG.currentUser();
-    const mineOnly = route.q.mine === "1" && !!me;
-    const stories = VCBG.listStories({ sort: "updated" });
-    const feed = VCBG.communityFeed({ sort, storyId });
-    let total = feed.total || 0;
-    let talking = feed.talking || 0;
-    let shown = feed;
-    if (mineOnly) shown = shown.filter((c) => c.user_id === me.id);
-    if (q) {
-      const needle = q.toLowerCase();
-      shown = shown.filter(
-        (c) =>
-          String(c.body || "").toLowerCase().includes(needle) ||
-          String((c.story && c.story.title) || "").toLowerCase().includes(needle)
-      );
-    }
-    // Temporary, by request: pad out with placeholder comments when the site
-    // doesn't have enough real ones yet, so the page isn't a blank "Chưa có
-    // bình luận nào" wall. Only on the unfiltered default view, so a real
-    // search/story/"chỉ của tôi" filter still shows its true (possibly empty)
-    // result. Remove once organic comment volume holds up on its own.
-    if (!storyId && !q && !mineOnly && shown.length < CL_DEMO_MIN) {
-      const padding = demoCommentLogEntries(CL_DEMO_MIN - shown.length, stories);
-      shown = shown.concat(padding);
-      total += padding.length;
-      talking += Math.min(padding.length, 3);
-    }
-    const qs = (extra) => {
-      const merged = Object.assign({ sort, story: storyId, mine: mineOnly ? "1" : "", q }, extra);
-      const p = new URLSearchParams();
-      Object.keys(merged).forEach((k) => { if (merged[k]) p.set(k, merged[k]); });
-      const str = p.toString();
-      return "#/nhat-ky-binh-luan" + (str ? "?" + str : "");
-    };
-    const tab = (id, label) => `<a class="cl-tab${sort === id ? " on" : ""}" href="${qs({ sort: id })}">${esc(label)}</a>`;
-    const PAGE_SIZE = 8;
-    const QUOTE_MAX = 160;
-    const highlightId = route.q.highlight || "";
-    const truncQuote = (s) => {
-      const clean = String(s || "").replace(/\s+/g, " ").trim();
-      return clean.length > QUOTE_MAX ? clean.slice(0, QUOTE_MAX).trim() + "…" : clean;
-    };
-    const quoteAttr = (c) => {
-      const parts = [];
-      if (c.story) parts.push(c.story.title);
-      if (c.chapter) parts.push("Chương " + c.chapter.number + (c.chapter.title ? " – " + c.chapter.title : ""));
-      return parts.join(" · ");
-    };
-    // Same URL shape reader-comment-drawer-v2.js already watches for
-    // (?comment=<id>&para=<key>) — it scrolls to and highlights that exact
-    // paragraph in the chapter reader. Falls back to the plain story/chapter
-    // link when there's no chapter to jump into (e.g. demo placeholders).
-    const deepHref = (c) => {
-      if (!c.chapter) return c.href;
-      const p = new URLSearchParams({ comment: String(c.id) });
-      if (c.para_key) p.set("para", c.para_key);
-      return c.href + "?" + p.toString();
-    };
-    const replyHTML = (c, r, hidden) => {
-      const who = (r.user && r.user.display_name) || "Ẩn danh";
-      const parent = (c.user && c.user.display_name) || "bạn";
-      return `<article class="cl-reply sig-reply${hidden ? " is-more" : ""}" data-rid="${esc(r.id)}">
-        ${avatarHTML(r.user, "cl-avatar sm")}
-        <div class="cl-reply-body">
-          <div class="cl-meta"><b>${esc(who)}</b><time>${esc(fmtRel(r.created_at))}</time></div>
-          <p class="cl-to">Trả lời ${esc(parent)}</p>
-          <p class="cl-text">${esc(r.body)}</p>
-          <div class="cl-acts"><button type="button" class="cl-act" data-reply="${esc(c.id)}" data-to="${esc(who)}">Trả lời</button></div>
-        </div>
-      </article>`;
-    };
-    const cardHTML = (c, index) => {
-      const who = (c.user && c.user.display_name) || "Ẩn danh";
-      const replies = c.replies || [];
-      const firstR = replies.slice(0, 1);
-      const rest = replies.slice(1);
-      const canReport = !c.isDemo && me && me.id !== c.user_id;
-      const canDelete = !c.isDemo && me && (me.id === c.user_id || VCBG.isAdmin());
-      const attr = quoteAttr(c);
-      return `<article class="cl-card sig-card${index >= PAGE_SIZE ? " is-hidden" : ""}" data-cid="${esc(c.id)}" data-goto="${esc(deepHref(c))}"${c.isDemo ? ' data-demo="true"' : ""}>
-        <div class="cl-card-top">
-          ${avatarHTML(c.user, "cl-avatar")}
-          <div class="cl-who">
-            <div class="cl-who-row"><b>${esc(who)}</b>${c.staff ? `<span class="cl-badge">ViCam</span>` : ""}</div>
-            <div class="cl-meta">
-              <time>${esc(fmtRel(c.created_at))}</time>
-              ${c.story ? `<a class="cl-story-tag" href="${esc(c.href)}">${esc(c.story.title)}</a>` : ""}
-              ${c.hot ? `<span class="cl-hot">★ Đang được chú ý</span>` : ""}
-            </div>
-          </div>
-        </div>
-        ${c.quote ? `<blockquote class="cl-quote"><p>“${esc(truncQuote(c.quote))}”</p>${attr ? `<cite>${esc(attr)}</cite>` : ""}</blockquote>` : ""}
-        <p class="cl-body sig-text">${esc(c.body)}</p>
-        <div class="cl-acts">
-          <button type="button" class="cl-like${c.liked ? " on" : ""}" data-like="${esc(c.id)}" aria-pressed="${!!c.liked}">${c.like_count || 0}</button>
-          <button type="button" class="cl-act" data-reply="${esc(c.id)}" data-to="${esc(who)}">Trả lời</button>
-          <button type="button" class="cl-act" data-quote="${esc(c.id)}">Trích dẫn</button>
-          ${canReport ? `<button type="button" class="cl-act" data-report-comment="bình luận ${esc(c.id)}" data-story-title="${esc((c.story && c.story.title) || "Bình luận")}">Báo cáo</button>` : ""}
-          ${canDelete ? `<button type="button" class="cl-act cl-act-danger" data-del="${esc(c.id)}">Xóa</button>` : ""}
-        </div>
-        ${firstR.map((r) => replyHTML(c, r, false)).join("")}
-        ${rest.map((r) => replyHTML(c, r, true)).join("")}
-        ${rest.length ? `<button type="button" class="cl-more-replies" data-more="${esc(c.id)}">Xem ${rest.length} phản hồi khác ▾</button>` : ""}
-      </article>`;
-    };
     setMeta("Nhật ký bình luận — ViCamBachGiai", "Toàn bộ cảm nghĩ độc giả để lại trên mọi truyện, lưu giữ lâu dài.");
     app().innerHTML =
       header() +
-      `<main class="wrap cl-page">
-        <header class="cl-head">
+      `<div id="clScope" class="cl-scope">
+        <div class="wrap cl-head">
           <span class="cl-kicker"><i aria-hidden="true"></i>NHẬT KÝ BÌNH LUẬN</span>
-          <h1>Nhật ký bình luận</h1>
-          <p>Toàn bộ cảm nghĩ độc giả để lại trên mọi truyện — lưu giữ lâu dài, không giới hạn thời gian.</p>
-          <div class="cl-stats">
-            <span><b id="clTotal">${fmtCount(total)}</b> bình luận</span>
-            <span><b id="clTalking">${fmtCount(talking)}</b> đang thảo luận</span>
-          </div>
-        </header>
-        <div class="cl-toolbar">
-          <nav class="cl-tabs">
-            ${tab("latest", "Mới nhất")}
-            ${tab("hot", "Nhiều tương tác")}
-            ${tab("talk", "Đang thảo luận")}
-          </nav>
-          <form class="cl-controls" id="clForm">
-            <div class="cl-search">
-              <input type="search" name="q" value="${esc(q)}" placeholder="Tìm trong bình luận…">
-              <button type="submit" aria-label="Tìm"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"></circle><path d="m16 16 4.2 4.2"></path></svg></button>
-            </div>
-            <select name="story">
-              <option value="">Tất cả truyện</option>
-              ${stories.map((s) => `<option value="${esc(s.id)}" ${s.id === storyId ? "selected" : ""}>${esc(s.title)}</option>`).join("")}
-            </select>
-            ${me ? `<label class="cl-mine"><input type="checkbox" name="mine" ${mineOnly ? "checked" : ""}><span>Chỉ của tôi</span></label>` : ""}
-          </form>
+          <button type="button" class="cl-theme-toggle" id="clThemeToggle" aria-pressed="false">☀ Chế độ sáng</button>
         </div>
-        <div class="cl-list sig-board" id="clList">
-          ${shown.length ? shown.map(cardHTML).join("") : `<div class="empty">${q || mineOnly || storyId ? "Không tìm thấy bình luận phù hợp." : "Chưa có bình luận nào."}</div>`}
-        </div>
-        ${shown.length > PAGE_SIZE ? `<button type="button" class="cl-more" id="clMore">Xem thêm bình luận ▾</button>` : ""}
-        <div class="cl-compose">
-          <button type="button" class="cl-btn" id="clOpen">${me ? "Chia sẻ cảm nghĩ của bạn…" : "Đăng nhập để chia sẻ cảm nghĩ…"}</button>
-        </div>
-      </main>` +
+        ${homeLower()}
+      </div>` +
       footer();
-    // Came here from a marquee card (?highlight=<commentId>): scroll to and
-    // briefly flash that exact comment. VCBG.watchCommunityFeed refreshes
-    // once right on subscription (see below) and would otherwise regenerate
-    // #clList and silently drop this class a moment after it's applied, so
-    // this same routine also re-runs after every list patch, not just here.
-    const applyHighlight = () => {
-      if (!highlightId) return;
-      requestAnimationFrame(() => {
-        const target = $(`.cl-card[data-cid="${CSS.escape(highlightId)}"]`);
-        if (!target) return;
-        target.classList.remove("is-hidden");
-        target.scrollIntoView({ behavior: "smooth", block: "center" });
-        target.classList.add("is-highlight");
-        setTimeout(() => target.classList.remove("is-highlight"), 2200);
-      });
-    };
     bindChrome();
-    bindCommentLog();
-    applyHighlight();
-    /* Live refresh, same mechanism the old "Tín hiệu độc giả" board used
-       (VCBG.watchCommunityFeed): when a new comment/reply/like lands anywhere
-       on the site, patch just #clList + the two stat numbers in place —
-       never the whole page, so an in-progress search/filter form the reader
-       is mid-typing never gets reset out from under them. runRender() tears
-       this watch down on every navigation; re-subscribing here (which itself
-       tears down any previous subscription first) is what keeps exactly one
-       alive while this page is open. */
-    if (typeof window.__vcbgCommentLogUnwatch === "function") {
-      window.__vcbgCommentLogUnwatch();
-      window.__vcbgCommentLogUnwatch = null;
-    }
-    if (VCBG.watchCommunityFeed) {
-      window.__vcbgCommentLogUnwatch = VCBG.watchCommunityFeed(() => {
-        window.clearTimeout(window.__vcbgCommentLogPaintTimer);
-        window.__vcbgCommentLogPaintTimer = window.setTimeout(() => {
-          if (parseHash().name !== "comment-log") return;
-          const list = $("#clList");
-          if (!list) return;
-          const freshFeed = VCBG.communityFeed({ sort, storyId });
-          let freshShown = freshFeed;
-          if (mineOnly) freshShown = freshShown.filter((c) => c.user_id === me.id);
-          if (q) {
-            const needle = q.toLowerCase();
-            freshShown = freshShown.filter(
-              (c) =>
-                String(c.body || "").toLowerCase().includes(needle) ||
-                String((c.story && c.story.title) || "").toLowerCase().includes(needle)
-            );
-          }
-          let freshTotal = freshFeed.total || 0;
-          let freshTalking = freshFeed.talking || 0;
-          if (!storyId && !q && !mineOnly && freshShown.length < CL_DEMO_MIN) {
-            const padding = demoCommentLogEntries(CL_DEMO_MIN - freshShown.length, stories);
-            freshShown = freshShown.concat(padding);
-            freshTotal += padding.length;
-            freshTalking += Math.min(padding.length, 3);
-          }
-          list.innerHTML = freshShown.length
-            ? freshShown.map(cardHTML).join("")
-            : `<div class="empty">${q || mineOnly || storyId ? "Không tìm thấy bình luận phù hợp." : "Chưa có bình luận nào."}</div>`;
-          const oldMore = $("#clMore");
-          if (oldMore) oldMore.remove();
-          if (freshShown.length > PAGE_SIZE) {
-            list.insertAdjacentHTML(
-              "afterend",
-              `<button type="button" class="cl-more" id="clMore">Xem thêm bình luận ▾</button>`
-            );
-          }
-          const totalEl = $("#clTotal");
-          const talkEl = $("#clTalking");
-          if (totalEl) totalEl.textContent = fmtCount(freshTotal);
-          if (talkEl) talkEl.textContent = fmtCount(freshTalking);
-          bindCommentLog();
-          applyHighlight();
-        }, 200);
-      });
-    }
-  }
-  function bindCommentLog() {
-    bindSignalActs();
-    const form = $("#clForm");
-    if (form)
-      form.onsubmit = (e) => {
-        e.preventDefault();
-        const fd = new FormData(e.target);
-        const current = new URLSearchParams(location.hash.split("?")[1] || "");
-        const merged = {
-          sort: current.get("sort") || "latest",
-          story: fd.get("story") || "",
-          mine: fd.get("mine") ? "1" : "",
-          q: String(fd.get("q") || "").trim(),
-        };
-        const out = new URLSearchParams();
-        Object.keys(merged).forEach((k) => {
-          if (merged[k]) out.set(k, merged[k]);
-        });
-        const str = out.toString();
-        go("/nhat-ky-binh-luan" + (str ? "?" + str : ""));
-      };
-    if (form) {
-      const storySelect = $("select[name=story]", form);
-      if (storySelect) storySelect.onchange = () => form.requestSubmit();
-      const mineBox = $("input[name=mine]", form);
-      if (mineBox) mineBox.onchange = () => form.requestSubmit();
-    }
-    const list = $("#clList");
-    if (list)
-      list.onclick = (e) => {
-        if (e.target.closest("a, button, input, select, label")) return;
-        const card = e.target.closest(".cl-card");
-        if (!card) return;
-        if (card.hasAttribute("data-demo")) return toast("Đây là bình luận minh hoạ tạm thời.");
-        if (card.dataset.goto) go(card.dataset.goto);
-      };
-    const more = $("#clMore");
-    if (more)
-      more.onclick = () => {
-        const hidden = $$(".cl-card.is-hidden");
-        hidden.slice(0, 8).forEach((el) => el.classList.remove("is-hidden"));
-        if (!$$(".cl-card.is-hidden").length) more.remove();
-      };
-    const open = () => openSignalBox({});
-    if ($("#clOpen")) $("#clOpen").onclick = open;
-    $$("#clList [data-report-comment]").forEach((b) => {
-      b.onclick = () => {
-        const p = new URLSearchParams({
-          compose: "report",
-          source: b.dataset.reportComment || "",
-          draft: b.dataset.storyTitle ? "Truyện liên quan: " + b.dataset.storyTitle : "",
-        });
-        go("/hop-thu?" + p.toString());
-      };
-    });
-    $$("#clList [data-del]").forEach((b) => {
-      b.onclick = () => {
-        try {
-          VCBG.deleteOwnComment(b.dataset.del);
-          toast("Đã xóa bình luận.");
-          go(currentPath || "/nhat-ky-binh-luan");
-        } catch (e) {
-          toast(e.message);
-        }
-      };
-    });
+    initCommentLogTheme();
+    applyCommentHighlight();
   }
   function pageExplore(route) {
     const q = route.q.q || "";
@@ -3912,10 +3706,6 @@
       }
     }, 9000);
     const route = parseHash();
-    if (route.name !== "comment-log" && typeof window.__vcbgCommentLogUnwatch === "function") {
-      window.__vcbgCommentLogUnwatch();
-      window.__vcbgCommentLogUnwatch = null;
-    }
     /* A route that is both public (no login required, unlike /doc, /thu-vien,
        /tai-khoan, /admin…) and content-driven can paint immediately once any
        story data is on hand — a real cached catalog, or the bundled hero
