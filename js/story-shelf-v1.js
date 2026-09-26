@@ -1,8 +1,11 @@
-// KỆ TRUYỆN: 3D rotating carousel merging Trạm Preview + the 3 status rails
-// into one homepage area. Preview cards switch an inline hero + play the
-// TikTok teaser (never navigate). Status-tab cards are real <a> links to the
-// story page, exactly like the old rail()/storyCard() — dragging the shelf
-// must never accidentally "click" one of those links.
+// KỆ TRUYỆN: a flip-card slideshow merging Trạm Preview + the 3 status
+// rails into one homepage area. Only ever ONE cover is on screen — it flips
+// (like a physical card turning over) to the next one on a timer, with no
+// swipe/tap browsing control at all. This replaced an earlier 3D rotating
+// ring design that kept several covers visible/overlapping at once no
+// matter how the fade-out curve was tuned; a flip card is structurally
+// immune to that since there are only ever two faces, front and back, and
+// only the front-facing one is ever visible or interactive.
 (function () {
   const esc = (value) => {
     const node = document.createElement("span");
@@ -10,38 +13,13 @@
     return node.innerHTML;
   };
   const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  function dataFromCard(card) {
-    return {
-      slug: card.dataset.slug || "",
-      title: card.dataset.title || "",
-      author: card.dataset.author || "",
-      cover: card.dataset.cover || "",
-      status: card.dataset.status || "",
-      genre: card.dataset.genre || "",
-      post: card.dataset.post || "",
-      teaser: card.dataset.teaser || "",
-    };
-  }
+  const ADVANCE_MS = 4200;
+  const FLIP_MS = 620;
 
   function faceInnerHTML(item, tabKey) {
     const isPreview = tabKey === "preview";
     return `${item.cover ? `<img src="${esc(item.cover)}" alt="Bìa ${esc(item.title)}" loading="lazy">` : `<b aria-hidden="true">V</b>`}
       ${isPreview && item.post ? `<span class="shelf-card-play" role="button" tabindex="-1" aria-label="Phát teaser ${esc(item.title)} ngay tại đây">▶</span>` : ""}`;
-  }
-
-  function cardFaceHTML(item, tabKey) {
-    return `<span class="shelf-card-face">${faceInnerHTML(item, tabKey)}</span>`;
-  }
-
-  function cardAttrs(item) {
-    return `data-slug="${esc(item.slug)}" data-title="${esc(item.title)}" data-author="${esc(item.author)}" data-cover="${esc(item.cover)}" data-status="${esc(item.status)}" data-genre="${esc(item.genre)}" data-post="${esc(item.post)}" data-teaser="${esc(item.teaser)}"`;
-  }
-
-  function cardHTML(item, tabKey) {
-    return tabKey === "preview"
-      ? `<button type="button" class="shelf-card" data-shelf-card ${cardAttrs(item)} aria-label="Chọn truyện ${esc(item.title)}">${cardFaceHTML(item, tabKey)}</button>`
-      : `<a class="shelf-card" data-shelf-card href="#/truyen/${esc(item.slug)}" ${cardAttrs(item)} aria-label="Mở truyện ${esc(item.title)}">${cardFaceHTML(item, tabKey)}</a>`;
   }
 
   function heroHTML(item, tabKey) {
@@ -58,24 +36,6 @@
     </div>`;
   }
 
-  function playOnCard(card, item) {
-    if (!item.post) return;
-    const face = card.querySelector(".shelf-card-face");
-    if (!face) return;
-    face.classList.add("is-playing");
-    face.innerHTML = `<span class="shelf-card-close" role="button" tabindex="-1" aria-label="Đóng video">×</span>
-      <div class="shelf-card-video">
-        <iframe title="Teaser TikTok ${esc(item.title)}" src="https://www.tiktok.com/player/v1/${item.post}?autoplay=1&muted=0&loop=0&controls=1&progress_bar=1&play_button=1&volume_control=1&fullscreen_button=1&description=0&music_info=0&rel=0&native_context_menu=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
-      </div>`;
-  }
-
-  function closeCardVideo(card, item, tabKey) {
-    const face = card.querySelector(".shelf-card-face");
-    if (!face) return;
-    face.classList.remove("is-playing");
-    face.innerHTML = faceInnerHTML(item, tabKey);
-  }
-
   function initShelf(section) {
     if (!section || section.dataset.shelfBound === "true") return;
     section.dataset.shelfBound = "true";
@@ -88,236 +48,165 @@
       payload = {};
     }
 
-    const carousel = section.querySelector("[data-shelf-carousel]");
-    const ring = section.querySelector("[data-shelf-ring]");
-    if (!carousel || !ring) return;
+    const stage = section.querySelector("[data-shelf-carousel]");
+    const inner = section.querySelector("[data-shelf-ring]");
+    if (!stage || !inner) return;
 
-    let tabKey = carousel.dataset.activeTab || Object.keys(payload)[0] || "preview";
+    let tabKey = stage.dataset.activeTab || Object.keys(payload)[0] || "preview";
     let list = payload[tabKey] || [];
-    let rotation = 0;
-    let frontIndex = -1;
-    let dragging = false;
-    let dragStartX = 0;
-    let dragStartRot = 0;
-    let dragMoved = 0;
-    let dragStartTime = 0;
-    let autoRaf = 0;
-    let hoverPaused = false;
-    let radius = 260;
+    let index = 0;
+    let flipCount = 0;
+    let visibleFace = 0; // which of faces[0]/[1] currently points at the viewer
+    let timer = 0;
+    let playing = false;
 
-    function anglePerItem() {
-      return list.length ? 360 / list.length : 0;
+    function faceItemData(face) {
+      return {
+        slug: face.dataset.slug || "",
+        title: face.dataset.title || "",
+        author: face.dataset.author || "",
+        cover: face.dataset.cover || "",
+        status: face.dataset.status || "",
+        genre: face.dataset.genre || "",
+        post: face.dataset.post || "",
+        teaser: face.dataset.teaser || "",
+      };
     }
 
-    function measure() {
-      const w = carousel.clientWidth || 320;
-      const count = list.length || 1;
-      const firstCard = ring.children[0];
-      const cardW = (firstCard && firstCard.getBoundingClientRect().width) || Math.min(w * 0.58, 240);
-      // Regular-polygon carousel formula: radius = (cardWidth/2) / tan(π/count)
-      // is the distance at which adjacent card faces exactly touch edge to
-      // edge without overlapping. A flat width-based guess (the old code)
-      // ignores card size and item count entirely, so on narrow viewports
-      // (small radius, but cards still near their max CSS width) neighbours
-      // end up closer together than their own width and pile on top of
-      // each other. 2 items sit at opposite sides of the ring regardless of
-      // radius, so the formula (which blows up as count -> 2) doesn't apply.
-      const r = count <= 2 ? cardW * 0.6 : ((cardW / 2) / Math.tan(Math.PI / count)) * 1.12;
-      radius = Math.round(Math.max(cardW * 0.55, Math.min(r, w * 0.95, 480)));
-      carousel.style.setProperty("--shelf-radius", radius + "px");
+    function setFaceContent(face, item) {
+      const isPreview = tabKey === "preview";
+      face.dataset.slug = item.slug;
+      face.dataset.title = item.title;
+      face.dataset.author = item.author || "";
+      face.dataset.cover = item.cover || "";
+      face.dataset.status = item.status || "";
+      face.dataset.genre = item.genre || "";
+      face.dataset.post = item.post || "";
+      face.dataset.teaser = item.teaser || "";
+      if (!isPreview) face.setAttribute("href", "#/truyen/" + item.slug);
+      face.setAttribute("aria-label", isPreview ? "Chọn truyện " + item.title : "Mở truyện " + item.title);
+      const inner2 = face.querySelector(".shelf-card-face");
+      if (inner2) inner2.innerHTML = faceInnerHTML(item, tabKey);
     }
 
-    function layout() {
-      paint();
+    function setFaceInteractive(face, on) {
+      face.setAttribute("aria-hidden", on ? "false" : "true");
+      face.tabIndex = on ? 0 : -1;
+      face.style.pointerEvents = on ? "" : "none";
     }
 
-    // Opacity/scale fall off steeply with angle from the front so that mid-
-    // rotation (dragging, or between two items) never shows several covers
-    // at similar strength blending into a translucent mush — only the front
-    // card reads clearly, neighbours are a faint hint, the rest all but gone.
-    function paint() {
-      const cards = Array.from(ring.children);
-      const step = anglePerItem();
-      let bestIndex = 0;
-      let bestDelta = Infinity;
-      cards.forEach((card, i) => {
-        const raw = (i * step + rotation) % 360;
-        const rel = Math.abs(raw > 180 ? 360 - raw : raw);
-        // Steep enough that even exactly halfway between two card slots
-        // (the crossfade moment while auto-rotating) neither one is still
-        // clearly legible — a brief faint blend, not two covers fighting
-        // for attention.
-        const opacity = Math.max(0.05, 1 - rel / 28);
-        const scale = Math.max(0.5, 1 - rel / 90);
-        card.style.transform = `rotateY(${i * step}deg) translateZ(${radius}px) scale(${scale.toFixed(3)})`;
-        card.style.opacity = opacity.toFixed(3);
-        card.style.zIndex = String(Math.round(1000 - rel));
-        card.style.pointerEvents = rel > 32 ? "none" : "";
-        card.classList.toggle("is-front", rel < step / 2 + 0.01);
-        if (rel < bestDelta) { bestDelta = rel; bestIndex = i; }
-      });
-      ring.style.transform = `rotateY(${rotation}deg)`;
-      if (bestIndex !== frontIndex || !cards[frontIndex]) {
-        frontIndex = bestIndex;
-        onFrontChange(cards[frontIndex]);
-      }
+    function faces() {
+      return Array.from(inner.querySelectorAll("[data-shelf-face]"));
     }
 
-    function onFrontChange(card) {
-      const cards = Array.from(ring.children);
-      cards.forEach((c) => {
-        c.setAttribute("aria-current", c === card ? "true" : "false");
-        c.tabIndex = c === card ? 0 : -1;
-      });
-      if (!card) return;
+    function refreshHero(item) {
       const hero = section.querySelector("[data-shelf-hero]");
-      if (hero) hero.outerHTML = heroHTML(dataFromCard(card), tabKey);
+      if (hero) hero.outerHTML = heroHTML(item, tabKey);
     }
 
-    function rotateTo(targetRotation, animate) {
-      rotation = targetRotation;
+    function goTo(nextIndex, animate) {
+      if (!list.length) return;
+      index = ((nextIndex % list.length) + list.length) % list.length;
+      const item = list[index];
+      const all = faces();
+      const nextVisible = all[1 - visibleFace];
+      const nextHidden = all[visibleFace];
+      if (!nextVisible || !nextHidden) return;
+      setFaceContent(nextVisible, item);
       if (animate && !reduceMotion()) {
-        ring.classList.add("is-settling");
-        window.setTimeout(() => ring.classList.remove("is-settling"), 420);
+        inner.classList.add("is-flipping");
+        window.setTimeout(() => inner.classList.remove("is-flipping"), FLIP_MS);
       }
-      paint();
+      flipCount += 1;
+      inner.style.transform = `rotateY(${flipCount * 180}deg)`;
+      visibleFace = 1 - visibleFace;
+      setFaceInteractive(nextVisible, true);
+      setFaceInteractive(nextHidden, false);
+      refreshHero(item);
     }
 
-    function stepBy(delta) {
-      const step = anglePerItem();
-      if (!step) return;
-      const nearest = Math.round(rotation / step) * step;
-      rotateTo(nearest - delta * step, true);
-    }
-
-    function selectIndex(index) {
-      const step = anglePerItem();
-      if (!step) return;
-      rotateTo(-index * step, true);
-    }
-
-    function buildRing() {
-      ring.innerHTML = list.map((item) => cardHTML(item, tabKey)).join("");
-      rotation = 0;
-      frontIndex = -1;
+    function buildFaces() {
+      const tag = tabKey === "preview" ? "button" : "a";
+      const typeAttr = tabKey === "preview" ? ' type="button"' : "";
+      inner.innerHTML = `
+        <${tag} class="shelf-card-face-wrap" data-shelf-face${typeAttr} aria-hidden="false"><span class="shelf-card-face"></span></${tag}>
+        <${tag} class="shelf-card-face-wrap shelf-card-face-back" data-shelf-face${typeAttr} aria-hidden="true" style="pointer-events:none"><span class="shelf-card-face"></span></${tag}>`;
+      flipCount = 0;
+      visibleFace = 0;
+      inner.style.transform = "rotateY(0deg)";
+      index = -1;
       const leadIdx = tabKey === "preview" ? Math.max(0, list.findIndex((it) => it.post)) : 0;
-      measure();
-      layout();
-      if (leadIdx > 0) selectIndex(leadIdx);
+      goTo(leadIdx, false);
+    }
+
+    function scheduleNext() {
+      window.clearTimeout(timer);
+      if (reduceMotion() || playing || !list.length || list.length < 2) return;
+      timer = window.setTimeout(() => {
+        goTo(index + 1, true);
+        scheduleNext();
+      }, ADVANCE_MS);
     }
 
     function switchTab(nextKey) {
       if (nextKey === tabKey || !payload[nextKey]) return;
       tabKey = nextKey;
       list = payload[tabKey] || [];
-      carousel.dataset.activeTab = tabKey;
+      stage.dataset.activeTab = tabKey;
+      playing = false;
       section.querySelectorAll("[data-shelf-tab]").forEach((btn) => {
         const active = btn.dataset.shelfTab === tabKey;
         btn.classList.toggle("is-active", active);
         btn.setAttribute("aria-selected", active ? "true" : "false");
       });
-      buildRing();
+      buildFaces();
+      scheduleNext();
     }
 
     section.querySelectorAll("[data-shelf-tab]").forEach((btn) => {
       btn.addEventListener("click", () => switchTab(btn.dataset.shelfTab));
     });
 
-    const prevBtn = section.querySelector("[data-shelf-prev]");
-    const nextBtn = section.querySelector("[data-shelf-next]");
-    if (prevBtn) prevBtn.addEventListener("click", () => stepBy(-1));
-    if (nextBtn) nextBtn.addEventListener("click", () => stepBy(1));
-
-    // iOS Safari ignores the page's user-scalable=no and, in practice, does
-    // not reliably honor touch-action: none for the pinch gesture either —
-    // the only thing that actually stops it there is preventDefault() on the
-    // multi-touch move/gesture events themselves.
-    carousel.addEventListener("touchmove", (e) => {
-      if (e.touches && e.touches.length > 1) e.preventDefault();
-    }, { passive: false });
-    carousel.addEventListener("gesturestart", (e) => e.preventDefault());
-    carousel.addEventListener("gesturechange", (e) => e.preventDefault());
-
-    carousel.addEventListener("pointerdown", (e) => {
-      if (e.button !== undefined && e.button !== 0) return;
-      dragging = true;
-      dragMoved = 0;
-      dragStartX = e.clientX;
-      dragStartRot = rotation;
-      dragStartTime = Date.now();
-      try { carousel.setPointerCapture(e.pointerId); } catch (_) {}
-    });
-    carousel.addEventListener("pointermove", (e) => {
-      if (!dragging) return;
-      const dx = e.clientX - dragStartX;
-      dragMoved = Math.max(dragMoved, Math.abs(dx));
-      rotation = dragStartRot + dx * 0.35;
-      paint();
-    });
-    function endDrag(e) {
-      if (!dragging) return;
-      dragging = false;
-      try { carousel.releasePointerCapture(e.pointerId); } catch (_) {}
-      const wasRealDrag = dragMoved > 6;
-      if (wasRealDrag) {
-        const step = anglePerItem();
-        if (step) rotateTo(Math.round(rotation / step) * step, true);
-        section.dataset.shelfJustDragged = "true";
-        window.setTimeout(() => { delete section.dataset.shelfJustDragged; }, 0);
-      }
+    function playOnFace(face, item) {
+      if (!item.post) return;
+      playing = true;
+      window.clearTimeout(timer);
+      const inner2 = face.querySelector(".shelf-card-face");
+      inner2.classList.add("is-playing");
+      inner2.innerHTML = `<span class="shelf-card-close" role="button" tabindex="-1" aria-label="Đóng video">×</span>
+        <div class="shelf-card-video">
+          <iframe title="Teaser TikTok ${esc(item.title)}" src="https://www.tiktok.com/player/v1/${item.post}?autoplay=1&muted=0&loop=0&controls=1&progress_bar=1&play_button=1&volume_control=1&fullscreen_button=1&description=0&music_info=0&rel=0&native_context_menu=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>`;
     }
-    carousel.addEventListener("pointerup", endDrag);
-    carousel.addEventListener("pointercancel", endDrag);
 
-    // A real drag must never fire the link/button underneath it.
-    ring.addEventListener("click", (e) => {
-      if (section.dataset.shelfJustDragged === "true") {
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      }
-      const card = e.target.closest("[data-shelf-card]");
-      if (!card) return;
+    function closeFaceVideo(face, item) {
+      playing = false;
+      const inner2 = face.querySelector(".shelf-card-face");
+      inner2.classList.remove("is-playing");
+      inner2.innerHTML = faceInnerHTML(item, tabKey);
+      scheduleNext();
+    }
+
+    inner.addEventListener("click", (e) => {
+      const face = e.target.closest("[data-shelf-face]");
+      if (!face || face.getAttribute("aria-hidden") === "true") return;
       const closeIcon = e.target.closest(".shelf-card-close");
       if (closeIcon) {
         e.preventDefault();
-        closeCardVideo(card, dataFromCard(card), tabKey);
+        closeFaceVideo(face, faceItemData(face));
         return;
       }
       const playIcon = e.target.closest(".shelf-card-play");
       if (playIcon && tabKey === "preview") {
         e.preventDefault();
-        playOnCard(card, dataFromCard(card));
+        playOnFace(face, faceItemData(face));
         return;
       }
-      if (tabKey === "preview") {
-        e.preventDefault();
-        const cards = Array.from(ring.children);
-        selectIndex(cards.indexOf(card));
-      }
-    }, true);
-
-    carousel.addEventListener("keydown", (e) => {
-      if (!["ArrowLeft", "ArrowRight"].includes(e.key)) return;
-      e.preventDefault();
-      stepBy(e.key === "ArrowRight" ? 1 : -1);
+      if (tabKey === "preview") e.preventDefault();
     });
 
-    carousel.addEventListener("pointerenter", () => { hoverPaused = true; });
-    carousel.addEventListener("pointerleave", () => { hoverPaused = false; });
-
-    function autoTick() {
-      if (!dragging && !hoverPaused && !reduceMotion() && !ring.querySelector(".shelf-card-face.is-playing")) {
-        rotation += 0.16;
-        paint();
-      }
-      autoRaf = requestAnimationFrame(autoTick);
-    }
-    if (!reduceMotion()) autoRaf = requestAnimationFrame(autoTick);
-
-    window.addEventListener("resize", () => { measure(); layout(); }, { passive: true });
-
-    buildRing();
+    buildFaces();
+    scheduleNext();
   }
 
   function bindAll(root) {
