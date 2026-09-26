@@ -1,0 +1,207 @@
+/* KỆ TRUYỆN — unified homepage carousel (Trạm Preview + 3 status rails).
+   Typography/colors intentionally reuse the hero banner's --sh-* tokens and
+   font stack (Plus Jakarta Sans body/headings, JetBrains Mono for tracked
+   uppercase labels) so this section reads as the same system, not a skin. */
+.shelf {
+  margin: clamp(1.6rem, 5vw, 3.5rem) auto;
+  color: var(--sh-ink);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+.shelf-head {
+  margin-bottom: 1.1rem;
+}
+.shelf-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.4rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.shelf-tabs::-webkit-scrollbar { display: none; }
+.shelf-tab {
+  flex-shrink: 0;
+  white-space: nowrap;
+  border: 1px solid var(--sh-line);
+  background: transparent;
+  color: var(--sh-muted);
+  padding: 0.42rem 0.85rem;
+  border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.shelf-tab:hover { color: var(--sh-ink); }
+.shelf-tab.is-active {
+  background: var(--sh-accent);
+  border-color: transparent;
+  color: var(--sh-accent-ink);
+}
+.shelf-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.shelf-carousel {
+  position: relative;
+  flex: 1;
+  height: min(78vw, 380px);
+  min-height: 260px;
+  perspective: 1400px;
+  touch-action: none;
+  cursor: grab;
+  outline: none;
+}
+.shelf-carousel:active { cursor: grabbing; }
+.shelf-ring {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.shelf-ring.is-settling { transition: transform 0.42s cubic-bezier(.22,.9,.32,1); }
+.shelf-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(58vw, 240px);
+  height: min(78vw, 320px);
+  margin: calc(min(78vw, 320px) / -2) 0 0 calc(min(58vw, 240px) / -2);
+  border: none;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.25s ease;
+}
+.shelf-card-face {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--bg-2, #0c1322);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+.shelf-card.is-front .shelf-card-face { box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6); }
+.shelf-card-face img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.shelf-card-face b {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  color: var(--sh-accent-soft);
+}
+.shelf-card-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.7);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(4, 20, 26, 0.75);
+  color: var(--sh-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.shelf-card.is-front .shelf-card-play {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+.shelf-card-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(4, 10, 20, 0.75);
+  color: var(--sh-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  z-index: 2;
+}
+.shelf-card-video { position: absolute; inset: 0; background: #000; }
+.shelf-card-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.shelf-nav {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--sh-line);
+  background: transparent;
+  color: var(--sh-accent-soft);
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 5;
+}
+.shelf-nav:hover { background: rgba(38, 194, 220, 0.12); }
+.shelf-hero {
+  margin-top: 1.2rem;
+  text-align: center;
+}
+.shelf-hero-now {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.1em;
+  color: var(--sh-accent-soft);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.shelf-hero h3 {
+  margin: 0.3rem 0 0.15rem;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  color: var(--sh-ink);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.shelf-hero-author { margin: 0 0 0.55rem; color: var(--sh-muted); font-size: 0.88rem; }
+.shelf-hero-pills { display: flex; justify-content: center; gap: 0.4rem; margin-bottom: 0.55rem; }
+.shelf-hero-pills span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--sh-line);
+  color: var(--sh-accent-soft);
+}
+.shelf-hero-teaser { margin: 0 auto; max-width: 46rem; color: var(--sh-muted); font-size: 0.9rem; line-height: 1.55; }
+.shelf-hero-cta {
+  display: inline-block;
+  margin-top: 0.3rem;
+  color: var(--sh-accent-ink);
+  background: var(--sh-accent);
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .shelf-carousel { height: min(90vw, 340px); }
+}
