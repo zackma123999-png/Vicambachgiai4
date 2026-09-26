@@ -828,13 +828,17 @@
   }
   function bindLowerHome(skipCommunityWatch) {
     const setSig = (patch) => {
+      // Path-preserving: this board now renders on more than just "/" (also
+      // "/nhat-ky-binh-luan"), so the current path must survive a tab/story
+      // filter change instead of being forced back to home.
+      const rawPath = (location.hash.split("?")[0] || "#/").replace(/^#/, "") || "/";
       const p = new URLSearchParams((location.hash.split("?")[1] || "").replace(/#.*$/, ""));
       Object.keys(patch).forEach((k) => {
         if (patch[k]) p.set(k, patch[k]);
         else p.delete(k);
       });
       const q = p.toString();
-      const nextHash = "#/" + (q ? "?" + q : "");
+      const nextHash = "#" + rawPath + (q ? "?" + q : "");
       if (location.hash !== nextHash) history.replaceState(null, "", nextHash);
 
       const current = $("#tin-hieu");
@@ -945,6 +949,23 @@
         if (!card) return;
         card.querySelectorAll(".sig-reply.is-more").forEach((n) => n.classList.remove("is-more"));
         b.remove();
+      };
+    });
+    $$("[data-report-comment]").forEach((b) => {
+      b.onclick = () => {
+        if (b.closest("[data-demo]")) return toast("Đây là bình luận minh hoạ tạm thời.");
+        const p = new URLSearchParams({
+          compose: "report",
+          source: b.dataset.reportComment || "",
+          draft: b.dataset.storyTitle ? "Truyện liên quan: " + b.dataset.storyTitle : "",
+        });
+        const target = "/hop-thu?" + p.toString();
+        if (!VCBG.currentUser()) {
+          toast("Vui lòng đăng nhập để gửi và nhận phản hồi trong hộp thư.");
+          goToLogin(target);
+          return;
+        }
+        go(target);
       };
     });
     // Clicking anywhere on a comment card (that isn't itself a button/link)
