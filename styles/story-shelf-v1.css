@@ -107,7 +107,7 @@
   background: var(--bg-2, #0c1322);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
 }
-.shelf-card.is-front .shelf-card-face { box-shadow: 0 0 0 2px var(--sh-accent-line), 0 20px 40px rgba(0, 0, 0, 0.55); }
+.shelf-card.is-front .shelf-card-face { box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6); }
 .shelf-card-face img {
   position: absolute;
   inset: 0;
