@@ -1211,7 +1211,7 @@
         ${item.cover ? `<img src="${esc(item.cover)}" alt="Bìa ${esc(item.title)}" loading="lazy">` : `<b aria-hidden="true">V</b>`}
         <span class="shelf-card-shade"></span>
         <span class="shelf-card-status">${esc(item.status)}</span>
-        ${isPreview && item.post ? `<span class="shelf-card-play" aria-hidden="true">▶</span>` : ""}
+        ${isPreview && item.post ? `<span class="shelf-card-play" role="button" tabindex="-1" aria-label="Phát teaser ${esc(item.title)} ngay tại đây">▶</span>` : ""}
         <span class="shelf-card-title">${esc(item.title)}</span>
       </span>`;
     return isPreview
@@ -1220,30 +1220,15 @@
   }
   function shelfHeroHTML(item, tabKey) {
     if (!item) return "";
-    if (tabKey === "preview") {
-      return `<div class="shelf-hero" data-shelf-hero>
-        <div class="shelf-hero-media">
-          ${item.cover ? `<img class="shelf-hero-cover" src="${esc(item.cover)}" alt="Bìa ${esc(item.title)}">` : `<span class="shelf-hero-no-cover" aria-hidden="true">V</span>`}
-          ${item.post
-            ? `<button type="button" class="shelf-hero-play" data-shelf-play aria-label="Phát teaser ${esc(item.title)} ngay tại đây"><span aria-hidden="true">▶</span><small>Phát tại đây</small></button>`
-            : `<span class="shelf-hero-pending"><i aria-hidden="true"></i>Teaser đang chuẩn bị</span>`}
-        </div>
-        <div class="shelf-hero-copy">
-          <span class="shelf-hero-now"><i aria-hidden="true"></i>${item.post ? "Sẵn sàng phát" : "Đang chuẩn bị"}</span>
-          <h3>${esc(item.title)}</h3>
-          <p class="shelf-hero-author">${esc(item.author || "Chưa cập nhật tác giả")}</p>
-          <div class="shelf-hero-pills"><span>${esc(item.status)}</span>${item.genre ? `<span>${esc(item.genre)}</span>` : ""}</div>
-          <p class="shelf-hero-teaser">${esc(item.teaser || "Một câu chuyện mới đang được chuẩn bị tại ViCamBachGiai.")}</p>
-        </div>
-      </div>`;
-    }
-    return `<div class="shelf-hero shelf-hero-simple" data-shelf-hero>
-      <div class="shelf-hero-copy">
-        <span class="shelf-hero-now">${esc(item.status)}</span>
-        <h3>${esc(item.title)}</h3>
-        <p class="shelf-hero-author">${esc(item.author || "—")}</p>
-        <a class="shelf-hero-cta" href="#/truyen/${esc(item.slug)}">Xem chi tiết ›</a>
-      </div>
+    const isPreview = tabKey === "preview";
+    return `<div class="shelf-hero" data-shelf-hero>
+      <span class="shelf-hero-now">${isPreview ? (item.post ? "Sẵn sàng phát — bấm ▶ trên bìa" : "Teaser đang chuẩn bị") : esc(item.status)}</span>
+      <h3>${esc(item.title)}</h3>
+      <p class="shelf-hero-author">${esc(item.author || "Chưa cập nhật tác giả")}</p>
+      ${isPreview
+        ? `<div class="shelf-hero-pills"><span>${esc(item.status)}</span>${item.genre ? `<span>${esc(item.genre)}</span>` : ""}</div>
+           <p class="shelf-hero-teaser">${esc(item.teaser || "Một câu chuyện mới đang được chuẩn bị tại ViCamBachGiai.")}</p>`
+        : `<a class="shelf-hero-cta" href="#/truyen/${esc(item.slug)}">Xem chi tiết ›</a>`}
     </div>`;
   }
   function storyShelfHTML(groups) {
