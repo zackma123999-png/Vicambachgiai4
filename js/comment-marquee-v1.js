@@ -66,8 +66,12 @@
     var name = (c.user && (c.user.display_name || c.user.email)) || "Độc giả ẩn danh";
     var storyTitle = c.story ? c.story.title : "";
     var body = String(c.body || "").replace(/\s+/g, " ").trim();
+    // Send to "Nhật ký bình luận" (scrolled/highlighted to this exact
+    // comment) instead of the story/chapter — that page is the actual
+    // comment feed, so it's where a comment card's own click should land.
+    var goto = "#/nhat-ky-binh-luan?highlight=" + encodeURIComponent(c.id);
     return (
-      '<a class="cm-card" href="' + esc(c.href || "#/") + '">' +
+      '<a class="cm-card" href="' + esc(goto) + '">' +
         '<div class="cm-card-head">' +
           '<span class="cm-avatar">' + avatarHTML(c.user) + "</span>" +
           '<div class="cm-who">' +
