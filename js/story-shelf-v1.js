@@ -12,6 +12,7 @@
     return node.innerHTML;
   };
   const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const TIKTOK_ICON = '<svg class="shelf-hero-play-icon" viewBox="0 0 448 512" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0h88.91a121.43,121.43,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z"/></svg>';
 
   function dataFromCard(card) {
     return {
@@ -61,7 +62,7 @@
       <div class="shelf-hero-pills"><span>${esc(item.status)}</span>${item.genre ? `<span>${esc(item.genre)}</span>` : ""}</div>
       <p class="shelf-hero-teaser">${teaserHTML(item)}</p>
       <div class="shelf-hero-actions">
-        ${item.post ? `<button type="button" class="shelf-hero-play" data-shelf-hero-play data-post="${esc(item.post)}" data-title="${esc(item.title)}" aria-label="Xem video ${esc(item.title)} ngay tại đây">▶ Xem video</button>` : ""}
+        ${item.post ? `<button type="button" class="shelf-hero-play" data-shelf-hero-play data-post="${esc(item.post)}" data-title="${esc(item.title)}" aria-label="Xem video ${esc(item.title)} ngay tại đây">${TIKTOK_ICON} Xem video</button>` : ""}
         <a class="shelf-hero-cta" href="${esc(item.readHref)}">Đọc truyện ›</a>
       </div>
     </div>`;
@@ -122,6 +123,8 @@
     let lastMoveTime = 0;
     let momentum = 0; // độ/khung hình, áp dụng sau khi thả tay
     let dragWatchdog = 0;
+    let isPlaying = false; // một bìa đang phát video TikTok tại chỗ
+    let centering = false; // đang tự xoay bìa được chọn về giữa trước khi phát
 
     function anglePerItem() {
       return list.length ? 360 / list.length : 0;
@@ -202,21 +205,71 @@
       paint();
     }
 
+    function startPlay(card, item) {
+      playOnCard(card, item);
+      isPlaying = true;
+    }
+
+    function stopPlay(card, item) {
+      closeCardVideo(card, item);
+      isPlaying = false;
+    }
+
+    // Đưa đúng bìa đang chọn về thẳng góc 0° (chính giữa, đối diện người xem)
+    // rồi mới gắn iframe video vào — bấm "Xem video" trước đây phát ngay trên
+    // bìa hiện tại dù nó có thể đang lệch vài độ (chưa kịp trôi hết về giữa),
+    // nhìn xéo và mất thẩm mỹ. Khi lệch không đáng kể thì phát luôn, khỏi tốn
+    // một khung hình animation vô ích.
+    function centerFrontThenPlay(card, item) {
+      const idx = Array.from(ring.children).indexOf(card);
+      if (idx < 0) { startPlay(card, item); return; }
+      const step = anglePerItem();
+      let delta = (idx * step + rotation) % 360;
+      if (delta > 180) delta -= 360;
+      else if (delta <= -180) delta += 360;
+      if (Math.abs(delta) < 0.5 || reduceMotion()) {
+        rotation -= delta;
+        paint();
+        startPlay(card, item);
+        return;
+      }
+      const startRotation = rotation;
+      const targetRotation = rotation - delta;
+      const startTime = performance.now();
+      const DURATION = 260;
+      centering = true;
+      const step_ = () => {
+        const t = Math.min(1, (performance.now() - startTime) / DURATION);
+        const eased = 1 - Math.pow(1 - t, 3);
+        rotation = startRotation + (targetRotation - startRotation) * eased;
+        paint();
+        if (t < 1) {
+          requestAnimationFrame(step_);
+        } else {
+          centering = false;
+          startPlay(card, item);
+        }
+      };
+      requestAnimationFrame(step_);
+    }
+
     // A single rAF loop drives everything the ring does on its own (never
     // while a finger/mouse is actively dragging it, since pointermove already
-    // sets `rotation` directly then): first bleed off any swipe momentum,
-    // then once that's spent, fall back to a slow ambient drift so the shelf
-    // still feels alive when nobody is touching it. Playing a video, or the
-    // visitor's own reduced-motion preference, pauses only the ambient
-    // drift — never the momentum from their own swipe, since that's a direct
-    // response to something they just did, not automatic motion.
+    // sets `rotation` directly then, or while the snap-to-centre tween above
+    // owns `rotation` itself): first bleed off any swipe momentum, then once
+    // that's spent, fall back to a slow ambient drift so the shelf still
+    // feels alive when nobody is touching it. A card playing its video
+    // freezes the ring completely (no momentum, no drift) — letting it keep
+    // spinning a heavy TikTok iframe every frame is what caused the
+    // lag/jank, on top of leaving the playing card visibly tilted instead of
+    // squarely facing the viewer.
     function tick() {
-      if (!dragging) {
+      if (!dragging && !centering && !isPlaying) {
         if (Math.abs(momentum) > MOMENTUM_MIN_DEG) {
           rotation += momentum;
           momentum *= MOMENTUM_DECAY;
           paint();
-        } else if (!reduceMotion() && !ring.querySelector(".shelf-card-face.is-playing")) {
+        } else if (!reduceMotion()) {
           rotation += IDLE_DRIFT_DEG_PER_FRAME;
           paint();
         }
@@ -250,6 +303,7 @@
     // force the drag state closed so the ring can never wedge on it.
     carousel.addEventListener("pointerdown", (e) => {
       if (e.button !== undefined && e.button !== 0) return;
+      if (isPlaying || centering) return;
       dragging = true;
       momentum = 0;
       dragMoved = 0;
@@ -313,7 +367,7 @@
       if (closeIcon) {
         e.preventDefault();
         e.stopPropagation();
-        closeCardVideo(card, dataFromCard(card));
+        stopPlay(card, dataFromCard(card));
         return;
       }
       const face = card.querySelector(".shelf-card-face");
@@ -329,14 +383,21 @@
     }, true);
 
     // The "Xem video" button lives in the info panel (not on the cover), and
-    // always plays on whichever card is currently front-facing.
+    // always plays on whichever card is currently front-facing — snapped
+    // squarely to centre first (see centerFrontThenPlay) rather than playing
+    // wherever it happened to be mid-rotation.
     section.addEventListener("click", (e) => {
       const playBtn = e.target.closest("[data-shelf-hero-play]");
-      if (!playBtn) return;
+      if (!playBtn || isPlaying || centering) return;
       e.preventDefault();
       e.stopPropagation();
-      const frontCard = ring.querySelector(".shelf-card.is-front");
-      if (frontCard) playOnCard(frontCard, dataFromCard(frontCard));
+      const frontCard = ring.children[frontIndex] || ring.querySelector(".shelf-card.is-front");
+      if (!frontCard) return;
+      const item = dataFromCard(frontCard);
+      if (!item.post) return;
+      momentum = 0;
+      dragging = false;
+      centerFrontThenPlay(frontCard, item);
     });
 
     // Mobile browsers fire `resize` for things that aren't a real layout

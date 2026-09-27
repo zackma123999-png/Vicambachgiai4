@@ -167,11 +167,16 @@
   border: none;
 }
 .shelf-hero-play {
-  color: var(--sh-accent-soft);
-  background: transparent;
-  border: 1px solid var(--sh-line);
+  color: #fff;
+  background: linear-gradient(135deg, #0b0b0d 0%, #14151a 55%, #3a0d1c 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 1px rgba(37, 244, 238, 0.32), 0 6px 16px rgba(254, 44, 85, 0.28);
 }
-.shelf-hero-play:hover { background: rgba(38, 194, 220, 0.12); }
+.shelf-hero-play:hover {
+  box-shadow: 0 0 0 1px rgba(37, 244, 238, 0.55), 0 8px 20px rgba(254, 44, 85, 0.4);
+  transform: translateY(-1px);
+}
+.shelf-hero-play-icon { color: #25f4ee; flex-shrink: 0; }
 
 @media (max-width: 640px) {
   .shelf-carousel { height: min(90vw, 340px); }
