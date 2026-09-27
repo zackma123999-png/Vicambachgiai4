@@ -1,0 +1,90 @@
+/* Trang truyện: đổi tông màu (tím → cyan, đồng bộ hệ "Signal" của trang
+   chủ) và kiểu chữ cho các nhãn/tiêu đề khu vực (chuyển sang JetBrains
+   Mono viết hoa dãn chữ, như "Trạm Preview"/"Live Resonance" ở trang
+   chủ) — KHÔNG đụng tới bố cục/khoảng cách, mọi rule dưới đây chỉ ghi
+   đè color/border-color/background/font-family của các selector đã có
+   sẵn trong styles.css. Chỉ áp dụng trong phạm vi .story-page/
+   .story-dock nên không ảnh hưởng nơi khác đang dùng chung class
+   (.chip, .btn-cyan, .badge…). */
+.story-page, .story-dock {
+  --story-accent: #26c2dc;
+  --story-accent-soft: #aeeaf3;
+  --story-accent-ink: #04222a;
+  --story-accent-line: rgba(38, 194, 220, .44);
+  --story-accent-fill: rgba(38, 194, 220, .16);
+  --story-accent-glow: 0 0 16px rgba(38, 194, 220, .22);
+}
+
+/* Tiêu đề truyện (h1) CỐ Ý không đổi font: rất nhiều rule ở các file
+   story-detail-*.css (ipad/landscape/portrait…) đặt font-size bằng
+   clamp()+cqi kèm !important, tính riêng theo bề rộng ký tự của
+   Cormorant Garamond ở từng kích thước màn hình — đổi sang font khác
+   (rộng hơn) ở đây sẽ làm tiêu đề tràn dòng tại nhiều breakpoint, tức
+   là phá bố cục gốc. Giữ nguyên font tiêu đề, chỉ đổi các nhãn/nút/
+   viền nhỏ bên dưới là đủ để thấy rõ tông màu mới mà không rủi ro vỡ
+   layout đã canh chỉnh kỹ.
+
+   Nhãn nhỏ viết hoa: JetBrains Mono dãn chữ, màu cyan. Riêng .badge
+   ("SẮP RA MẮT"…) KHÔNG đổi font: ở cỡ chữ rất nhỏ sẵn có của nó, dấu
+   tiếng Việt (sắc/nặng/hỏi…) render mờ/mất nét hơn hẳn so với font
+   gốc — chỉ đổi màu cho phần này, an toàn hơn. */
+.story-page .intro-title,
+.story-page .info-title,
+.story-page .same-head h3 {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--story-accent-soft);
+}
+.story-page .story-info .badge { color: var(--story-accent-soft); }
+
+.story-page .story-info .by span { color: var(--story-accent-soft); }
+
+/* -- tag/chip: chỉ đổi màu, giữ nguyên font/chữ hoa-thường gốc — đổi
+   sang chữ hoa/mono ở đây từng làm dòng tag dài hơn bản gốc và tràn
+   xuống đè lên hàng số liệu bên dưới. */
+.story-page .chip {
+  border-color: var(--story-accent-line);
+  background: rgba(38, 194, 220, .08);
+  color: var(--story-accent-soft);
+}
+.story-page .chip-more { color: var(--muted); }
+
+/* -- khối số liệu -- */
+.story-page .story-metrics { border-color: var(--story-accent-line); }
+.story-page .metric { border-left-color: rgba(38, 194, 220, .16); }
+.story-page .metric-ico:not(.heart) { color: var(--story-accent-soft); }
+
+/* -- nút CTA chính + dock -- */
+.story-page .story-acts .btn-cyan,
+.story-dock .btn-cyan {
+  background: linear-gradient(180deg, rgba(38, 194, 220, .38), rgba(38, 194, 220, .22));
+  border-color: var(--story-accent-line);
+  color: #eafcff;
+  box-shadow: var(--story-accent-glow), inset 0 1px 0 rgba(255,255,255,.10);
+}
+.story-dock { border-top-color: rgba(38, 194, 220, .18); }
+
+/* -- tab Tóm tắt/Mục lục/Đánh giá -- */
+.story-page .story-tabs a.on { color: #eafcff; border-bottom-color: var(--story-accent); }
+
+/* -- thẻ Giới thiệu / Thông tin truyện -- */
+.story-page .intro-card, .story-page .info-card { border-color: var(--story-accent-line); }
+.story-page .intro-card::after, .story-page .info-card::after {
+  background:
+    radial-gradient(circle at 70% 40%, rgba(174, 234, 243, .5), transparent 42%),
+    radial-gradient(circle at 30% 70%, rgba(38, 194, 220, .35), transparent 50%);
+}
+.story-page .info-body { border-left-color: var(--story-accent-line); }
+.story-page .intro-more, .story-page .info-more { color: var(--story-accent-soft); }
+.story-page .info-more { border-color: var(--story-accent-line); background: rgba(38, 194, 220, .07); }
+
+/* -- Đề xuất tác giả khác / Cùng tác giả -- */
+.story-page .same-author { border-color: var(--story-accent-line); }
+.story-page .same-head h3 { text-transform: uppercase; letter-spacing: .16em; font-weight: 700; }
+.story-page .same-head h3::before {
+  background: linear-gradient(90deg, var(--story-accent), var(--story-accent-soft));
+  box-shadow: 0 0 10px rgba(38, 194, 220, .6);
+}
+.story-page .same-card:active { border-color: rgba(174, 234, 243, .55); }
+.story-page .same-card em::before { background: var(--story-accent); box-shadow: 0 0 7px rgba(38, 194, 220, .7); }
+
+.story-page .toc-groups a.on { border-color: var(--story-accent); color: var(--story-accent-soft); }
