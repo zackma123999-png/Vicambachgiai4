@@ -12,10 +12,12 @@
 }
 .shelf-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-size: clamp(1.3rem, 4vw, 1.8rem);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1.05rem, 3.6vw, 1.55rem);
   font-weight: 700;
-  color: var(--sh-ink);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--sh-accent, #26c2dc);
 }
 .shelf-stage {
   position: relative;

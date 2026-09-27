@@ -90,7 +90,8 @@
   const MOMENTUM_DECAY = 0.94; // mỗi khung hình giữ lại 94% vận tốc còn lại
   const MOMENTUM_MIN_DEG = 0.02; // dưới ngưỡng này coi như hết đà, nhường cho tự trôi
   const MOMENTUM_MAX_DEG = 6; // trần vận tốc mỗi khung hình, tránh trượt ảo quá nhanh
-  const IDLE_DRIFT_DEG_PER_FRAME = 0.14; // tốc độ tự trôi khi không chạm/không còn đà
+  const IDLE_DRIFT_DEG_PER_FRAME = 0.32; // tốc độ tự trôi khi không chạm/không còn đà
+  const FRONT_SCALE = 0.88; // thu nhỏ bìa ở giữa để không che tiêu đề/tên truyện quanh nó
 
   function initShelf(section) {
     if (!section || section.dataset.shelfBound === "true") return;
@@ -160,7 +161,9 @@
         const raw = (i * step + rotation) % 360;
         const rel = Math.abs(raw > 180 ? 360 - raw : raw);
         const opacity = Math.max(0.04, 1 - Math.pow(rel / 140, 1.8));
-        const scale = Math.max(0.5, 1 - rel / 130);
+        // FRONT_SCALE keeps the centred cover a bit smaller than its full
+        // CSS box so it never crowds the heading above/hero panel below.
+        const scale = Math.max(0.5, 1 - rel / 130) * FRONT_SCALE;
         card.style.transform = `rotateY(${i * step}deg) translateZ(${radius}px) scale(${scale.toFixed(3)})`;
         card.style.opacity = opacity.toFixed(3);
         card.style.zIndex = String(Math.round(1000 - rel));
@@ -168,7 +171,14 @@
         card.classList.toggle("is-front", rel < step / 2 + 0.01);
         if (rel < bestDelta) { bestDelta = rel; bestIndex = i; }
       });
-      ring.style.transform = `rotateY(${rotation}deg)`;
+      // Every card already pushes itself outward by `radius` via its own
+      // translateZ — without recentring the ring by the same amount back
+      // the other way, the whole circle sits shifted toward the viewer, so
+      // the CSS `perspective` on `.shelf-carousel` blows up whichever card
+      // is currently front-facing (translation composes with the ring's
+      // own rotateY as a fixed offset, not a rotated one, so this constant
+      // shift lands the front card back at z≈0 regardless of `rotation`).
+      ring.style.transform = `translateZ(${-radius}px) rotateY(${rotation}deg)`;
       if (bestIndex !== frontIndex || !cards[frontIndex]) {
         frontIndex = bestIndex;
         onFrontChange(cards[frontIndex]);
