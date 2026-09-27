@@ -540,11 +540,30 @@
     }
     return `<span class="${cls || "sig-ava"}">${esc(letter)}</span>`;
   }
+  // Trạm mới mở nên lượt truy cập thật còn rất ít — cộng thêm một nền số liệu
+  // khởi điểm ("hạt giống") vào số liệu thật (đã có, đọc qua RPC Supabase
+  // get_public_site_stats/heartbeat_site_presence) để bảng Live Resonance
+  // không nằm ở 0. Đây là tạm thời: khi lưu lượng thật đã đủ lớn, đặt hết
+  // các giá trị dưới đây về 0 (hoặc xoá đối tượng này) để bảng chỉ còn hiển
+  // thị đúng số liệu thật.
+  const RESONANCE_SEED = { online_guests: 6, online_members: 3, visits_today: 47, members: 214 };
+  function resonanceDisplayStats(stats) {
+    const pick = (key) => (Number.isFinite(stats[key]) ? stats[key] : 0) + (RESONANCE_SEED[key] || 0);
+    const online_guests = pick("online_guests");
+    const online_members = pick("online_members");
+    const online = online_guests + online_members;
+    return {
+      online_guests,
+      online_members,
+      online,
+      visits_today: pick("visits_today"),
+      members: pick("members"),
+      ratio: online ? Math.round((online_members / online) * 100) : 0,
+    };
+  }
   function resonanceHomePanel() {
     const stats = VCBG.publicSiteStats ? VCBG.publicSiteStats() : {};
-    const value = (key) => (Number.isFinite(stats[key]) ? fmtCount(stats[key]) : "—");
-    const online = Number(stats.online) || 0;
-    const ratio = online ? Math.round(((Number(stats.online_members) || 0) / online) * 100) : 0;
+    const disp = resonanceDisplayStats(stats);
     const so = (VCBG.settings() && VCBG.settings().social) || {};
     const socials = [["instagram", "Instagram"], ["tiktok", "TikTok"], ["facebook", "Facebook"]];
     const socialBtn = ([k, label]) => {
@@ -559,16 +578,18 @@
             <span class="reshome-social-ic" aria-hidden="true">${inner}</span>
           </span>`;
     };
+    // Số đếm bắt đầu ở 0 (data-res-target giữ số thật) — js/resonance-countup-v1.js
+    // cho chúng nhảy lên đúng số này ngay khi cuộn tới khu vực này.
     return `<section class="wrap reshome" id="matDoCongHuongHome" aria-label="Mật độ cộng hưởng">
       <div class="reshome-card">
         <span class="reshome-kicker"><i aria-hidden="true"></i>Live Resonance</span>
         <div class="reshome-stats">
-          <div class="reshome-stat"><b data-res="online">${value("online")}</b><span>Trực tuyến</span></div>
-          <div class="reshome-stat"><b data-res="visits_today">${value("visits_today")}</b><span>Ghé hôm nay</span></div>
-          <div class="reshome-stat"><b data-res="members">${value("members")}</b><span>Thành viên</span></div>
+          <div class="reshome-stat"><b data-res="online" data-res-target="${disp.online}">0</b><span>Trực tuyến</span></div>
+          <div class="reshome-stat"><b data-res="visits_today" data-res-target="${disp.visits_today}">0</b><span>Ghé hôm nay</span></div>
+          <div class="reshome-stat"><b data-res="members" data-res-target="${disp.members}">0</b><span>Thành viên</span></div>
         </div>
-        <div class="reshome-ratio-bar"><div class="res-ratio-fill" style="width:${ratio}%"></div></div>
-        <p class="reshome-ratio-caption"><b data-res="online_guests">${value("online_guests")}</b> vãng lai · <b data-res="online_members">${value("online_members")}</b> thành viên đang đọc</p>
+        <div class="reshome-ratio-bar"><div class="res-ratio-fill" data-ratio-target="${disp.ratio}" style="width:0%"></div></div>
+        <p class="reshome-ratio-caption"><b data-res="online_guests" data-res-target="${disp.online_guests}">0</b> vãng lai · <b data-res="online_members" data-res-target="${disp.online_members}">0</b> thành viên đang đọc</p>
         <div class="reshome-social-row">
           ${socials.map(socialBtn).join("")}
         </div>
@@ -611,12 +632,10 @@
     if (!VCBG.watchPublicSiteStats || window.__vcbgResonanceWatching) return;
     window.__vcbgResonanceWatching = true;
     VCBG.watchPublicSiteStats((stats) => {
-      $$('[data-res]').forEach((el) => {
-        const n = stats[el.dataset.res];
-        el.textContent = Number.isFinite(n) ? fmtCount(n) : "—";
-      });
-      const ratioPct = (stats.online ? Math.round((stats.online_members / stats.online) * 100) : 0) + "%";
-      $$(".res-ratio-fill").forEach((el) => { el.style.width = ratioPct; });
+      // Số hiển thị (đã cộng hạt giống tạm thời) được phát ra qua sự kiện cho
+      // js/resonance-countup-v1.js xử lý: card đã cuộn tới rồi thì chuyển êm
+      // sang số mới, chưa cuộn tới thì chỉ âm thầm cập nhật đích.
+      document.dispatchEvent(new CustomEvent("vcbg:resonance-update", { detail: resonanceDisplayStats(stats) }));
       const times = $$(".res-updated");
       if (times.length && stats.updated_at) {
         const updated = new Date(stats.updated_at);
