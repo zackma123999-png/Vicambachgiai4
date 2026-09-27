@@ -73,7 +73,7 @@
     const face = card.querySelector(".shelf-card-face");
     if (!face) return;
     face.classList.add("is-playing");
-    face.innerHTML = `<span class="shelf-card-close" role="button" tabindex="-1" aria-label="Đóng video">×</span>
+    face.innerHTML = `<span class="shelf-card-close" role="button" tabindex="-1" aria-label="Đóng video"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" d="M5 5l14 14M19 5L5 19"/></svg></span>
       <div class="shelf-card-video">
         <iframe title="Teaser TikTok ${esc(item.title)}" src="https://www.tiktok.com/player/v1/${item.post}?autoplay=1&muted=0&loop=0&controls=1&progress_bar=1&play_button=1&volume_control=1&fullscreen_button=1&description=0&music_info=0&rel=0&native_context_menu=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
       </div>`;

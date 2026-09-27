@@ -87,19 +87,31 @@
   color: var(--sh-accent-soft);
 }
 .shelf-card-close {
+  /* Top-left, not top-right: the TikTok player's own avatar/follow bubble
+     sits top-right, and stacking our X on top of it read as visual clutter. */
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  width: 30px;
-  height: 30px;
+  top: 0.55rem;
+  left: 0.55rem;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: rgba(4, 10, 20, 0.75);
-  color: var(--sh-ink);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(10, 12, 20, 0.62);
+  backdrop-filter: blur(6px);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: background 0.16s ease, transform 0.16s ease, border-color 0.16s ease;
   z-index: 2;
+}
+.shelf-card-close:hover,
+.shelf-card-close:active {
+  background: rgba(20, 24, 38, 0.82);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.08);
 }
 .shelf-card-video { position: absolute; inset: 0; background: #000; }
 .shelf-card-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
