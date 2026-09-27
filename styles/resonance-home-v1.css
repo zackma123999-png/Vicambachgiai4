@@ -31,6 +31,14 @@
   display: block; font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight: 700; font-size: 1.4rem; line-height: 1;
   color: var(--sh-ink, #f4f7f8); font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 0 transparent;
+  transition: text-shadow .3s ease;
+}
+/* Nhấn nhá nhẹ trong lúc số liệu đang "nhảy" lên (js/resonance-countup-v1.js
+   thêm/gỡ lớp này đúng lúc số bắt đầu và kết thúc đếm). */
+.reshome-card.is-counting .reshome-stat b{
+  color: var(--sh-accent, #26c2dc);
+  text-shadow: 0 0 .55rem rgba(38,194,220,.55);
 }
 .reshome-stat span{
   display: block; margin-top: .45rem; color: var(--sh-muted-dim, rgba(244,247,248,.5));
@@ -68,4 +76,5 @@
 @media (prefers-reduced-motion: reduce) {
   .reshome-social{ transition: none; }
   .reshome-ratio-bar .res-ratio-fill{ transition: none; }
+  .reshome-stat b{ transition: none; }
 }
