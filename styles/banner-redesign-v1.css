@@ -93,7 +93,13 @@ body:has(#signalHero) .site-header {
   .sh-content { padding-bottom: 56px; }
 }
 
-.sh-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+/* min-height reserves room for up to two wrapped rows of tags, and
+   align-content keeps a single-row slide's tags pinned to the top of that
+   reserved space — otherwise a slide with fewer/shorter tags (one line)
+   sizes shorter than one with more/longer tags (two lines), and because
+   .sh-content is bottom-anchored (justify-content: flex-end), that height
+   difference shifts every block above it up/down as slides change. */
+.sh-tags { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 8px; min-height: 70px; margin-bottom: 18px; }
 .sh-tag {
   display: inline-flex; align-items: center; gap: 6px;
   font-family: 'JetBrains Mono', monospace; font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; font-weight: 600;
@@ -109,6 +115,7 @@ body:has(#signalHero) .site-header {
 .sh-overline {
   font-family: 'JetBrains Mono', monospace; font-size: .7rem; letter-spacing: .18em;
   color: var(--sh-accent-soft); text-transform: uppercase; font-weight: 600; margin: 0 0 8px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 h1.sh-title {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -119,12 +126,15 @@ h1.sh-title {
 }
 h1.sh-title em { font-style: normal; color: var(--sh-accent-soft); }
 h1.sh-title span { display: block; white-space: nowrap; }
-.sh-author { font-size: .95rem; color: var(--sh-muted); margin: 0 0 22px; font-weight: 500; }
+.sh-author {
+  font-size: .95rem; color: var(--sh-muted); margin: 0 0 22px; font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 .sh-author b { color: var(--sh-ink); font-weight: 700; }
 
-.sh-stats { display: flex; gap: 26px; padding: 18px 0; border-top: 1px solid var(--sh-line-soft); border-bottom: 1px solid var(--sh-line-soft); margin-bottom: 22px; }
-.sh-stat-num { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; color: var(--sh-ink); }
-.sh-stat-label { font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .14em; color: var(--sh-muted-dim); text-transform: uppercase; margin-top: 6px; }
+.sh-stats { display: flex; gap: 26px; padding: 18px 0; margin-bottom: 22px; }
+.sh-stat-num { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; color: var(--sh-ink); white-space: nowrap; }
+.sh-stat-label { font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .14em; color: var(--sh-muted-dim); text-transform: uppercase; margin-top: 6px; white-space: nowrap; }
 
 .sh-ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
 .sh-btn {
@@ -136,9 +146,16 @@ h1.sh-title span { display: block; white-space: nowrap; }
 .sh-btn--primary svg { width: 15px; height: 15px; transform: rotate(45deg); }
 .sh-btn--ghost { border-color: var(--sh-line); color: var(--sh-ink); background: rgba(7, 11, 20, .35); }
 
-.sh-trust { display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: var(--sh-muted); margin: 0; }
+.sh-trust {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: var(--sh-muted); margin: 0;
+  min-width: 0;
+}
 .sh-trust svg { width: 13px; height: 13px; color: var(--sh-accent-soft); flex-shrink: 0; }
-.sh-trust b { color: var(--sh-ink); font-weight: 600; }
+.sh-trust b {
+  color: var(--sh-ink); font-weight: 600; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 
 /* ---- search moved inside the hamburger drawer ---- */
 .mm-search {

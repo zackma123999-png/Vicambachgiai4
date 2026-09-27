@@ -1321,7 +1321,7 @@
     const words = String(s.title || "").trim().split(/\s+/).filter(Boolean);
     const accentWord = words.length > 1 ? words.pop() : words[0] || "";
     const topWords = words.length ? words.join(" ") : "";
-    const rating = s.stats.rating_avg ? s.stats.rating_avg.toFixed(1) : "—";
+    const rating = s.stats.rating_avg ? s.stats.rating_avg.toFixed(1) : "0";
     const latest = s.stats.latest_chapter;
     return {
       cover: s.cover,
