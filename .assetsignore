@@ -1,0 +1,17 @@
+_worker.js
+functions
+scripts
+supabase
+demo-circular-gallery
+node_modules
+.git
+.github
+.env
+.env.*
+!.env.example
+wrangler.jsonc
+package.json
+package-lock.json
+README.md
+vercel.json
+.vercel-redeploy-20260822.txt

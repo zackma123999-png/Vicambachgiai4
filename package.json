@@ -1,0 +1,12 @@
+{
+	"name": "vicambachgiai4",
+	"private": true,
+	"scripts": {
+		"build": "npx wrangler pages functions build --outdir=_worker.js/",
+		"deploy": "npm run build && npx wrangler deploy",
+		"dev": "npm run build && npx wrangler dev"
+	},
+	"devDependencies": {
+		"wrangler": "^4.0.0"
+	}
+}
