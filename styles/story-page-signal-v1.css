@@ -68,14 +68,29 @@
 .story-dock { border-top-color: rgba(38, 194, 220, .18); }
 /* Dock giờ có thêm nút đổi nền sáng/tối bên cạnh Chia sẻ (và "Chương
    mới" khi có) — chuyển sang flex để số nút thay đổi vẫn co giãn hợp
-   lý, không còn phụ thuộc đúng 2 cột cố định như bố cục lưới gốc. */
+   lý, không còn phụ thuộc đúng 2 cột cố định như bố cục lưới gốc. Cả 3
+   nút giờ đều là icon + nhãn nhỏ bên dưới (thay vì chỉ chữ) nên chia
+   đều flex:1 cho cân đối, giống một thanh tab-bar icon. */
 .story-dock {
   display: flex;
   gap: .5rem;
-  align-items: center;
+  align-items: stretch;
 }
-.story-dock .dock-read, .story-dock .dock-fav { flex: 1 1 0; }
-.story-dock .dock-theme { flex: 0 0 auto; white-space: nowrap; }
+.story-dock .btn {
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: .22rem;
+  min-height: 54px;
+  padding: .4rem .3rem;
+}
+.story-dock .dock-ico { width: 20px; height: 20px; flex: none; }
+.story-dock .dock-label {
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .01em;
+  line-height: 1;
+  white-space: nowrap;
+}
 
 /* -- tab Tóm tắt/Mục lục/Đánh giá -- */
 .story-page .story-tabs a.on { color: #eafcff; border-bottom-color: var(--story-accent); }
@@ -129,12 +144,23 @@
    khác"): bóng đổ 3D mềm, và một hack quen thuộc để Safari trên iOS bo
    tròn góc ảnh <img> sạch sẽ — chỉ overflow:hidden + border-radius trên
    .cover-frame đôi khi để lọt một mẩu góc vuông của ảnh (lỗi bo góc nổi
-   tiếng của WebKit khi ảnh được scale bên trong container). -- */
-.story-page .cover-frame {
+   tiếng của WebKit khi ảnh được scale bên trong container). CHỈ áp cho
+   .same-card (nơi phát hiện lỗi bo góc) — áp cho mọi .cover-frame kể cả
+   bìa chính từng làm -webkit-mask-image "nuốt mất" luôn box-shadow của
+   bìa chính (mask cắt theo đúng khung ảnh, còn bóng đổ nằm ngoài khung
+   nên bị cắt theo luôn), khiến bìa chính hết cả bóng. -- */
+.story-page .same-card .cover-frame {
   transform: translateZ(0);
   -webkit-mask-image: -webkit-radial-gradient(circle, #fff 100%, #000 100%);
 }
-.story-page .cover-frame img { border-radius: inherit; }
+.story-page .same-card .cover-frame img { border-radius: inherit; }
+/* Bìa chính đầu trang: đổ bóng 3D rõ ràng, không bị mask ăn mất nữa. */
+.story-page .story-cover .cover-frame {
+  box-shadow: 0 16px 32px rgba(0, 0, 0, .4), 0 5px 12px rgba(0, 0, 0, .26);
+}
+.story-page[data-theme="light"] .story-cover .cover-frame {
+  box-shadow: 0 16px 32px rgba(33, 29, 23, .24), 0 5px 12px rgba(33, 29, 23, .14);
+}
 /* Bóng ở NGUYÊN card (bìa + khối tên/tác giả/trạng thái) là bóng chính,
    luôn rõ hơn bóng nhỏ của riêng bìa bên trong — nếu không, mắt chỉ
    thấy bìa có bóng còn khối chữ bên dưới thì không, trông như hai
