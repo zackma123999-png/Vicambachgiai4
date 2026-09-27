@@ -42,10 +42,17 @@
 /* -- tag/chip: chỉ đổi màu, giữ nguyên font/chữ hoa-thường gốc — đổi
    sang chữ hoa/mono ở đây từng làm dòng tag dài hơn bản gốc và tràn
    xuống đè lên hàng số liệu bên dưới. */
+/* Bỏ khung/nền của tag — chỉ còn chữ màu cyan trôi tự nhiên, không còn
+   viên "nút" bo tròn bao quanh nữa. Gap giữa các tag phải rộng hơn một
+   chút để bù lại phần ranh giới trực quan mà cái khung cũ vẫn tạo ra,
+   nếu không chữ sẽ dính sát nhau khó đọc. */
+.story-page .tags { gap: .5rem .65rem; }
 .story-page .chip {
-  border-color: var(--story-accent-line);
-  background: rgba(38, 194, 220, .08);
+  border-color: transparent;
+  background: none;
   color: var(--story-accent-soft);
+  padding-left: 0;
+  padding-right: 0;
 }
 .story-page .chip-more { color: var(--muted); }
 
@@ -69,28 +76,24 @@
 /* Dock giờ có thêm nút đổi nền sáng/tối bên cạnh Chia sẻ (và "Chương
    mới" khi có) — chuyển sang flex để số nút thay đổi vẫn co giãn hợp
    lý, không còn phụ thuộc đúng 2 cột cố định như bố cục lưới gốc. Cả 3
-   nút giờ đều là icon + nhãn nhỏ bên dưới (thay vì chỉ chữ) nên chia
-   đều flex:1 cho cân đối, giống một thanh tab-bar icon. */
+   nút giờ chỉ còn icon, không chữ — thu về ô vuông bo góc bằng nhau,
+   dàn đều khoảng cách trên cả thanh dock thay vì kéo giãn hết cỡ như
+   khi còn là nút chữ. */
 .story-dock {
   display: flex;
   gap: .5rem;
-  align-items: stretch;
+  align-items: center;
+  justify-content: space-evenly;
 }
 .story-dock .btn {
-  flex: 1 1 0;
-  flex-direction: column;
-  gap: .22rem;
-  min-height: 54px;
-  padding: .4rem .3rem;
+  flex: 0 0 auto;
+  width: 54px;
+  height: 54px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 16px;
 }
-.story-dock .dock-ico { width: 20px; height: 20px; flex: none; }
-.story-dock .dock-label {
-  font-size: .62rem;
-  font-weight: 700;
-  letter-spacing: .01em;
-  line-height: 1;
-  white-space: nowrap;
-}
+.story-dock .dock-ico { width: 22px; height: 22px; flex: none; }
 
 /* -- tab Tóm tắt/Mục lục/Đánh giá -- */
 .story-page .story-tabs a.on { color: #eafcff; border-bottom-color: var(--story-accent); }
@@ -139,6 +142,15 @@
 .story-page .same-head h3 { text-transform: uppercase; letter-spacing: .16em; font-weight: 700; }
 .story-page .same-card:active { border-color: rgba(174, 234, 243, .55); }
 .story-page .same-card em::before { background: var(--story-accent); box-shadow: 0 0 7px rgba(38, 194, 220, .7); }
+/* Bỏ khung quanh nhãn trạng thái ("Đang lên sóng"…) ở mỗi thẻ bìa dưới
+   trang — cùng chủ trương bỏ khung/nút bọc quanh tag như ở trên, chỉ
+   còn chấm tròn + chữ, không còn viên pill bo tròn nữa. */
+.story-page .same-card em {
+  border-color: transparent;
+  background: none;
+  padding-left: 0;
+  padding-right: 0;
+}
 
 /* -- bìa truyện (bìa chính + các thẻ ở "Cùng tác giả"/"Đề xuất tác giả
    khác"): bóng đổ 3D mềm, và một hack quen thuộc để Safari trên iOS bo
@@ -154,13 +166,11 @@
   -webkit-mask-image: -webkit-radial-gradient(circle, #fff 100%, #000 100%);
 }
 .story-page .same-card .cover-frame img { border-radius: inherit; }
-/* Bìa chính đầu trang: đổ bóng 3D rõ ràng, không bị mask ăn mất nữa. */
-.story-page .story-cover .cover-frame {
-  box-shadow: 0 16px 32px rgba(0, 0, 0, .4), 0 5px 12px rgba(0, 0, 0, .26);
-}
-.story-page[data-theme="light"] .story-cover .cover-frame {
-  box-shadow: 0 16px 32px rgba(33, 29, 23, .24), 0 5px 12px rgba(33, 29, 23, .14);
-}
+/* Bìa chính đầu trang: KHÔNG đổ bóng — thử một vòng thấy bóng viền
+   quanh góc bo trông không đẹp, bỏ hẳn (khác với các bìa nhỏ ở rail,
+   vẫn giữ bóng). Đặt về "none" để chặn luôn box-shadow gốc trong
+   styles.css cho selector này, không chỉ xoá phần mình từng thêm. */
+.story-page .story-cover .cover-frame { box-shadow: none; }
 /* Bóng ở NGUYÊN card (bìa + khối tên/tác giả/trạng thái) là bóng chính,
    luôn rõ hơn bóng nhỏ của riêng bìa bên trong — nếu không, mắt chỉ
    thấy bìa có bóng còn khối chữ bên dưới thì không, trông như hai
@@ -260,7 +270,7 @@
 .story-page[data-theme="light"] .same-card b { color: var(--story-light-ink); }
 .story-page[data-theme="light"] .same-card em {
   color: var(--story-light-muted);
-  border-color: var(--story-light-line);
+  border-color: transparent;
 }
 .story-page[data-theme="light"] .toc-groups a { border-color: var(--story-light-line); }
 .story-page[data-theme="light"] .toc-head input {
