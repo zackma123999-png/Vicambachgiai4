@@ -1709,15 +1709,15 @@
       })
       .join("") + (tagExtra > 0 ? `<span class="chip chip-more">+${tagExtra}</span>` : "");
     const infoText = storyInfoText(s);
-    const introHtml = `<article class="intro-card">
-        <h2 class="intro-title">Giới thiệu</h2>
-        <div class="intro-body is-clamp" id="introBody">${esc(s.synopsis).replace(/\n/g, "<br>")}</div>
-        <button type="button" class="intro-more" id="btnMore" hidden>Đọc tiếp tóm tắt →</button>
-      </article>
-      <article class="info-card">
+    const introHtml = `<article class="info-card">
         <h2 class="info-title">Thông tin truyện</h2>
         <div class="info-body" id="infoBody">${formatStoryInfo(infoText)}</div>
         <button type="button" class="info-more" id="btnInfoMore" hidden>Xem chi tiết đầy đủ</button>
+      </article>
+      <article class="intro-card">
+        <h2 class="intro-title">Giới thiệu</h2>
+        <div class="intro-body is-clamp" id="introBody">${esc(s.synopsis).replace(/\n/g, "<br>")}</div>
+        <button type="button" class="intro-more" id="btnMore" hidden>Đọc tiếp tóm tắt →</button>
       </article>
       ${sameAuthor.length ? `<section class="same-author">
         <div class="same-head">

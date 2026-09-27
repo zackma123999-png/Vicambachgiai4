@@ -33,6 +33,7 @@
 .story-page .same-head h3 {
   font-family: 'JetBrains Mono', monospace;
   color: var(--story-accent-soft);
+  text-shadow: none;
 }
 .story-page .story-info .badge { color: var(--story-accent-soft); }
 
@@ -66,24 +67,33 @@
 /* -- tab Tóm tắt/Mục lục/Đánh giá -- */
 .story-page .story-tabs a.on { color: #eafcff; border-bottom-color: var(--story-accent); }
 
-/* -- thẻ Giới thiệu / Thông tin truyện -- */
-.story-page .intro-card, .story-page .info-card { border-color: var(--story-accent-line); }
-.story-page .intro-card::after, .story-page .info-card::after {
-  background:
-    radial-gradient(circle at 70% 40%, rgba(174, 234, 243, .5), transparent 42%),
-    radial-gradient(circle at 30% 70%, rgba(38, 194, 220, .35), transparent 50%);
+/* -- thẻ Giới thiệu / Thông tin truyện: bỏ khung riêng, dùng thẳng nền
+   chính của trang, không viền/không đổ bóng/không lớp kính mờ — chỉ
+   còn tiêu đề + nội dung trôi tự nhiên trên nền trang. -- */
+.story-page .intro-card, .story-page .info-card {
+  background: var(--bg);
+  border: 0;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
+.story-page .intro-card::after, .story-page .info-card::after { content: none; }
 .story-page .info-body { border-left-color: var(--story-accent-line); }
 .story-page .intro-more, .story-page .info-more { color: var(--story-accent-soft); }
 .story-page .info-more { border-color: var(--story-accent-line); background: rgba(38, 194, 220, .07); }
 
-/* -- Đề xuất tác giả khác / Cùng tác giả -- */
-.story-page .same-author { border-color: var(--story-accent-line); }
-.story-page .same-head h3 { text-transform: uppercase; letter-spacing: .16em; font-weight: 700; }
-.story-page .same-head h3::before {
-  background: linear-gradient(90deg, var(--story-accent), var(--story-accent-soft));
-  box-shadow: 0 0 10px rgba(38, 194, 220, .6);
+/* -- gạch nhỏ trước tiêu đề khu vực: bỏ hẳn, không dùng dấu gạch nữa -- */
+.story-page .intro-title::before,
+.story-page .info-title::before,
+.story-page .same-head h3::before { content: none; }
+
+/* -- Đề xuất tác giả khác / Cùng tác giả: cũng bỏ khung, dùng nền chính -- */
+.story-page .same-author {
+  background: var(--bg);
+  border: 0;
+  box-shadow: none;
 }
+.story-page .same-head h3 { text-transform: uppercase; letter-spacing: .16em; font-weight: 700; }
 .story-page .same-card:active { border-color: rgba(174, 234, 243, .55); }
 .story-page .same-card em::before { background: var(--story-accent); box-shadow: 0 0 7px rgba(38, 194, 220, .7); }
 
