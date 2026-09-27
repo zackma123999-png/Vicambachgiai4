@@ -1,0 +1,11 @@
+{
+	"name": "vicambachgiai4",
+	"private": true,
+	"scripts": {
+		"build": "wrangler pages functions build --outdir=./_worker.js/",
+		"deploy": "wrangler deploy"
+	},
+	"devDependencies": {
+		"wrangler": "^4.0.0"
+	}
+}

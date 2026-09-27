@@ -1,0 +1,9 @@
+{
+	"name": "vicambachgiai4",
+	"compatibility_date": "2025-09-27",
+	"main": "./_worker.js/index.js",
+	"assets": {
+		"directory": "./",
+		"binding": "ASSETS"
+	}
+}
