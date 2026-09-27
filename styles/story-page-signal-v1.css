@@ -138,10 +138,14 @@
 /* Bóng ở NGUYÊN card (bìa + khối tên/tác giả/trạng thái) là bóng chính,
    luôn rõ hơn bóng nhỏ của riêng bìa bên trong — nếu không, mắt chỉ
    thấy bìa có bóng còn khối chữ bên dưới thì không, trông như hai
-   mảnh tách rời thay vì một tấm thẻ liền khối. */
-.story-page .same-card .cover-frame { box-shadow: 0 8px 16px rgba(0, 0, 0, .24); }
+   mảnh tách rời thay vì một tấm thẻ liền khối. Bán kính đổ bóng CỐ Ý
+   giữ nhỏ/sát card — bán kính lớn (blur 30-40px) từng dùng ở đây khiến
+   bóng của các card cạnh nhau trong cùng một hàng loang vào nhau,
+   nhìn thành một dải màu đậm liền mạch phía dưới cả hàng thay vì bóng
+   riêng của từng thẻ. */
+.story-page .same-card .cover-frame { box-shadow: 0 4px 8px rgba(0, 0, 0, .22); }
 .story-page .same-card {
-  box-shadow: 0 18px 34px rgba(0, 0, 0, .4), 0 6px 14px rgba(0, 0, 0, .26), inset 0 1px 0 rgba(255, 255, 255, .06);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, .34), 0 2px 5px rgba(0, 0, 0, .22), inset 0 1px 0 rgba(255, 255, 255, .06);
 }
 
 .story-page .toc-groups a.on { border-color: var(--story-accent); color: var(--story-accent-soft); }
@@ -215,14 +219,15 @@
 .story-page[data-theme="light"] .same-card {
   background: var(--story-light-panel);
   /* Bỏ hẳn viền — chính là "lằn mờ" hằn dưới chân mỗi bìa mà không đủ
-     tương phản để trông có chủ đích, chỉ giống lỗi hiển thị. Bóng đổ
-     bên dưới đậm hơn bản trước để rõ là bóng của CẢ card (bìa + khối
-     chữ), không chỉ bóng nhỏ bên trong bìa. */
+     tương phản để trông có chủ đích, chỉ giống lỗi hiển thị. Bán kính
+     đổ bóng giữ nhỏ (không blur 40px như bản trước) — bóng lớn của các
+     card liền kề trong hàng loang chồng vào nhau, gộp thành một dải
+     màu đậm liền dưới cả hàng thay vì bóng riêng từng thẻ. */
   border-color: transparent;
-  box-shadow: 0 20px 40px rgba(33, 29, 23, .2), 0 6px 14px rgba(33, 29, 23, .12);
+  box-shadow: 0 6px 14px rgba(33, 29, 23, .16), 0 2px 5px rgba(33, 29, 23, .1);
 }
 .story-page[data-theme="light"] .same-card .cover-frame {
-  box-shadow: 0 4px 10px rgba(33, 29, 23, .14);
+  box-shadow: 0 3px 7px rgba(33, 29, 23, .12);
 }
 .story-page[data-theme="light"] .same-card b { color: var(--story-light-ink); }
 .story-page[data-theme="light"] .same-card em {
