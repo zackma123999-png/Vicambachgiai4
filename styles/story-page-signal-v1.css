@@ -140,6 +140,7 @@
   box-shadow: none;
 }
 .story-page .same-head h3 { text-transform: uppercase; letter-spacing: .16em; font-weight: 700; }
+.story-page .same-card { border-color: rgba(38, 194, 220, .2); }
 .story-page .same-card:active { border-color: rgba(174, 234, 243, .55); }
 .story-page .same-card em::before { background: var(--story-accent); box-shadow: 0 0 7px rgba(38, 194, 220, .7); }
 /* Bỏ khung quanh nhãn trạng thái ("Đang lên sóng"…) ở mỗi thẻ bìa dưới
