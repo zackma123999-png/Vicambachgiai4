@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+  <script>
+    // Tải lại trang (F5, kéo-để-làm-mới trên di động) phải luôn về đầu
+    // trang (banner) — không để trình duyệt tự khôi phục vị trí cuộn cũ
+    // (vd. đang ở khu vực Live Resonance lúc tải lại). Phải đặt sớm nhất có
+    // thể, trước khi trình duyệt kịp áp dụng khôi phục cuộn của riêng nó.
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>ViCamBachGiai — Thư viện Bách Hợp</title>
