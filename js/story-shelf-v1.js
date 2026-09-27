@@ -91,7 +91,7 @@
   const MOMENTUM_MIN_DEG = 0.02; // dưới ngưỡng này coi như hết đà, nhường cho tự trôi
   const MOMENTUM_MAX_DEG = 6; // trần vận tốc mỗi khung hình, tránh trượt ảo quá nhanh
   const IDLE_DRIFT_DEG_PER_FRAME = 0.32; // tốc độ tự trôi khi không chạm/không còn đà
-  const FRONT_SCALE = 0.88; // thu nhỏ bìa ở giữa để không che tiêu đề/tên truyện quanh nó
+  const FRONT_SCALE = 0.97; // thu nhỏ bìa ở giữa để không che tiêu đề/tên truyện quanh nó
 
   function initShelf(section) {
     if (!section || section.dataset.shelfBound === "true") return;
@@ -135,12 +135,11 @@
       const cardW = (firstCard && firstCard.getBoundingClientRect().width) || Math.min(w * 0.58, 240);
       // Regular-polygon carousel formula: radius = (cardWidth/2) / tan(π/count)
       // is the distance at which adjacent card faces exactly touch edge to
-      // edge without overlapping. The extra multiplier (and generous caps
-      // below) push the ring well past that minimum on purpose — a big ring
-      // whose side cards bleed toward/off the screen edges reads as a large,
-      // sweeping carousel instead of a tight cluster of covers.
-      const r = count <= 2 ? cardW * 0.8 : ((cardW / 2) / Math.tan(Math.PI / count)) * 1.42;
-      radius = Math.round(Math.max(cardW * 0.75, Math.min(r, w * 1.0, 560)));
+      // edge without overlapping. Keep the ring close to that minimum (small
+      // multiplier, tighter caps) so side covers stay near the centre one
+      // instead of swinging out toward the screen edges.
+      const r = count <= 2 ? cardW * 0.68 : ((cardW / 2) / Math.tan(Math.PI / count)) * 1.12;
+      radius = Math.round(Math.max(cardW * 0.62, Math.min(r, w * 0.72, 420)));
       lastMeasuredWidth = w;
       carousel.style.setProperty("--shelf-radius", radius + "px");
     }
