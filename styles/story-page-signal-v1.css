@@ -138,14 +138,16 @@
 /* Bóng ở NGUYÊN card (bìa + khối tên/tác giả/trạng thái) là bóng chính,
    luôn rõ hơn bóng nhỏ của riêng bìa bên trong — nếu không, mắt chỉ
    thấy bìa có bóng còn khối chữ bên dưới thì không, trông như hai
-   mảnh tách rời thay vì một tấm thẻ liền khối. Bán kính đổ bóng CỐ Ý
-   giữ nhỏ/sát card — bán kính lớn (blur 30-40px) từng dùng ở đây khiến
-   bóng của các card cạnh nhau trong cùng một hàng loang vào nhau,
-   nhìn thành một dải màu đậm liền mạch phía dưới cả hàng thay vì bóng
-   riêng của từng thẻ. */
-.story-page .same-card .cover-frame { box-shadow: 0 4px 8px rgba(0, 0, 0, .22); }
+   mảnh tách rời thay vì một tấm thẻ liền khối. Khoảng cách giữa các
+   card trong .same-rail chỉ .72rem (~11.5px) — blur-radius phải nhỏ
+   HƠN khoảng cách đó, nếu không bóng của 2 card cạnh nhau sẽ chạm/loang
+   vào nhau ngay trong khe hở, nhìn thành một dải liền cho cả hàng thay
+   vì bóng tách biệt từng thẻ. Số thứ 4 (spread âm) kéo bóng nhỏ/sát
+   lại gần cạnh gốc trước khi làm mờ, để blur lớn hơn mà bóng vẫn không
+   tràn ra ngoài card. */
+.story-page .same-card .cover-frame { box-shadow: 0 3px 6px -3px rgba(0, 0, 0, .4); }
 .story-page .same-card {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, .34), 0 2px 5px rgba(0, 0, 0, .22), inset 0 1px 0 rgba(255, 255, 255, .06);
+  box-shadow: 0 6px 10px -6px rgba(0, 0, 0, .55), 0 3px 5px -4px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .06);
 }
 
 .story-page .toc-groups a.on { border-color: var(--story-accent); color: var(--story-accent-soft); }
@@ -219,15 +221,15 @@
 .story-page[data-theme="light"] .same-card {
   background: var(--story-light-panel);
   /* Bỏ hẳn viền — chính là "lằn mờ" hằn dưới chân mỗi bìa mà không đủ
-     tương phản để trông có chủ đích, chỉ giống lỗi hiển thị. Bán kính
-     đổ bóng giữ nhỏ (không blur 40px như bản trước) — bóng lớn của các
-     card liền kề trong hàng loang chồng vào nhau, gộp thành một dải
-     màu đậm liền dưới cả hàng thay vì bóng riêng từng thẻ. */
+     tương phản để trông có chủ đích, chỉ giống lỗi hiển thị. Spread âm
+     (số thứ 4) kéo bóng sát lại gần card trước khi làm mờ, để bóng vẫn
+     rõ nhưng không đủ rộng để chạm bóng của card kế bên qua khe .72rem
+     — mỗi card một bóng riêng, không gộp thành dải cho cả hàng. */
   border-color: transparent;
-  box-shadow: 0 6px 14px rgba(33, 29, 23, .16), 0 2px 5px rgba(33, 29, 23, .1);
+  box-shadow: 0 6px 10px -6px rgba(33, 29, 23, .3), 0 3px 5px -4px rgba(33, 29, 23, .18);
 }
 .story-page[data-theme="light"] .same-card .cover-frame {
-  box-shadow: 0 3px 7px rgba(33, 29, 23, .12);
+  box-shadow: 0 3px 6px -3px rgba(33, 29, 23, .22);
 }
 .story-page[data-theme="light"] .same-card b { color: var(--story-light-ink); }
 .story-page[data-theme="light"] .same-card em {
