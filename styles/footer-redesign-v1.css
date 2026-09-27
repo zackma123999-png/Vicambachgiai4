@@ -12,7 +12,7 @@
   font-size:clamp(.66rem,2.3vw,.82rem);letter-spacing:.48em;line-height:1.4;text-transform:uppercase;
   background:linear-gradient(90deg,#c57aff,#988cff 48%,#73d7f7);-webkit-background-clip:text;background-clip:text;color:transparent;
 }
-.foot2-desc{position:relative;z-index:1;margin:.58rem 0 0;max-width:39rem;color:#f0eadf;font-size:clamp(.86rem,2.8vw,1rem);font-weight:400;line-height:1.52}
+.foot2-desc{position:relative;z-index:1;margin:.58rem 0 0;max-width:39rem;color:#f0eadf;font-size:clamp(.86rem,2.8vw,1rem);font-weight:400;line-height:1.52;text-wrap:balance}
 @media(max-width:520px){
   .foot2-kicker{letter-spacing:.34em}
   .foot2-desc{max-width:none;font-size:.8rem}

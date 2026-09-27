@@ -178,7 +178,7 @@ h1.sh-title span { display: block; white-space: nowrap; }
 
 .foot2-row {
   display: flex; align-items: center; gap: 12px; width: 100%;
-  padding: 9px 0; border: 0; border-top: 1px solid var(--sh-line-soft);
+  padding: 9px 0; border: 0;
   background: none; text-align: left; cursor: pointer; appearance: none; -webkit-appearance: none;
 }
 .foot2-row svg { width: 17px; height: 17px; flex-shrink: 0; stroke: var(--sh-accent-soft); }
@@ -190,7 +190,7 @@ h1.sh-title span { display: block; white-space: nowrap; }
 .foot2-cols .foot2-section { flex: 1; min-width: 180px; margin-top: 0; }
 
 .foot2-section a {
-  display: block; padding: 8px 0; border-top: 1px solid var(--sh-line-soft);
+  display: block; padding: 8px 0;
   font-family: 'JetBrains Mono', monospace; font-size: .82rem; font-weight: 500;
   color: var(--sh-muted); text-decoration: none;
 }

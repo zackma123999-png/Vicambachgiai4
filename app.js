@@ -499,7 +499,7 @@
       <div class="wrap foot2-body">
         ${logoHTML()}
         <p class="foot2-kicker">Thư viện Bách Hợp</p>
-        <p class="foot2-desc">Nơi lưu giữ những câu chuyện tôi yêu thích và những <br class="foot2-brk">bản dịch được thực hiện bằng tất cả sự trân trọng.</p>
+        <p class="foot2-desc">Nơi lưu giữ những câu chuyện tôi yêu thích và những bản dịch được thực hiện bằng tất cả sự trân trọng.</p>
         <div class="foot2-section">
           <h4>Liên hệ &amp; hỗ trợ</h4>
           <button type="button" class="foot2-row" id="btnMsg"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg><span class="foot2-row-t"><small>Liên hệ</small><b>Gửi lời nhắn</b></span></button>
