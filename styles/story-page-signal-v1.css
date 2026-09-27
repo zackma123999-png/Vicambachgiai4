@@ -203,3 +203,37 @@
 .story-page[data-theme="light"] .chapter-list li { border-top-color: var(--story-light-line); }
 .story-page[data-theme="light"] .toc-box,
 .story-page[data-theme="light"] .rate-box { border-top-color: var(--story-light-line); }
+
+/* ============================================================
+   Nền sáng cũng cần lan tới header/footer dùng chung toàn site — dù
+   chúng là ANH EM (sibling) của .story-page, không phải con của nó.
+   initStoryPageTheme() vì vậy đánh dấu data-theme lên cả #app (bọc cả
+   header, .story-page, dock lẫn footer); render() luôn xoá dấu này
+   khỏi #app mỗi lần chuyển trang nên sẽ không bao giờ dính sang trang
+   khác. Header không có gì phía sau ngoài <body>, nên "trong suốt" ở
+   đây có nghĩa là bỏ luôn lớp nền tối riêng của nó VÀ đổi màu nền
+   <body> sang màu sáng — footer vốn không có nền riêng (dùng thẳng
+   nền body) nên tự đổi theo, chỉ cần sửa mấy dòng chữ trắng/gần trắng
+   kẻo hoà vào nền mới. */
+body:has(#app[data-theme="light"]) { background: #f7f4ee; }
+
+#app[data-theme="light"] .site-header {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom-color: rgba(33, 29, 23, .14);
+}
+#app[data-theme="light"] .site-header .icon-btn { color: #221d16; }
+#app[data-theme="light"] .brand-mark-img,
+#app[data-theme="light"] .brand-word-img { filter: brightness(0); }
+
+#app[data-theme="light"] .foot2-desc,
+#app[data-theme="light"] .foot2-row-t b,
+#app[data-theme="light"] .foot2-section a,
+#app[data-theme="light"] .foot2-social-youtube,
+#app[data-theme="light"] .foot2-social-tiktok,
+#app[data-theme="light"] .foot2-social-facebook,
+#app[data-theme="light"] .foot2-social-wattpad {
+  color: #221d16;
+}
+#app[data-theme="light"] .foot2-row-t small { color: #6b655c; }

@@ -1562,8 +1562,14 @@
     const btn = $("#btnStoryTheme");
     if (!scope || !btn) return;
     const KEY = "vcbg.storyPage.theme";
+    // Marking #app too (not just .story-page) lets the header/footer —
+    // siblings of .story-page, not descendants — react to the same
+    // toggle: transparent header/footer background, dark logo/text
+    // instead of the sitewide dark-mode ones. render() clears this off
+    // #app on every navigation so it never leaks onto another page.
     const apply = (light) => {
       scope.dataset.theme = light ? "light" : "dark";
+      if (app()) app().dataset.theme = light ? "light" : "dark";
       btn.textContent = light ? "☾ Tối" : "☀ Sáng";
       btn.setAttribute("aria-pressed", String(light));
     };
@@ -3928,6 +3934,11 @@
       return;
     }
     window.scrollTo(0, 0);
+    // The story page's light/dark toggle marks #app itself (so header/
+    // footer can react too, see initStoryPageTheme()) — clear it on every
+    // render so the mode never leaks onto a page that isn't the story
+    // page; pageStory() re-applies the saved choice right after.
+    if (app()) app().removeAttribute("data-theme");
     try {
       const mode = effectiveSiteMode(VCBG.settings());
       if (mode === "maintenance" && !VCBG.isAdmin()) {
