@@ -63,6 +63,16 @@
   box-shadow: var(--story-accent-glow), inset 0 1px 0 rgba(255,255,255,.10);
 }
 .story-dock { border-top-color: rgba(38, 194, 220, .18); }
+/* Dock giờ có thêm nút đổi nền sáng/tối bên cạnh Chia sẻ (và "Chương
+   mới" khi có) — chuyển sang flex để số nút thay đổi vẫn co giãn hợp
+   lý, không còn phụ thuộc đúng 2 cột cố định như bố cục lưới gốc. */
+.story-dock {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+}
+.story-dock .dock-read, .story-dock .dock-fav { flex: 1 1 0; }
+.story-dock .dock-theme { flex: 0 0 auto; white-space: nowrap; }
 
 /* -- tab Tóm tắt/Mục lục/Đánh giá -- */
 .story-page .story-tabs a.on { color: #eafcff; border-bottom-color: var(--story-accent); }
@@ -79,8 +89,23 @@
 }
 .story-page .intro-card::after, .story-page .info-card::after { content: none; }
 .story-page .info-body { border-left-color: var(--story-accent-line); }
-.story-page .intro-more, .story-page .info-more { color: var(--story-accent-soft); }
-.story-page .info-more { border-color: var(--story-accent-line); background: rgba(38, 194, 220, .07); }
+/* "Xem tiếp →": trước là một nút khung riêng ("Xem chi tiết đầy đủ") —
+   giờ trông giống hệt "Đọc tiếp tóm tắt →" (chữ + mũi tên, không khung),
+   chỉ đậm/nổi hơn một chút vì đứng một mình cuối khối. */
+.story-page .intro-more, .story-page .info-more {
+  color: var(--story-accent-soft);
+  font-weight: 750;
+}
+.story-page .info-more {
+  width: auto;
+  min-height: 0;
+  margin-top: .7rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: 0;
+  justify-content: flex-start;
+}
 
 /* -- gạch nhỏ trước tiêu đề khu vực: bỏ hẳn, không dùng dấu gạch nữa -- */
 .story-page .intro-title::before,
@@ -98,3 +123,83 @@
 .story-page .same-card em::before { background: var(--story-accent); box-shadow: 0 0 7px rgba(38, 194, 220, .7); }
 
 .story-page .toc-groups a.on { border-color: var(--story-accent); color: var(--story-accent-soft); }
+
+/* ============================================================
+   Chế độ nền sáng cho trang truyện — bật/tắt bằng nút "☀ Sáng" ở
+   dock (js: initStoryPageTheme(), gắn data-theme="light" lên
+   .story-page, nhớ lựa chọn qua localStorage). Mọi màu chữ/nền/viền
+   vốn nhắm sẵn cho nền tối được liệt kê lại ở đây cho nền sáng — vẫn
+   chỉ ghi đè color/background/border, không đụng bố cục. */
+.story-page[data-theme="light"] {
+  --story-light-bg: #f7f4ee;
+  --story-light-panel: #ffffff;
+  --story-light-ink: #211d17;
+  --story-light-muted: #6b655c;
+  --story-light-line: rgba(33, 29, 23, .16);
+  --story-accent-onlight: #0d8fa6;
+  background: var(--story-light-bg);
+  color: var(--story-light-ink);
+}
+.story-page[data-theme="light"] .intro-card,
+.story-page[data-theme="light"] .info-card { background: var(--story-light-bg); }
+.story-page[data-theme="light"] .story-info h1 { color: var(--story-light-ink); }
+.story-page[data-theme="light"] .story-info .by { color: var(--story-light-muted); }
+.story-page[data-theme="light"] .story-info .by span,
+.story-page[data-theme="light"] .story-info .badge,
+.story-page[data-theme="light"] .chip,
+.story-page[data-theme="light"] .metric-ico:not(.heart),
+.story-page[data-theme="light"] .intro-title,
+.story-page[data-theme="light"] .info-title,
+.story-page[data-theme="light"] .same-head h3,
+.story-page[data-theme="light"] .intro-more,
+.story-page[data-theme="light"] .info-more,
+.story-page[data-theme="light"] .toc-groups a.on {
+  color: var(--story-accent-onlight);
+}
+.story-page[data-theme="light"] .chip-more,
+.story-page[data-theme="light"] .metric small,
+.story-page[data-theme="light"] .story-tabs a,
+.story-page[data-theme="light"] .same-head span,
+.story-page[data-theme="light"] .same-card small,
+.story-page[data-theme="light"] .toc-groups a,
+.story-page[data-theme="light"] .chapter-list .num,
+.story-page[data-theme="light"] .chapter-list .read,
+.story-page[data-theme="light"] .rate-box .sub {
+  color: var(--story-light-muted);
+}
+.story-page[data-theme="light"] .story-tabs a.on { color: var(--story-accent-onlight); }
+.story-page[data-theme="light"] .story-tabs { border-bottom-color: var(--story-light-line); }
+.story-page[data-theme="light"] .story-metrics { background: rgba(33, 29, 23, .035); }
+.story-page[data-theme="light"] .metric { border-left-color: var(--story-light-line); }
+.story-page[data-theme="light"] .metric b { color: var(--story-light-ink); }
+.story-page[data-theme="light"] .btn-ghost {
+  border-color: var(--story-light-line);
+  background: rgba(33, 29, 23, .045);
+  color: var(--story-light-ink);
+}
+.story-page[data-theme="light"] .btn[disabled] { color: var(--story-light-muted); }
+.story-page[data-theme="light"] .intro-body,
+.story-page[data-theme="light"] .info-body,
+.story-page[data-theme="light"] .info-body p { color: var(--story-light-ink); }
+.story-page[data-theme="light"] .info-body strong { color: var(--story-light-ink); }
+.story-page[data-theme="light"] .info-body { border-left-color: var(--story-light-line); }
+.story-page[data-theme="light"] .same-author { background: var(--story-light-bg); }
+.story-page[data-theme="light"] .same-card {
+  background: var(--story-light-panel);
+  border-color: var(--story-light-line);
+  box-shadow: 0 6px 16px rgba(33, 29, 23, .08);
+}
+.story-page[data-theme="light"] .same-card b { color: var(--story-light-ink); }
+.story-page[data-theme="light"] .same-card em {
+  color: var(--story-light-muted);
+  border-color: var(--story-light-line);
+}
+.story-page[data-theme="light"] .toc-groups a { border-color: var(--story-light-line); }
+.story-page[data-theme="light"] .toc-head input {
+  background: var(--story-light-panel);
+  color: var(--story-light-ink);
+  border-color: var(--story-light-line);
+}
+.story-page[data-theme="light"] .chapter-list li { border-top-color: var(--story-light-line); }
+.story-page[data-theme="light"] .toc-box,
+.story-page[data-theme="light"] .rate-box { border-top-color: var(--story-light-line); }

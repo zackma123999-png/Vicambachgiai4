@@ -1557,6 +1557,29 @@
       } catch (e) {}
     };
   }
+  function initStoryPageTheme() {
+    const scope = $(".story-page");
+    const btn = $("#btnStoryTheme");
+    if (!scope || !btn) return;
+    const KEY = "vcbg.storyPage.theme";
+    const apply = (light) => {
+      scope.dataset.theme = light ? "light" : "dark";
+      btn.textContent = light ? "☾ Tối" : "☀ Sáng";
+      btn.setAttribute("aria-pressed", String(light));
+    };
+    let light = false;
+    try {
+      light = localStorage.getItem(KEY) === "light";
+    } catch (e) {}
+    apply(light);
+    btn.onclick = () => {
+      light = !light;
+      apply(light);
+      try {
+        localStorage.setItem(KEY, light ? "light" : "dark");
+      } catch (e) {}
+    };
+  }
   function pageCommentLog(route) {
     setMeta("Nhật ký bình luận — ViCamBachGiai", "Toàn bộ cảm nghĩ độc giả để lại trên mọi truyện, lưu giữ lâu dài.");
     app().innerHTML =
@@ -1712,7 +1735,7 @@
     const introHtml = `<article class="info-card">
         <h2 class="info-title">Thông tin truyện</h2>
         <div class="info-body" id="infoBody">${formatStoryInfo(infoText)}</div>
-        <button type="button" class="info-more" id="btnInfoMore" hidden>Xem chi tiết đầy đủ</button>
+        <button type="button" class="info-more" id="btnInfoMore" hidden>Xem tiếp →</button>
       </article>
       <article class="intro-card">
         <h2 class="intro-title">Giới thiệu</h2>
@@ -1820,7 +1843,8 @@
       </main>
       <div class="story-dock">
         ${latestHref ? `<a class="btn btn-cyan dock-read" href="${latestHref}">Chương mới</a>` : ""}
-        <button class="btn btn-ghost dock-fav" type="button" id="btnShareStory">Chia sẻ</button>
+        <button class="btn btn-cyan dock-fav" type="button" id="btnShareStory">Chia sẻ</button>
+        <button class="btn btn-ghost dock-theme" type="button" id="btnStoryTheme" aria-pressed="false" aria-label="Đổi nền sáng/tối">☀ Sáng</button>
       </div>` +
       footer();
     bindChrome();
@@ -1848,7 +1872,7 @@
       requestAnimationFrame(syncInfo);
       infoMore.onclick = () => {
         const on = infoBody.classList.toggle("is-clamp");
-        infoMore.textContent = on ? "Xem chi tiết đầy đủ" : "Thu gọn";
+        infoMore.textContent = on ? "Xem tiếp →" : "Thu gọn ↑";
         infoMore.hidden = false;
       };
     }
@@ -1885,6 +1909,7 @@
         }
       };
     }
+    initStoryPageTheme();
     if ($("#btnFol"))
       $("#btnFol").onclick = () => {
         try {
