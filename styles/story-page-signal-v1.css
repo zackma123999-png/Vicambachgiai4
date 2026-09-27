@@ -54,13 +54,16 @@
 .story-page .metric { border-left-color: rgba(38, 194, 220, .16); }
 .story-page .metric-ico:not(.heart) { color: var(--story-accent-soft); }
 
-/* -- nút CTA chính + dock -- */
+/* -- nút CTA chính + dock: khối xanh đặc (không phải viền mờ/nền trong
+   suốt) để đúng là MỘT màu xanh với nút "Đọc ngay" ở trang chủ — cùng
+   một token --story-accent/--sh-accent, cùng cách phối nền đặc + chữ
+   màu mực đậm, chỉ khác tên biến vì file khác nhau. -- */
 .story-page .story-acts .btn-cyan,
 .story-dock .btn-cyan {
-  background: linear-gradient(180deg, rgba(38, 194, 220, .38), rgba(38, 194, 220, .22));
-  border-color: var(--story-accent-line);
-  color: #eafcff;
-  box-shadow: var(--story-accent-glow), inset 0 1px 0 rgba(255,255,255,.10);
+  background: var(--story-accent);
+  border-color: var(--story-accent);
+  color: var(--story-accent-ink);
+  box-shadow: 0 10px 22px rgba(38, 194, 220, .32), inset 0 1px 0 rgba(255,255,255,.25);
 }
 .story-dock { border-top-color: rgba(38, 194, 220, .18); }
 /* Dock giờ có thêm nút đổi nền sáng/tối bên cạnh Chia sẻ (và "Chương
@@ -132,9 +135,13 @@
   -webkit-mask-image: -webkit-radial-gradient(circle, #fff 100%, #000 100%);
 }
 .story-page .cover-frame img { border-radius: inherit; }
-.story-page .same-card .cover-frame { box-shadow: 0 10px 20px rgba(0, 0, 0, .28); }
+/* Bóng ở NGUYÊN card (bìa + khối tên/tác giả/trạng thái) là bóng chính,
+   luôn rõ hơn bóng nhỏ của riêng bìa bên trong — nếu không, mắt chỉ
+   thấy bìa có bóng còn khối chữ bên dưới thì không, trông như hai
+   mảnh tách rời thay vì một tấm thẻ liền khối. */
+.story-page .same-card .cover-frame { box-shadow: 0 8px 16px rgba(0, 0, 0, .24); }
 .story-page .same-card {
-  box-shadow: 0 14px 28px rgba(0, 0, 0, .22), 0 4px 10px rgba(0, 0, 0, .14);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, .4), 0 6px 14px rgba(0, 0, 0, .26), inset 0 1px 0 rgba(255, 255, 255, .06);
 }
 
 .story-page .toc-groups a.on { border-color: var(--story-accent); color: var(--story-accent-soft); }
@@ -199,16 +206,23 @@
 .story-page[data-theme="light"] .info-body strong { color: var(--story-light-ink); }
 .story-page[data-theme="light"] .info-body { border-left-color: var(--story-light-line); }
 .story-page[data-theme="light"] .same-author { background: var(--story-light-bg); }
+/* .cover-frame vốn có nền dự phòng màu tối (#0b0e19/#121826, dùng khi
+   ảnh chưa tải xong) từ styles.css/story-shelves.css — nền tối đó lộ
+   ra là chính "phần màu đậm" dưới các bìa mà nền sáng không che được,
+   vì file gốc không hề biết tới nền sáng. Đổi sang màu nền sáng cùng
+   tông thẻ để không còn mảng tối lạc lõng dù ở trạng thái nào. */
+.story-page[data-theme="light"] .cover-frame { background: var(--story-light-panel); }
 .story-page[data-theme="light"] .same-card {
   background: var(--story-light-panel);
   /* Bỏ hẳn viền — chính là "lằn mờ" hằn dưới chân mỗi bìa mà không đủ
      tương phản để trông có chủ đích, chỉ giống lỗi hiển thị. Bóng đổ
-     mềm bên dưới đã đủ để tách thẻ khỏi nền sáng. */
+     bên dưới đậm hơn bản trước để rõ là bóng của CẢ card (bìa + khối
+     chữ), không chỉ bóng nhỏ bên trong bìa. */
   border-color: transparent;
-  box-shadow: 0 14px 26px rgba(33, 29, 23, .13), 0 3px 8px rgba(33, 29, 23, .08);
+  box-shadow: 0 20px 40px rgba(33, 29, 23, .2), 0 6px 14px rgba(33, 29, 23, .12);
 }
 .story-page[data-theme="light"] .same-card .cover-frame {
-  box-shadow: 0 6px 14px rgba(33, 29, 23, .16);
+  box-shadow: 0 4px 10px rgba(33, 29, 23, .14);
 }
 .story-page[data-theme="light"] .same-card b { color: var(--story-light-ink); }
 .story-page[data-theme="light"] .same-card em {
@@ -246,22 +260,21 @@ body:has(#app[data-theme="light"]) { background: #f7f4ee; }
 }
 #app[data-theme="light"] .site-header .icon-btn { color: #221d16; }
 #app[data-theme="light"] .brand-mark-img { filter: brightness(0); }
-/* word.png has a soft glow baked into its pixels (confirmed: sampling it
-   turns up near-black AND white opaque pixels, not a clean silhouette) —
-   forcing it black with a filter keeps that softness, so it reads as
-   smudged ink on a light background instead of a crisp wordmark. Swap it
-   for real text instead, which is always crisp regardless of color. */
+/* word.png has a soft glow baked into its alpha channel (confirmed by
+   sampling: alpha ramps smoothly from 0 to 255 across a wide band, not a
+   clean silhouette) — forcing it black with a CSS filter keeps that
+   glow's soft edge, so it reads as smudged ink on a light background.
+   word-black.png is the exact same wordmark design with that glow
+   channel thresholded back to a crisp edge, pre-rendered solid black —
+   swap images instead of faking it with a filter or a font stand-in. */
+/* Cùng kích thước với .brand-word-img gốc (header 26px/30px ở >=720px,
+   footer theo cỡ chữ foot2) — chỉ là ảnh thay thế lúc nền sáng nên phải
+   chiếm đúng khoảng trống đó, không lệch layout logo. */
+.brand-word-img-light { display: none; height: 26px; width: auto; }
+@media (min-width: 720px) { .brand-word-img-light { height: 30px; } }
+.foot2-body .brand-word-img-light { width: auto; height: clamp(1.9rem, 5.2vw, 2.8rem); }
 #app[data-theme="light"] .brand-word-img { display: none; }
-.brand-word-text { display: none; }
-#app[data-theme="light"] .brand-word-text {
-  display: inline-block;
-  color: #1a160f;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-weight: 800;
-  font-size: 1.5rem;
-  letter-spacing: -.01em;
-  line-height: 1;
-}
+#app[data-theme="light"] .brand-word-img-light { display: block; }
 
 /* Dock (Chia sẻ + đổi nền): cũng cần theo nền sáng thay vì còn là một
    dải tối riêng — nút ghost (nút đổi nền) đổi kiểu cho khớp. */
