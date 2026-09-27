@@ -122,6 +122,21 @@
 .story-page .same-card:active { border-color: rgba(174, 234, 243, .55); }
 .story-page .same-card em::before { background: var(--story-accent); box-shadow: 0 0 7px rgba(38, 194, 220, .7); }
 
+/* -- bìa truyện (bìa chính + các thẻ ở "Cùng tác giả"/"Đề xuất tác giả
+   khác"): bóng đổ 3D mềm, và một hack quen thuộc để Safari trên iOS bo
+   tròn góc ảnh <img> sạch sẽ — chỉ overflow:hidden + border-radius trên
+   .cover-frame đôi khi để lọt một mẩu góc vuông của ảnh (lỗi bo góc nổi
+   tiếng của WebKit khi ảnh được scale bên trong container). -- */
+.story-page .cover-frame {
+  transform: translateZ(0);
+  -webkit-mask-image: -webkit-radial-gradient(circle, #fff 100%, #000 100%);
+}
+.story-page .cover-frame img { border-radius: inherit; }
+.story-page .same-card .cover-frame { box-shadow: 0 10px 20px rgba(0, 0, 0, .28); }
+.story-page .same-card {
+  box-shadow: 0 14px 28px rgba(0, 0, 0, .22), 0 4px 10px rgba(0, 0, 0, .14);
+}
+
 .story-page .toc-groups a.on { border-color: var(--story-accent); color: var(--story-accent-soft); }
 
 /* ============================================================
@@ -186,8 +201,14 @@
 .story-page[data-theme="light"] .same-author { background: var(--story-light-bg); }
 .story-page[data-theme="light"] .same-card {
   background: var(--story-light-panel);
-  border-color: var(--story-light-line);
-  box-shadow: 0 6px 16px rgba(33, 29, 23, .08);
+  /* Bỏ hẳn viền — chính là "lằn mờ" hằn dưới chân mỗi bìa mà không đủ
+     tương phản để trông có chủ đích, chỉ giống lỗi hiển thị. Bóng đổ
+     mềm bên dưới đã đủ để tách thẻ khỏi nền sáng. */
+  border-color: transparent;
+  box-shadow: 0 14px 26px rgba(33, 29, 23, .13), 0 3px 8px rgba(33, 29, 23, .08);
+}
+.story-page[data-theme="light"] .same-card .cover-frame {
+  box-shadow: 0 6px 14px rgba(33, 29, 23, .16);
 }
 .story-page[data-theme="light"] .same-card b { color: var(--story-light-ink); }
 .story-page[data-theme="light"] .same-card em {
@@ -224,8 +245,37 @@ body:has(#app[data-theme="light"]) { background: #f7f4ee; }
   border-bottom-color: rgba(33, 29, 23, .14);
 }
 #app[data-theme="light"] .site-header .icon-btn { color: #221d16; }
-#app[data-theme="light"] .brand-mark-img,
-#app[data-theme="light"] .brand-word-img { filter: brightness(0); }
+#app[data-theme="light"] .brand-mark-img { filter: brightness(0); }
+/* word.png has a soft glow baked into its pixels (confirmed: sampling it
+   turns up near-black AND white opaque pixels, not a clean silhouette) —
+   forcing it black with a filter keeps that softness, so it reads as
+   smudged ink on a light background instead of a crisp wordmark. Swap it
+   for real text instead, which is always crisp regardless of color. */
+#app[data-theme="light"] .brand-word-img { display: none; }
+.brand-word-text { display: none; }
+#app[data-theme="light"] .brand-word-text {
+  display: inline-block;
+  color: #1a160f;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: -.01em;
+  line-height: 1;
+}
+
+/* Dock (Chia sẻ + đổi nền): cũng cần theo nền sáng thay vì còn là một
+   dải tối riêng — nút ghost (nút đổi nền) đổi kiểu cho khớp. */
+#app[data-theme="light"] .story-dock {
+  background: #f7f4ee;
+  border-top-color: rgba(33, 29, 23, .14);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+#app[data-theme="light"] .story-dock .btn-ghost {
+  background: rgba(33, 29, 23, .05);
+  border-color: rgba(33, 29, 23, .18);
+  color: #1a160f;
+}
 
 #app[data-theme="light"] .foot2-desc,
 #app[data-theme="light"] .foot2-row-t b,

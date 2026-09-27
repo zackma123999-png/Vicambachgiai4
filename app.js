@@ -331,9 +331,15 @@
     return `<div class="cover-frame"><img src="${esc(url)}" alt="${esc(alt || "")}" ${eager ? "" : 'loading="lazy"'} decoding="async"></div>`;
   }
   function logoHTML() {
+    // brand-word-text is hidden by default (see story-page-signal-v1.css)
+    // and only swapped in for the story page's light mode: word.png has a
+    // soft glow baked into it, and forcing that to black with a CSS filter
+    // for contrast on a light background reads as smudged ink rather than
+    // a clean wordmark — real text never has that problem.
     return `<a class="brand" href="#/" aria-label="ViCamBachGiai">
       <img class="brand-mark-img" src="brand/cat-mark.png" alt="" width="34" height="34">
       <img class="brand-word-img" src="brand/word.png" alt="ViCamBachGiai" width="174" height="48">
+      <span class="brand-word-text" aria-hidden="true">ViCamBachGiai</span>
     </a>`;
   }
   const SOCIAL_DEFAULTS = {
