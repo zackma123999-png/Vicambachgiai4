@@ -3,6 +3,20 @@
    font stack (Plus Jakarta Sans body/headings, JetBrains Mono for tracked
    uppercase labels) so this section reads as the same system, not a skin. */
 .shelf {
+  /* This section's markup carries both "wrap" and "shelf" — .wrap's
+     max-width: 1180px (styles.css) is meant for ordinary text content,
+     but it caps this whole section too, including the carousel. Every
+     vw/vh/getBoundingClientRect measurement upstream only ever sees
+     whatever width .wrap left it, so on a wide landscape tablet or
+     desktop the ring could be computing a perfectly reasonable radius
+     for a "container" that was never allowed to be more than 1180px in
+     the first place — reading as tiny against the actual, much wider
+     screen around it. Override to a much wider cap here (same class
+     specificity as .wrap; this file loads after styles.css, so it wins)
+     so wide viewports actually hand the carousel more room to use.
+     Ordinary text elsewhere in the section (the title) stays readable
+     regardless — it isn't full-width running text, just short lines. */
+  max-width: 1800px;
   margin: clamp(1.6rem, 5vw, 3.5rem) auto;
   color: var(--sh-ink);
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
