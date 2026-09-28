@@ -1359,27 +1359,6 @@
     if (!stage || !slides.length) return;
     const layerA = $(".sh-cover-a", stage);
     const layerB = $(".sh-cover-b", stage);
-    // TEMP DEBUG — remove once hero landscape treatment is confirmed fixed.
-    (function heroDebug() {
-      let dbg = document.getElementById("heroDebug");
-      if (!dbg) {
-        dbg = document.createElement("div");
-        dbg.id = "heroDebug";
-        dbg.style.cssText = "position:fixed;top:0;left:0;z-index:99999;background:#000;color:#0f0;font:11px monospace;padding:4px 6px;white-space:pre;pointer-events:none;";
-        document.body.appendChild(dbg);
-      }
-      const report = () => {
-        const cs = getComputedStyle(layerA);
-        const blurA = $(".sh-cover-blur-a", stage);
-        const csb = blurA ? getComputedStyle(blurA) : null;
-        dbg.textContent = `vw=${innerWidth} vh=${innerHeight} landscapeMQ=${matchMedia("(min-width:700px) and (orientation:landscape) and (min-height:521px)").matches}
-sh-cover objectFit=${cs.objectFit}
-sh-cover-blur display=${csb ? csb.display : "N/A"}`;
-      };
-      report();
-      window.addEventListener("resize", report, { passive: true });
-      window.addEventListener("orientationchange", report, { passive: true });
-    })();
     // Landscape tablet/desktop shows a blurred, scaled-up twin of each
     // cover behind the (there, letterboxed) sharp image — see
     // banner-redesign-v1.css. Keeping both in lockstep here, unconditionally,

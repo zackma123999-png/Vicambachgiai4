@@ -51,14 +51,6 @@ body:has(#signalHero) .site-header {
    which needs its own taller treatment and is excluded by min-height here). */
 @media (min-width: 700px) and (orientation: landscape) and (min-height: 521px) {
   .signal-hero { min-height: min(100svh, 64vw, 760px); }
-  /* A portrait cover can never fill a wide/short box via object-fit:cover
-     without losing most of its height (the box's aspect ratio is nowhere
-     close to the image's) — no height cap fixes that, it's a mismatch
-     between two fixed shapes. Show the full image instead (contain, so
-     nothing is ever cropped) and fill the letterboxed sides with the same
-     image blurred and scaled up behind it, so there's no flat empty bar. */
-  .sh-cover { object-fit: contain; object-position: 50% 50%; }
-  .sh-cover-blur { display: block; }
 }
 
 .sh-bg { position: absolute; inset: 0; z-index: 0; background: var(--bg); overflow: hidden; }
@@ -95,6 +87,21 @@ body:has(#signalHero) .site-header {
   display: none;
 }
 .sh-cover-blur.is-visible { opacity: 1; }
+
+/* Landscape tablet/desktop: switch to contain+blur (see .sh-cover-blur's
+   own comment above for why). MUST come after the base .sh-cover /
+   .sh-cover-blur rules above — CSS breaks ties between equal-specificity
+   rules by source order, media query or not, so a media-query override
+   placed BEFORE the rule it's meant to override loses to it even while
+   the query matches. (Confirmed live: an iPad reported this media query
+   as matching while object-fit still computed to "cover" — this ordering
+   bug, not the query itself, was the reason two rounds of this fix looked
+   like they changed nothing at all.) */
+@media (min-width: 700px) and (orientation: landscape) and (min-height: 521px) {
+  .sh-cover { object-fit: contain; object-position: 50% 50%; }
+  .sh-cover-blur { display: block; }
+}
+
 .signal-hero .sh-content {
   transition: opacity .3s ease;
   will-change: opacity;
