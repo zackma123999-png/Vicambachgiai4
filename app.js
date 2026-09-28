@@ -1303,8 +1303,10 @@
   function signalHeroHTML() {
     return `<section class="signal-hero" id="signalHero">
       <div class="sh-bg">
-        <img class="sh-cover sh-cover-a" alt="">
-        <img class="sh-cover sh-cover-b" alt="">
+        <img class="sh-cover-blur sh-cover-blur-a" alt="" aria-hidden="true">
+        <img class="sh-cover sh-cover-a" alt="" data-blur-twin="a">
+        <img class="sh-cover-blur sh-cover-blur-b" alt="" aria-hidden="true">
+        <img class="sh-cover sh-cover-b" alt="" data-blur-twin="b">
       </div>
       <div class="sh-scrim"></div>
       <div class="sh-content">
@@ -1357,6 +1359,23 @@
     if (!stage || !slides.length) return;
     const layerA = $(".sh-cover-a", stage);
     const layerB = $(".sh-cover-b", stage);
+    // Landscape tablet/desktop shows a blurred, scaled-up twin of each
+    // cover behind the (there, letterboxed) sharp image — see
+    // banner-redesign-v1.css. Keeping both in lockstep here, unconditionally,
+    // means the CSS media query alone decides whether the blur twin is
+    // ever visible; nothing here needs to know or care which layout is
+    // currently active.
+    const blurTwin = (img) => $(".sh-cover-blur-" + img.dataset.blurTwin, stage);
+    const setCover = (img, src) => {
+      img.src = src;
+      const twin = blurTwin(img);
+      if (twin) twin.src = src;
+    };
+    const setVisible = (img, visible) => {
+      img.classList.toggle("is-visible", visible);
+      const twin = blurTwin(img);
+      if (twin) twin.classList.toggle("is-visible", visible);
+    };
     const els = {
       tags: $("#shTags"), overline: $("#shOverline"), title: $("#shTitle"),
       author: $("#shAuthor"), stats: $("#shStats"), ctas: $("#shCtas"), trust: $("#shTrust"),
@@ -1394,9 +1413,9 @@
       if (nextIdx === idx) return;
       const incoming = front === layerA ? layerB : layerA;
       if (reduceMotion) {
-        incoming.src = slides[nextIdx].cover;
-        incoming.classList.add("is-visible");
-        front.classList.remove("is-visible");
+        setCover(incoming, slides[nextIdx].cover);
+        setVisible(incoming, true);
+        setVisible(front, false);
         front = incoming;
         idx = nextIdx;
         renderText(idx);
@@ -1405,8 +1424,8 @@
       if (transitioning) return;
       transitioning = true;
       const crossfade = () => {
-        incoming.classList.add("is-visible");
-        front.classList.remove("is-visible");
+        setVisible(incoming, true);
+        setVisible(front, false);
         front = incoming;
         stage.classList.add("is-morphing");
         window.setTimeout(() => {
@@ -1420,11 +1439,11 @@
       const trigger = () => { if (swapped) return; swapped = true; requestAnimationFrame(crossfade); };
       incoming.onload = trigger;
       incoming.onerror = trigger;
-      incoming.src = slides[nextIdx].cover;
+      setCover(incoming, slides[nextIdx].cover);
       if (incoming.complete && incoming.naturalWidth) trigger();
     }
-    front.src = slides[0].cover;
-    front.classList.add("is-visible");
+    setCover(front, slides[0].cover);
+    setVisible(front, true);
     renderText(0);
     if (slides.length > 1) {
       const timer = setInterval(() => { morphTo((idx + 1) % slides.length); }, HOLD);
