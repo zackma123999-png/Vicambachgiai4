@@ -135,14 +135,18 @@
       const w = carousel.clientWidth || 320;
       const count = list.length || 1;
       const firstCard = ring.children[0];
-      const cardW = (firstCard && firstCard.getBoundingClientRect().width) || Math.min(w * 0.58, 240);
+      const cardW = (firstCard && firstCard.getBoundingClientRect().width) || Math.min(w * 0.58, 340);
       // Regular-polygon carousel formula: radius = (cardWidth/2) / tan(π/count)
       // is the distance at which adjacent card faces exactly touch edge to
       // edge without overlapping. Keep the ring close to that minimum (small
       // multiplier, tighter caps) so side covers stay near the centre one
-      // instead of swinging out toward the screen edges.
+      // instead of swinging out toward the screen edges. The outer cap here
+      // (was a fixed 420) just needs to stay ahead of how big cardW itself
+      // can now get (its own CSS ceiling is 340px, up from 240px) so a wide
+      // landscape/tablet/desktop screen isn't clipped back down to the old
+      // mobile-sized ring.
       const r = count <= 2 ? cardW * 0.68 : ((cardW / 2) / Math.tan(Math.PI / count)) * 1.12;
-      radius = Math.round(Math.max(cardW * 0.62, Math.min(r, w * 0.72, 420)));
+      radius = Math.round(Math.max(cardW * 0.62, Math.min(r, w * 0.72, 700)));
       lastMeasuredWidth = w;
       carousel.style.setProperty("--shelf-radius", radius + "px");
     }
