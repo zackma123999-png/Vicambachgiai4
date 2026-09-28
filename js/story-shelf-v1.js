@@ -169,16 +169,17 @@
       // for more spread — so extra width always visibly does something,
       // even on a device where cardW itself is capped by something else.
       const rTight = count <= 2 ? cardW * 0.68 : ((cardW / 2) / Math.tan(Math.PI / count)) * 1.12;
-      // 0.55, not the 0.3 this started at: measured on an actual device,
-      // 0.3 only grew the radius ~20% (179px -> 215px) despite the
-      // container itself going nearly 2x wider (370px -> 718px) portrait
-      // to landscape — card height is genuinely capped by how little
-      // vertical room a landscape phone has, so the ring spreading wider
-      // is the one part of "landscape should look bigger" that still has
-      // headroom left once cardW tops out, and needed to lean on it a lot
-      // harder to actually read as different at a glance.
-      const rFromWidth = w * 0.55;
-      radius = Math.round(Math.max(cardW * 0.62, Math.min(Math.max(rTight, rFromWidth), w * 0.72)));
+      // Card height is genuinely capped by how little vertical room a
+      // landscape phone has, so once cardW tops out, spreading the ring
+      // wider is the one part of "landscape should look bigger" left with
+      // real headroom — but pushed too far (an earlier version of this
+      // used 0.55 with no ceiling tied back to cardW) the cards end up
+      // spaced FAR apart with an empty gap between them, reading as
+      // sparse/disconnected rather than "a bigger ring". Capping radius at
+      // 1.5x cardW keeps every card close enough to its neighbours to
+      // still read as one ring, whatever the container width suggests.
+      const rFromWidth = w * 0.4;
+      radius = Math.round(Math.max(cardW * 0.62, Math.min(Math.max(rTight, rFromWidth), w * 0.72, cardW * 1.5)));
       carousel.style.setProperty("--shelf-card-w", Math.round(cardW) + "px");
       carousel.style.setProperty("--shelf-card-h", Math.round(cardH) + "px");
       // ×7 keeps roughly the same depth/fisheye feel the old fixed 1400px
