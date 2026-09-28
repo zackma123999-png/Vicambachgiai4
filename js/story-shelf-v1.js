@@ -169,7 +169,15 @@
       // for more spread — so extra width always visibly does something,
       // even on a device where cardW itself is capped by something else.
       const rTight = count <= 2 ? cardW * 0.68 : ((cardW / 2) / Math.tan(Math.PI / count)) * 1.12;
-      const rFromWidth = w * 0.3;
+      // 0.55, not the 0.3 this started at: measured on an actual device,
+      // 0.3 only grew the radius ~20% (179px -> 215px) despite the
+      // container itself going nearly 2x wider (370px -> 718px) portrait
+      // to landscape — card height is genuinely capped by how little
+      // vertical room a landscape phone has, so the ring spreading wider
+      // is the one part of "landscape should look bigger" that still has
+      // headroom left once cardW tops out, and needed to lean on it a lot
+      // harder to actually read as different at a glance.
+      const rFromWidth = w * 0.55;
       radius = Math.round(Math.max(cardW * 0.62, Math.min(Math.max(rTight, rFromWidth), w * 0.72)));
       carousel.style.setProperty("--shelf-card-w", Math.round(cardW) + "px");
       carousel.style.setProperty("--shelf-card-h", Math.round(cardH) + "px");
@@ -180,21 +188,6 @@
       // warped (too close) than it did on a phone.
       carousel.style.setProperty("--shelf-perspective", Math.round(radius * 7) + "px");
       carousel.style.setProperty("--shelf-radius", radius + "px");
-
-      // TEMP DEBUG — remove once orientation sizing is confirmed fixed.
-      // On-page readout of the actual numbers measure() computed, so this
-      // can be verified from a screenshot instead of guessing blind again.
-      let dbg = carousel.querySelector(":scope > [data-shelf-debug]");
-      if (!dbg) {
-        dbg = document.createElement("div");
-        dbg.dataset.shelfDebug = "true";
-        dbg.style.cssText = "position:absolute;top:0;left:0;z-index:999;background:#000;color:#0f0;font:11px monospace;padding:4px 6px;white-space:pre;pointer-events:none;";
-        carousel.appendChild(dbg);
-      }
-      dbg.textContent = `orient=${innerWidth > innerHeight ? "landscape" : "portrait"} vw=${innerWidth} vh=${innerHeight}
-shelfW=${Math.round(section.getBoundingClientRect().width)}
-carouselW=${Math.round(w)} carouselH=${Math.round(h)}
-cardW=${Math.round(cardW)} cardH=${Math.round(cardH)} radius=${radius}`;
     }
 
     // Opacity eases off gradually near the front (so a card reads clearly
