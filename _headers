@@ -21,13 +21,18 @@
 /styles.css
   Cache-Control: no-cache, must-revalidate
 
-/js/db.js
+# Every JS/CSS module under these two folders, not just the ones someone
+# remembered to list by name — the per-file allowlist this used to be
+# (only app.js/styles.css/db.js/signal-feed-window.*) is exactly how
+# story-shelf-v1.css/js ended up stuck on Cloudflare's default long cache:
+# it was never added, so a real code fix kept getting served stale from
+# cache/CDN with no visible error, just "nothing changed" no matter what
+# was pushed. A wildcard here means that can't happen to any future file
+# in these folders either.
+/js/*
   Cache-Control: no-cache, must-revalidate
 
-/styles/signal-feed-window.css
-  Cache-Control: no-cache, must-revalidate
-
-/js/signal-feed-window.js
+/styles/*
   Cache-Control: no-cache, must-revalidate
 
 
