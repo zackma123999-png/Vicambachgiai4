@@ -28,9 +28,16 @@
 .shelf-carousel {
   position: relative;
   flex: 1;
-  height: min(78vw, 380px);
+  /* vmin (the SMALLER of viewport width/height) instead of a vw+fixed-px
+     cap: a vw cap tops out at the same px value no matter how much taller
+     the viewport gets (landscape phone, tablet, desktop), so the ring
+     visibly stayed small on anything wider than a portrait phone. vmin
+     keeps scaling with whichever dimension is actually the tighter
+     constraint, so it grows on landscape/tablet/desktop instead of
+     flatlining at the old fixed cap. */
+  height: clamp(260px, 82vmin, 520px);
   min-height: 260px;
-  perspective: 1400px;
+  perspective: clamp(1000px, 220vmin, 2600px);
   /* pan-y: chỉ cho trình duyệt tự xử lý cuộn DỌC — vuốt NGANG trên carousel
      là của JS (xoay vòng bìa), không để trình duyệt tranh chấp/làm chậm cử
      chỉ đó bằng cách cố nhận diện thành thao tác pan của riêng nó. */
@@ -49,9 +56,9 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: min(58vw, 240px);
-  height: min(78vw, 320px);
-  margin: calc(min(78vw, 320px) / -2) 0 0 calc(min(58vw, 240px) / -2);
+  width: clamp(150px, 58vmin, 340px);
+  height: clamp(200px, 78vmin, 460px);
+  margin: calc(clamp(200px, 78vmin, 460px) / -2) 0 0 calc(clamp(150px, 58vmin, 340px) / -2);
   border: none;
   padding: 0;
   background: none;
@@ -189,7 +196,3 @@
   transform: translateY(-1px);
 }
 .shelf-hero-play-icon { color: #25f4ee; flex-shrink: 0; }
-
-@media (max-width: 640px) {
-  .shelf-carousel { height: min(90vw, 340px); }
-}
