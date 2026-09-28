@@ -42,16 +42,6 @@ body:has(#signalHero) .site-header {
 @media (max-height: 520px) {
   .signal-hero { min-height: 150vw; }
 }
-/* iPad/laptop/desktop landscape: 100svh alone makes this a very wide, very
-   short strip (viewport height is small there while width is huge), and
-   the portrait-shaped cover art gets forced through object-fit:cover into
-   that mismatched box — heavily cropped/zoomed, losing most of the image.
-   Cap the height once the viewport is wide AND tall enough to actually be
-   a landscape tablet/desktop (not the cramped landscape-phone case above,
-   which needs its own taller treatment and is excluded by min-height here). */
-@media (min-width: 700px) and (orientation: landscape) and (min-height: 521px) {
-  .signal-hero { min-height: min(100svh, 64vw, 760px); }
-}
 
 .sh-bg { position: absolute; inset: 0; z-index: 0; background: var(--bg); overflow: hidden; }
 .sh-cover {
@@ -67,41 +57,6 @@ body:has(#signalHero) .site-header {
    outgoing one ramps down, so something is always fully in view and it
    never dips through a blank/dark frame like a toggled light. */
 .sh-cover.is-visible { z-index: 2; opacity: 1; transform: scale(1); }
-
-/* Blurred backdrop twin of each .sh-cover — inert on mobile (a portrait
-   cover roughly matches this box's own portrait-ish aspect there, so
-   object-fit:cover already looks right with little crop) and only
-   switched on below, once the box becomes a wide/short landscape shape
-   that a portrait image can never fill via `cover` without losing most of
-   its height. JS keeps this in lockstep with its .sh-cover twin (same src,
-   same is-visible toggle) so it's always ready the instant the media query
-   below turns it on, with no separate JS branching needed. */
-.sh-cover-blur {
-  position: absolute; inset: 0; z-index: 1;
-  width: 100%; height: 100%;
-  object-fit: cover; object-position: 50% 18%;
-  filter: blur(48px) saturate(1.15) brightness(.55);
-  transform: scale(1.2);
-  opacity: 0;
-  transition: opacity .6s ease;
-  display: none;
-}
-.sh-cover-blur.is-visible { opacity: 1; }
-
-/* Landscape tablet/desktop: switch to contain+blur (see .sh-cover-blur's
-   own comment above for why). MUST come after the base .sh-cover /
-   .sh-cover-blur rules above — CSS breaks ties between equal-specificity
-   rules by source order, media query or not, so a media-query override
-   placed BEFORE the rule it's meant to override loses to it even while
-   the query matches. (Confirmed live: an iPad reported this media query
-   as matching while object-fit still computed to "cover" — this ordering
-   bug, not the query itself, was the reason two rounds of this fix looked
-   like they changed nothing at all.) */
-@media (min-width: 700px) and (orientation: landscape) and (min-height: 521px) {
-  .sh-cover { object-fit: contain; object-position: 50% 50%; }
-  .sh-cover-blur { display: block; }
-}
-
 .signal-hero .sh-content {
   transition: opacity .3s ease;
   will-change: opacity;
