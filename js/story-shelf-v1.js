@@ -160,7 +160,14 @@
       let bestIndex = 0;
       let bestDelta = Infinity;
       cards.forEach((card, i) => {
-        const raw = (i * step + rotation) % 360;
+        // (% 360) alone can return a negative result here (JS % keeps the
+        // dividend's sign, unlike true modulo) whenever `rotation` has
+        // drifted deep negative from a hard reverse drag — the extra
+        // "+ 360) % 360" always folds that back into [0, 360), or every
+        // card behind the negative wrap point gets a bogus, too-large `rel`
+        // below and fades to near-invisible even though it's still
+        // squarely on screen.
+        const raw = ((i * step + rotation) % 360 + 360) % 360;
         const rel = Math.abs(raw > 180 ? 360 - raw : raw);
         const opacity = Math.max(0.04, 1 - Math.pow(rel / 140, 1.8));
         // FRONT_SCALE keeps the centred cover a bit smaller than its full
