@@ -416,15 +416,30 @@
     // too small to be an actual resize so the ring only re-measures for a
     // real change in available space.
     let resizeSettle = 0;
+    function remeasureIfChanged() {
+      if (dragging) return;
+      const w = carousel.clientWidth || 320;
+      if (Math.abs(w - lastMeasuredWidth) < 8) return;
+      measure();
+      paint();
+    }
     window.addEventListener("resize", () => {
       window.clearTimeout(resizeSettle);
-      resizeSettle = window.setTimeout(() => {
-        if (dragging) return;
-        const w = carousel.clientWidth || 320;
-        if (Math.abs(w - lastMeasuredWidth) < 8) return;
-        measure();
-        paint();
-      }, 150);
+      resizeSettle = window.setTimeout(remeasureIfChanged, 150);
+    }, { passive: true });
+    // A real device rotation still needs to re-measure — the guard above
+    // only skips address-bar-style false positives — but iOS/Android can
+    // report a stale, too-small card width for a beat while the browser
+    // chrome finishes animating right after `orientationchange`. Measuring
+    // on that transient width is exactly what bakes a too-small radius into
+    // the ring, which reads as covers suddenly overlapping post-rotation.
+    // Re-measure once after the rotation itself typically settles, then
+    // again once the viewport has fully finished (bypassing the width-delta
+    // gate on this second pass so it always corrects a bad first read).
+    window.addEventListener("orientationchange", () => {
+      window.clearTimeout(resizeSettle);
+      resizeSettle = window.setTimeout(remeasureIfChanged, 350);
+      window.setTimeout(() => { if (!dragging) { measure(); paint(); } }, 700);
     }, { passive: true });
     requestAnimationFrame(tick);
 
