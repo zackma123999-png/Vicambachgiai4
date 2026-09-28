@@ -42,6 +42,16 @@ body:has(#signalHero) .site-header {
 @media (max-height: 520px) {
   .signal-hero { min-height: 150vw; }
 }
+/* iPad/laptop/desktop landscape: 100svh alone makes this a very wide, very
+   short strip (viewport height is small there while width is huge), and
+   the portrait-shaped cover art gets forced through object-fit:cover into
+   that mismatched box — heavily cropped/zoomed, losing most of the image.
+   Cap the height once the viewport is wide AND tall enough to actually be
+   a landscape tablet/desktop (not the cramped landscape-phone case above,
+   which needs its own taller treatment and is excluded by min-height here). */
+@media (min-width: 700px) and (orientation: landscape) and (min-height: 521px) {
+  .signal-hero { min-height: min(100svh, 64vw, 760px); }
+}
 
 .sh-bg { position: absolute; inset: 0; z-index: 0; background: var(--bg); overflow: hidden; }
 .sh-cover {
