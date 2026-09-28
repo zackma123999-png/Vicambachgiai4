@@ -51,6 +51,14 @@ body:has(#signalHero) .site-header {
    which needs its own taller treatment and is excluded by min-height here). */
 @media (min-width: 700px) and (orientation: landscape) and (min-height: 521px) {
   .signal-hero { min-height: min(100svh, 64vw, 760px); }
+  /* A portrait cover can never fill a wide/short box via object-fit:cover
+     without losing most of its height (the box's aspect ratio is nowhere
+     close to the image's) — no height cap fixes that, it's a mismatch
+     between two fixed shapes. Show the full image instead (contain, so
+     nothing is ever cropped) and fill the letterboxed sides with the same
+     image blurred and scaled up behind it, so there's no flat empty bar. */
+  .sh-cover { object-fit: contain; object-position: 50% 50%; }
+  .sh-cover-blur { display: block; }
 }
 
 .sh-bg { position: absolute; inset: 0; z-index: 0; background: var(--bg); overflow: hidden; }
@@ -67,6 +75,26 @@ body:has(#signalHero) .site-header {
    outgoing one ramps down, so something is always fully in view and it
    never dips through a blank/dark frame like a toggled light. */
 .sh-cover.is-visible { z-index: 2; opacity: 1; transform: scale(1); }
+
+/* Blurred backdrop twin of each .sh-cover — inert on mobile (a portrait
+   cover roughly matches this box's own portrait-ish aspect there, so
+   object-fit:cover already looks right with little crop) and only
+   switched on below, once the box becomes a wide/short landscape shape
+   that a portrait image can never fill via `cover` without losing most of
+   its height. JS keeps this in lockstep with its .sh-cover twin (same src,
+   same is-visible toggle) so it's always ready the instant the media query
+   below turns it on, with no separate JS branching needed. */
+.sh-cover-blur {
+  position: absolute; inset: 0; z-index: 1;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: 50% 18%;
+  filter: blur(48px) saturate(1.15) brightness(.55);
+  transform: scale(1.2);
+  opacity: 0;
+  transition: opacity .6s ease;
+  display: none;
+}
+.sh-cover-blur.is-visible { opacity: 1; }
 .signal-hero .sh-content {
   transition: opacity .3s ease;
   will-change: opacity;
