@@ -28,16 +28,19 @@
 .shelf-carousel {
   position: relative;
   flex: 1;
-  /* vmin (the SMALLER of viewport width/height) instead of a vw+fixed-px
-     cap: a vw cap tops out at the same px value no matter how much taller
-     the viewport gets (landscape phone, tablet, desktop), so the ring
-     visibly stayed small on anything wider than a portrait phone. vmin
-     keeps scaling with whichever dimension is actually the tighter
-     constraint, so it grows on landscape/tablet/desktop instead of
-     flatlining at the old fixed cap. */
-  height: clamp(260px, 82vmin, 520px);
+  /* Only the CONTAINER's own footprint is set in CSS (vmin: whichever of
+     viewport width/height is the tighter constraint, so this keeps
+     growing on a landscape phone, tablet or desktop instead of flatlining
+     at a fixed cap). Card size and ring radius are NOT computed
+     separately in CSS/vmin here — see --shelf-card-w/-h/--shelf-radius
+     below: JS measures this element's actual rendered box (via
+     ResizeObserver) and derives both from that one measurement, so they
+     can never disagree with how much room this container really has,
+     including inside the site's max-width content wrapper on a tablet
+     where the container doesn't span the full physical screen. */
+  height: clamp(260px, 78vmin, 640px);
   min-height: 260px;
-  perspective: clamp(1000px, 220vmin, 2600px);
+  perspective: var(--shelf-perspective, 1400px);
   /* pan-y: chỉ cho trình duyệt tự xử lý cuộn DỌC — vuốt NGANG trên carousel
      là của JS (xoay vòng bìa), không để trình duyệt tranh chấp/làm chậm cử
      chỉ đó bằng cách cố nhận diện thành thao tác pan của riêng nó. */
@@ -56,9 +59,9 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: clamp(150px, 58vmin, 340px);
-  height: clamp(200px, 78vmin, 460px);
-  margin: calc(clamp(200px, 78vmin, 460px) / -2) 0 0 calc(clamp(150px, 58vmin, 340px) / -2);
+  width: var(--shelf-card-w, 220px);
+  height: var(--shelf-card-h, 300px);
+  margin: calc(var(--shelf-card-h, 300px) / -2) 0 0 calc(var(--shelf-card-w, 220px) / -2);
   border: none;
   padding: 0;
   background: none;

@@ -130,24 +130,46 @@
       return list.length ? 360 / list.length : 0;
     }
 
-    let lastMeasuredWidth = 0;
+    // Card size and ring radius both come from ONE measurement of the
+    // carousel's own rendered box (width AND height), not from a separate
+    // vmin/vw guess at "how big is the screen" — a screen-relative guess
+    // ignores whatever the site's own layout (max-width wrapper, side
+    // padding, a flex sibling like the nav arrows) actually left this
+    // element, which is exactly why the ring stayed visually small on an
+    // iPad even after switching to vmin: vmin assumed the full physical
+    // screen was available when the container itself wasn't that wide.
+    // Deriving everything from getBoundingClientRect() means the ring is
+    // always sized to what's REALLY there, on any device, any orientation,
+    // any layout — nothing to keep re-tuning by hand.
+    const CARD_ASPECT = 1.34; // height / width, matches the book-cover face
     function measure() {
-      const w = carousel.clientWidth || 320;
+      const rect = carousel.getBoundingClientRect();
+      const w = rect.width || 320;
+      const h = rect.height || 320;
       const count = list.length || 1;
-      const firstCard = ring.children[0];
-      const cardW = (firstCard && firstCard.getBoundingClientRect().width) || Math.min(w * 0.58, 340);
+      // Two independent ceilings — fit inside the box's height, and leave
+      // enough width for side covers to peek out past the front one —
+      // take whichever is tighter so the card never outgrows either axis.
+      const cardHByBox = h * 0.84;
+      const cardWByHeight = cardHByBox / CARD_ASPECT;
+      const cardWByWidth = w * 0.5;
+      const cardW = Math.max(120, Math.min(cardWByHeight, cardWByWidth));
+      const cardH = cardW * CARD_ASPECT;
       // Regular-polygon carousel formula: radius = (cardWidth/2) / tan(π/count)
       // is the distance at which adjacent card faces exactly touch edge to
       // edge without overlapping. Keep the ring close to that minimum (small
       // multiplier, tighter caps) so side covers stay near the centre one
-      // instead of swinging out toward the screen edges. The outer cap here
-      // (was a fixed 420) just needs to stay ahead of how big cardW itself
-      // can now get (its own CSS ceiling is 340px, up from 240px) so a wide
-      // landscape/tablet/desktop screen isn't clipped back down to the old
-      // mobile-sized ring.
+      // instead of swinging out toward the screen edges.
       const r = count <= 2 ? cardW * 0.68 : ((cardW / 2) / Math.tan(Math.PI / count)) * 1.12;
-      radius = Math.round(Math.max(cardW * 0.62, Math.min(r, w * 0.72, 700)));
-      lastMeasuredWidth = w;
+      radius = Math.round(Math.max(cardW * 0.62, Math.min(r, w * 0.72)));
+      carousel.style.setProperty("--shelf-card-w", Math.round(cardW) + "px");
+      carousel.style.setProperty("--shelf-card-h", Math.round(cardH) + "px");
+      // ×7 keeps roughly the same depth/fisheye feel the old fixed 1400px
+      // perspective gave a typical mobile radius (~200px) — scaling it
+      // with radius means a much bigger tablet/desktop ring doesn't end up
+      // looking flatter (perspective too far away for its size) or more
+      // warped (too close) than it did on a phone.
+      carousel.style.setProperty("--shelf-perspective", Math.round(radius * 7) + "px");
       carousel.style.setProperty("--shelf-radius", radius + "px");
     }
 
@@ -411,40 +433,35 @@
       centerFrontThenPlay(frontCard, item);
     });
 
-    // Mobile browsers fire `resize` for things that aren't a real layout
-    // change — the address bar hiding/showing as the page is touched or
-    // scrolled being the main culprit. Recomputing the radius on every one
-    // of those made the ring's spread suddenly collapse ("chụm lại gần")
-    // right as someone touched it or right after the page finished loading.
-    // Debounce, skip while a drag is in progress, and ignore width deltas
-    // too small to be an actual resize so the ring only re-measures for a
-    // real change in available space.
-    let resizeSettle = 0;
-    function remeasureIfChanged() {
-      if (dragging) return;
-      const w = carousel.clientWidth || 320;
-      if (Math.abs(w - lastMeasuredWidth) < 8) return;
-      measure();
-      paint();
+    // ResizeObserver reports the carousel's own rendered box the moment it
+    // actually changes — after the browser has finished laying it out, not
+    // mid-animation — for WHATEVER caused the change: rotation, iPad
+    // split-view, a desktop window drag, the address bar hiding/showing,
+    // zoom, dynamic type. That replaces every previous special case here
+    // (a `resize`-event debounce timer to dodge address-bar false
+    // positives, a separate `orientationchange` timer guessing when a
+    // rotation animation was "probably" done, a second bypass timer to
+    // correct a bad first read) with the one signal that was always the
+    // actual thing to wait for. rAF just coalesces a burst of callbacks
+    // (ResizeObserver can fire more than once for one visual change) into
+    // a single measure per frame; it is not a timing guess, since
+    // `entries` is the box already fully settled at that point.
+    let measureQueued = false;
+    function queueMeasure() {
+      if (measureQueued) return;
+      measureQueued = true;
+      requestAnimationFrame(() => {
+        measureQueued = false;
+        if (dragging) { queueMeasure(); return; }
+        measure();
+        paint();
+      });
     }
-    window.addEventListener("resize", () => {
-      window.clearTimeout(resizeSettle);
-      resizeSettle = window.setTimeout(remeasureIfChanged, 150);
-    }, { passive: true });
-    // A real device rotation still needs to re-measure — the guard above
-    // only skips address-bar-style false positives — but iOS/Android can
-    // report a stale, too-small card width for a beat while the browser
-    // chrome finishes animating right after `orientationchange`. Measuring
-    // on that transient width is exactly what bakes a too-small radius into
-    // the ring, which reads as covers suddenly overlapping post-rotation.
-    // Re-measure once after the rotation itself typically settles, then
-    // again once the viewport has fully finished (bypassing the width-delta
-    // gate on this second pass so it always corrects a bad first read).
-    window.addEventListener("orientationchange", () => {
-      window.clearTimeout(resizeSettle);
-      resizeSettle = window.setTimeout(remeasureIfChanged, 350);
-      window.setTimeout(() => { if (!dragging) { measure(); paint(); } }, 700);
-    }, { passive: true });
+    if ("ResizeObserver" in window) {
+      new ResizeObserver(queueMeasure).observe(carousel);
+    } else {
+      window.addEventListener("resize", queueMeasure, { passive: true });
+    }
     requestAnimationFrame(tick);
 
     buildRing();
