@@ -28,17 +28,23 @@
 .shelf-carousel {
   position: relative;
   flex: 1;
-  /* Only the CONTAINER's own footprint is set in CSS (vmin: whichever of
-     viewport width/height is the tighter constraint, so this keeps
-     growing on a landscape phone, tablet or desktop instead of flatlining
-     at a fixed cap). Card size and ring radius are NOT computed
-     separately in CSS/vmin here — see --shelf-card-w/-h/--shelf-radius
-     below: JS measures this element's actual rendered box (via
-     ResizeObserver) and derives both from that one measurement, so they
-     can never disagree with how much room this container really has,
-     including inside the site's max-width content wrapper on a tablet
-     where the container doesn't span the full physical screen. */
-  height: clamp(260px, 78vmin, 640px);
+  /* Only the CONTAINER's own footprint is set in CSS — card size and ring
+     radius are NOT computed separately here (see --shelf-card-w/-h/
+     --shelf-radius below: JS measures this element's actual rendered box
+     via ResizeObserver and derives both from that one measurement, so
+     they can never disagree with how much room this container really
+     has). This height must itself respond differently to portrait vs.
+     landscape, or nothing downstream ever can either: vmin (the smaller
+     of viewport width/height) was the earlier bug here — rotating a
+     phone swaps which axis is which but `min()` of the same two numbers
+     doesn't change, so the container came out identically tall in both
+     orientations no matter what JS then did with it. 78vw grows this
+     with how WIDE the device is (more width earns a taller carousel,
+     which is what "landscape should look bigger" means); 90vh is a
+     safety ceiling so that on a short landscape phone this never asks
+     for more height than the viewport can actually show without pushing
+     the ring half off-screen. */
+  height: clamp(260px, min(78vw, 90vh), 640px);
   min-height: 260px;
   perspective: var(--shelf-perspective, 1400px);
   /* pan-y: chỉ cho trình duyệt tự xử lý cuộn DỌC — vuốt NGANG trên carousel

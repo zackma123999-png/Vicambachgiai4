@@ -157,11 +157,20 @@
       const cardH = cardW * CARD_ASPECT;
       // Regular-polygon carousel formula: radius = (cardWidth/2) / tan(π/count)
       // is the distance at which adjacent card faces exactly touch edge to
-      // edge without overlapping. Keep the ring close to that minimum (small
-      // multiplier, tighter caps) so side covers stay near the centre one
-      // instead of swinging out toward the screen edges.
-      const r = count <= 2 ? cardW * 0.68 : ((cardW / 2) / Math.tan(Math.PI / count)) * 1.12;
-      radius = Math.round(Math.max(cardW * 0.62, Math.min(r, w * 0.72)));
+      // edge without overlapping — the tightest the ring can be for a given
+      // card size. On its own that makes the ring's spread depend ONLY on
+      // cardW, never on how much width the container actually has, which
+      // is exactly why a landscape phone (same cardW as portrait — its
+      // height, not width, is what bounds card size there) still looked
+      // just as cramped as portrait even after this container legitimately
+      // had far more width to work with. rFromWidth gives the ring a
+      // second, independent reason to spread wider purely because there's
+      // more width available, and radius takes whichever of the two asks
+      // for more spread — so extra width always visibly does something,
+      // even on a device where cardW itself is capped by something else.
+      const rTight = count <= 2 ? cardW * 0.68 : ((cardW / 2) / Math.tan(Math.PI / count)) * 1.12;
+      const rFromWidth = w * 0.3;
+      radius = Math.round(Math.max(cardW * 0.62, Math.min(Math.max(rTight, rFromWidth), w * 0.72)));
       carousel.style.setProperty("--shelf-card-w", Math.round(cardW) + "px");
       carousel.style.setProperty("--shelf-card-h", Math.round(cardH) + "px");
       // ×7 keeps roughly the same depth/fisheye feel the old fixed 1400px
