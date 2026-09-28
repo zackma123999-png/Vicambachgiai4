@@ -180,6 +180,21 @@
       // warped (too close) than it did on a phone.
       carousel.style.setProperty("--shelf-perspective", Math.round(radius * 7) + "px");
       carousel.style.setProperty("--shelf-radius", radius + "px");
+
+      // TEMP DEBUG — remove once orientation sizing is confirmed fixed.
+      // On-page readout of the actual numbers measure() computed, so this
+      // can be verified from a screenshot instead of guessing blind again.
+      let dbg = carousel.querySelector(":scope > [data-shelf-debug]");
+      if (!dbg) {
+        dbg = document.createElement("div");
+        dbg.dataset.shelfDebug = "true";
+        dbg.style.cssText = "position:absolute;top:0;left:0;z-index:999;background:#000;color:#0f0;font:11px monospace;padding:4px 6px;white-space:pre;pointer-events:none;";
+        carousel.appendChild(dbg);
+      }
+      dbg.textContent = `orient=${innerWidth > innerHeight ? "landscape" : "portrait"} vw=${innerWidth} vh=${innerHeight}
+shelfW=${Math.round(section.getBoundingClientRect().width)}
+carouselW=${Math.round(w)} carouselH=${Math.round(h)}
+cardW=${Math.round(cardW)} cardH=${Math.round(cardH)} radius=${radius}`;
     }
 
     // Opacity eases off gradually near the front (so a card reads clearly
