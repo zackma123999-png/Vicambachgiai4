@@ -1,11 +1,11 @@
 /* "Nhật ký bình luận" — reuses the "Tín hiệu độc giả" board's own design and
-   behavior wholesale (timeline connector, diamond markers, glass cards,
-   bounded scroll window, tabs, quote block, compose bar — all from
-   signal-pulse-v1.css / signal-feed-window.css, untouched). This file only
-   recolors the violet/lavender palette to the site's current cyan brand and
-   swaps the font, per request — no layout, spacing or structure is
-   redeclared. Scoped under #clScope so the (still violet) copy of this same
-   board elsewhere never changes.
+   behavior wholesale (glass cards, bounded scroll window, tabs, quote block,
+   compose bar — all from signal-pulse-v1.css / signal-feed-window.css,
+   untouched). This file only holds this page's own chrome (kicker row,
+   light-mode toggle) and the couple of layout fixes (quote citation
+   wrapping, deep-link highlight) signal-pulse-v1.css doesn't need to know
+   about. Scoped under #clScope so the homepage's own copy of this same
+   board is never touched.
 
    signal-pulse-v1.css's own selectors are #tin-hieu-prefixed (id
    specificity), so plain class overrides can't beat it — every rule here is
@@ -16,115 +16,102 @@
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
-/* The whole card palette (timeline line, diamond markers, active-card ring,
-   story tag, quote bar, hot label, like/reply/quote icons) derives from
-   these four tokens — overriding them here recolors all of it at once. */
-#clScope #tin-hieu.sig-wrap {
-  --signal-violet: #26c2dc;
-  --signal-cyan: #26c2dc;
-  --signal-coral: #6fd6e8;
-  --signal-gold: #a0e6f0;
-}
-
 .cl-head {
   display: flex; align-items: center; justify-content: space-between;
   gap: .8rem; padding-top: 1.2rem;
 }
 .cl-kicker {
   display: inline-flex; align-items: center; gap: .45rem;
-  color: var(--sh-accent, #26c2dc);
+  color: rgba(232, 238, 248, .56);
   font-family: 'JetBrains Mono', monospace; font-weight: 600;
   font-size: .68rem; letter-spacing: .18em;
 }
 .cl-kicker i {
-  width: 6px; height: 6px; border-radius: 50%; background: var(--sh-accent, #26c2dc);
-  box-shadow: 0 0 .6rem rgba(38, 194, 220, .7);
+  width: 6px; height: 6px; border-radius: 50%; background: rgba(232, 238, 248, .56);
 }
 .cl-theme-toggle {
   flex-shrink: 0; border: 1px solid rgba(255, 255, 255, .14); border-radius: .6rem;
-  background: rgba(255, 255, 255, .04); color: var(--sh-muted, rgba(244, 247, 248, .74));
+  background: rgba(255, 255, 255, .04); color: rgba(244, 247, 248, .74);
   padding: .4rem .7rem; font-size: .74rem; cursor: pointer;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
-.cl-theme-toggle:hover { border-color: rgba(38, 194, 220, .4); color: var(--sh-accent, #26c2dc); }
+.cl-theme-toggle:hover { border-color: rgba(255, 255, 255, .3); color: #e8eef8; }
 
-#clScope .sig-brand h2 { text-shadow: 0 0 1.2rem rgba(38, 194, 220, .14); }
-
-#clScope #tin-hieu .sig-list::before {
-  background: linear-gradient(180deg, transparent, rgba(38, 194, 220, .62) 10%, rgba(100, 220, 235, .48) 55%, rgba(120, 210, 230, .48) 90%, transparent);
-}
-#clScope .sig-tab.on {
-  color: #eafcff;
-  background: linear-gradient(180deg, rgba(38, 194, 220, .34), rgba(20, 110, 125, .22));
-  box-shadow: inset 0 0 1.5rem rgba(38, 194, 220, .16), 0 0 1rem rgba(38, 194, 220, .1);
-}
-#clScope .sig-tab.on::after {
-  background: linear-gradient(90deg, transparent, #7fe0ef, var(--signal-cyan), transparent);
-  box-shadow: 0 0 .7rem rgba(38, 194, 220, .8);
-}
-#clScope .sig-live-count {
-  border-color: rgba(38, 194, 220, .5);
-  background: linear-gradient(180deg, rgba(20, 110, 125, .22), rgba(13, 21, 37, .6));
-  color: #7fe0ef;
-}
 /* <cite> (which story/chapter a quote is from) is a 3rd child of the
    grid-based .sig-quote block — without an explicit span it falls into the
    narrow icon column and wraps into a cramped 2-line stack. */
 #clScope .sig-quote cite {
   grid-column: 1 / -1;
   text-align: left;
-  color: #7fe0ef;
   margin-top: .15rem;
-}
-#clScope .sig-send {
-  border-color: rgba(38, 194, 220, .64);
-  background: linear-gradient(135deg, #26c2dc, #4fcbd1);
-  box-shadow: 0 0 1rem rgba(38, 194, 220, .26);
 }
 
 /* Highlight flash for a card arrived at via ?highlight=<id> (homepage
    comment marquee) or a real deep link. */
-#clScope .sig-card.is-highlight .sig-main { border-color: rgba(38, 194, 220, .55); box-shadow: 0 0 1.2rem rgba(38, 194, 220, .3); }
+#clScope .sig-card.is-highlight .sig-main { border-color: rgba(255, 255, 255, .32); box-shadow: inset 0 1px rgba(255, 255, 255, .1), 0 0 1.2rem rgba(255, 255, 255, .12); }
 
 /* ---- light mode, toggled per-visit for this page only ---- */
 #clScope[data-theme="light"] {
   background: #f4f7fb; color: #16202c; border-radius: 20px; padding-bottom: 1rem;
 }
+#clScope[data-theme="light"] .cl-kicker { color: #55677e; }
+#clScope[data-theme="light"] .cl-kicker i { background: #55677e; }
 #clScope[data-theme="light"] .cl-theme-toggle { border-color: rgba(15, 23, 42, .16); color: #45566b; }
 #clScope[data-theme="light"] .sig-brand p,
 #clScope[data-theme="light"] .sig-meta time,
 #clScope[data-theme="light"] .sig-scroll-status { color: #55677e; }
-#clScope[data-theme="light"] .sig-brand h2 { color: #16202c; text-shadow: none; }
+#clScope[data-theme="light"] .sig-brand h2 { color: #16202c; }
 #clScope[data-theme="light"] .sig-tools {
   background: linear-gradient(155deg, #ffffff, #f3f6fa);
   border-color: rgba(15, 23, 42, .1);
 }
 #clScope[data-theme="light"] .sig-tabs { background: rgba(15, 23, 42, .04); border-color: rgba(15, 23, 42, .1); }
 #clScope[data-theme="light"] .sig-tab { color: #55677e; border-right-color: rgba(15, 23, 42, .08); }
-#clScope[data-theme="light"] .sig-tab.on { color: #04525f; }
+#clScope[data-theme="light"] .sig-tab.on { color: #f4f7fb; background: #16202c; }
 #clScope[data-theme="light"] .sig-filter select {
   background: linear-gradient(180deg, #ffffff, #f3f6fa);
   border-color: rgba(15, 23, 42, .12); color: #16202c;
 }
 #clScope[data-theme="light"] .sig-filter::after { color: #55677e; }
+#clScope[data-theme="light"] .sig-live-count {
+  border-color: rgba(15, 23, 42, .12);
+  background: linear-gradient(180deg, #ffffff, #f3f6fa);
+  color: #45566b;
+}
+#clScope[data-theme="light"] .sig-live-count i { background: #16202c; }
 #clScope[data-theme="light"] .sig-main {
   background: linear-gradient(145deg, #ffffff, #f6f9fc);
   border-color: rgba(15, 23, 42, .1);
   box-shadow: 0 .5rem 1.4rem rgba(15, 23, 42, .06);
 }
+#clScope[data-theme="light"] .sig-ava { border-color: rgba(15, 23, 42, .12); }
 #clScope[data-theme="light"] .sig-meta b,
 #clScope[data-theme="light"] .sig-text { color: #16202c; }
+#clScope[data-theme="light"] .sig-hot { background: rgba(15, 23, 42, .08); color: #45566b; }
+#clScope[data-theme="light"] .sig-story-tag { background: rgba(15, 23, 42, .05); border-color: rgba(15, 23, 42, .1); color: #45566b; }
 #clScope[data-theme="light"] .sig-quote {
   border-color: rgba(15, 23, 42, .08);
-  background: linear-gradient(90deg, rgba(38, 194, 220, .08), rgba(15, 23, 42, .02));
+  border-left-color: rgba(15, 23, 42, .28);
+  background: rgba(15, 23, 42, .025);
 }
+#clScope[data-theme="light"] .sig-quote > span { color: rgba(15, 23, 42, .35); }
 #clScope[data-theme="light"] .sig-quote p { color: #33455a; }
-#clScope[data-theme="light"] .sig-reply { background: rgba(38, 194, 220, .05); border-color: rgba(15, 23, 42, .08); }
+#clScope[data-theme="light"] .sig-quote cite { color: rgba(15, 23, 42, .4); }
+#clScope[data-theme="light"] .sig-chip,
+#clScope[data-theme="light"] .sig-act,
+#clScope[data-theme="light"] .sig-chip::before,
+#clScope[data-theme="light"] .sig-act::before { color: #55677e; }
+#clScope[data-theme="light"] .sig-chip.on,
+#clScope[data-theme="light"] .sig-chip.on::before { color: #16202c; }
+#clScope[data-theme="light"] .sig-reply { background: rgba(15, 23, 42, .035); border-color: rgba(15, 23, 42, .08); }
+#clScope[data-theme="light"] .sig-to,
+#clScope[data-theme="light"] .sig-more-replies { color: #55677e; }
 #clScope[data-theme="light"] .sig-compose {
   background: linear-gradient(180deg, #ffffff, #f3f6fa);
   border-color: rgba(15, 23, 42, .1);
 }
 #clScope[data-theme="light"] .sig-fake { background: rgba(15, 23, 42, .04); border-color: rgba(15, 23, 42, .12); color: #55677e; }
+#clScope[data-theme="light"] .sig-send { background: #16202c; color: #f4f7fb; border-color: rgba(15, 23, 42, .2); box-shadow: none; }
+#clScope[data-theme="light"] .sig-login a { color: #16202c; }
 #clScope[data-theme="light"] .sig-empty { color: #55677e; }
-#clScope[data-theme="light"] .sig-card::before { background: #f4f7fb; }
-#clScope[data-theme="light"] .sig-card.is-highlight .sig-main { border-color: rgba(38, 194, 220, .6); box-shadow: 0 0 1.2rem rgba(38, 194, 220, .22); }
+#clScope[data-theme="light"] .sig-card.is-highlight .sig-main { border-color: rgba(15, 23, 42, .3); box-shadow: 0 0 1.2rem rgba(15, 23, 42, .1); }
