@@ -1303,8 +1303,9 @@
   function signalHeroHTML() {
     return `<section class="signal-hero" id="signalHero">
       <div class="sh-bg">
-        <img class="sh-cover sh-cover-a" alt="">
-        <img class="sh-cover sh-cover-b" alt="">
+        <video class="sh-bg-video" id="shBgVideo" muted loop playsinline preload="auto" poster="brand/hero-bg-poster.jpg?v=20261003">
+          <source src="brand/hero-bg.mp4?v=20261003" type="video/mp4">
+        </video>
       </div>
       <div class="sh-scrim"></div>
       <div class="sh-content">
@@ -1355,8 +1356,6 @@
   function initSignalHero(slides) {
     const stage = $("#signalHero");
     if (!stage || !slides.length) return;
-    const layerA = $(".sh-cover-a", stage);
-    const layerB = $(".sh-cover-b", stage);
     const els = {
       tags: $("#shTags"), overline: $("#shOverline"), title: $("#shTitle"),
       author: $("#shAuthor"), stats: $("#shStats"), ctas: $("#shCtas"), trust: $("#shTrust"),
@@ -1389,46 +1388,43 @@
       els.ctas.innerHTML = `<a href="${d.readHref}" class="sh-btn sh-btn--primary">ĐỌC NGAY<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg></a><a href="${d.detailHref}" class="sh-btn sh-btn--ghost">XEM CHI TIẾT</a>`;
       els.trust.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>' + d.trust;
     }
-    let idx = 0, front = layerA, transitioning = false;
+    let idx = 0, transitioning = false;
     function morphTo(nextIdx) {
       if (nextIdx === idx) return;
-      const incoming = front === layerA ? layerB : layerA;
       if (reduceMotion) {
-        incoming.src = slides[nextIdx].cover;
-        incoming.classList.add("is-visible");
-        front.classList.remove("is-visible");
-        front = incoming;
         idx = nextIdx;
         renderText(idx);
         return;
       }
       if (transitioning) return;
       transitioning = true;
-      const crossfade = () => {
-        incoming.classList.add("is-visible");
-        front.classList.remove("is-visible");
-        front = incoming;
-        stage.classList.add("is-morphing");
-        window.setTimeout(() => {
-          idx = nextIdx;
-          renderText(idx);
-          stage.classList.remove("is-morphing");
-          window.setTimeout(() => { transitioning = false; }, TEXT_RISE);
-        }, TEXT_DIP);
-      };
-      let swapped = false;
-      const trigger = () => { if (swapped) return; swapped = true; requestAnimationFrame(crossfade); };
-      incoming.onload = trigger;
-      incoming.onerror = trigger;
-      incoming.src = slides[nextIdx].cover;
-      if (incoming.complete && incoming.naturalWidth) trigger();
+      stage.classList.add("is-morphing");
+      window.setTimeout(() => {
+        idx = nextIdx;
+        renderText(idx);
+        stage.classList.remove("is-morphing");
+        window.setTimeout(() => { transitioning = false; }, TEXT_RISE);
+      }, TEXT_DIP);
     }
-    front.src = slides[0].cover;
-    front.classList.add("is-visible");
     renderText(0);
     if (slides.length > 1) {
       const timer = setInterval(() => { morphTo((idx + 1) % slides.length); }, HOLD);
       stage.dataset.timerId = String(timer);
+    }
+    const video = $("#shBgVideo", stage);
+    if (video) {
+      const saveData = navigator.connection && navigator.connection.saveData;
+      if (reduceMotion || saveData) {
+        video.removeAttribute("autoplay");
+        video.pause();
+      } else {
+        video.setAttribute("autoplay", "");
+        const tryPlay = () => video.play().catch(() => {});
+        tryPlay();
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) video.pause(); else tryPlay();
+        });
+      }
     }
   }
   function section(title, list) {
