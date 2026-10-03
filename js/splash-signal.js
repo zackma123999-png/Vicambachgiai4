@@ -9,9 +9,9 @@
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var SEQUENCE_END = 2100; // ms — when the last reveal animation finishes
-  var HOLD = 1800;         // ms — holds on the settled logo so the video is actually visible, not just glimpsed
+  var HOLD = 400;          // ms — floor: never dismiss before the reveal has had this long to settle
   var FADE = reduceMotion ? 180 : 450;
-  var HARD_FAILSAFE = 6000; // never let the splash block the real site
+  var HARD_FAILSAFE = 19000; // the bg video runs ~17s now (no loop) — this is a last-resort only
 
   function ready(fn) {
     if (document.readyState === "loading") {
@@ -25,7 +25,7 @@
     var overlay = document.createElement("div");
     overlay.id = "vcbgSplash";
     overlay.innerHTML =
-      '<video class="sp-bg" id="spBgVideo" muted loop playsinline autoplay preload="auto" poster="brand/hero-bg-poster.jpg">' +
+      '<video class="sp-bg" id="spBgVideo" muted playsinline autoplay preload="auto" poster="brand/hero-bg-poster.jpg">' +
         '<source src="brand/hero-bg.mp4" type="video/mp4">' +
       '</video>' +
       '<div class="sp-vignette"></div>' +
@@ -79,8 +79,21 @@
         document.documentElement.style.setProperty("--sp-word-mask", "url(" + wordImg.src + ")");
       } catch (e) {}
       measureTagline();
+      var revealStartedAt = performance.now();
       overlay.classList.add("is-playing");
-      window.setTimeout(finish, SEQUENCE_END + HOLD);
+      // Dismiss once the full background video has actually played through
+      // (it's short and no longer loops), never before the brand reveal
+      // itself has had SEQUENCE_END+HOLD to settle — covers both this
+      // ~17s clip and a possible future shorter one.
+      function scheduleFinish() {
+        var elapsed = performance.now() - revealStartedAt;
+        var remaining = Math.max(HOLD, SEQUENCE_END + HOLD - elapsed);
+        window.setTimeout(finish, remaining);
+      }
+      video.addEventListener("ended", scheduleFinish, { once: true });
+      // If playback never actually starts (autoplay blocked, decode
+      // error), don't wait for 'ended' that will never fire.
+      video.addEventListener("error", scheduleFinish, { once: true });
     }
 
     if (document.fonts && document.fonts.ready) {
