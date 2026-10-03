@@ -344,3 +344,14 @@ body:has(#app[data-theme="light"]) { background: #f7f4ee; }
   color: #221d16;
 }
 #app[data-theme="light"] .foot2-row-t small { color: #6b655c; }
+/* .foot2-kicker and h4 use the site's cyan/purple accent (--sh-accent /
+   a gradient text-clip) which disappears against the light cream
+   background; .foot2-row svg icons use --sh-accent-soft (pale cyan) for
+   the same reason. All three need an explicit dark override here. */
+#app[data-theme="light"] .foot2-kicker {
+  background: none; -webkit-background-clip: initial; background-clip: initial;
+  color: #6b655c;
+}
+#app[data-theme="light"] .foot2-section h4 { color: #221d16; }
+#app[data-theme="light"] .foot2-row svg { stroke: #221d16; }
+#app[data-theme="light"] .foot2-copy { color: #6b655c; }
