@@ -2642,6 +2642,8 @@
     app().innerHTML =
       header() +
       `<main class="wrap auth-page auth-google-only" style="max-width:30rem;padding:2rem 1rem">
+        <div class="auth-bg-glow" aria-hidden="true"></div>
+        <div class="auth-bg-grain" aria-hidden="true"></div>
         <button class="auth-back" id="authBack" type="button" aria-label="Quay lại trang trước">← Quay lại trang trước</button>
         <section class="auth-card" aria-labelledby="authTitle">
           <h1 class="auth-card-brand" id="authTitle">
@@ -2649,6 +2651,7 @@
             <img class="auth-card-wordmark" src="brand/word.png" alt="ViCamBachGiai">
           </h1>
           <p class="auth-card-intro">Những câu chuyện bạn yêu, luôn chờ bạn trở lại.</p>
+          <div class="auth-card-divider" aria-hidden="true"></div>
           <div class="auth-google-block">
             <div class="auth-card-google" id="googleAuth" aria-live="polite">
               <span class="auth-card-google-fallback"><span class="google-g-mark" aria-hidden="true">G</span><span>Đăng nhập bằng Google</span></span>
