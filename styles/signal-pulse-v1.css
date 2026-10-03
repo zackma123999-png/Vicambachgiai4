@@ -245,7 +245,14 @@
   border: 1px solid rgba(255, 255, 255, .1);
   border-radius: 1.15rem;
   background: linear-gradient(165deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .015) 55%, rgba(255, 255, 255, .03));
-  box-shadow: inset 0 1px rgba(255, 255, 255, .08), 0 .5rem 1.1rem rgba(0, 0, 0, .32);
+  /* inset-only — an outer (drop) shadow here, even tightly blurred, still
+     paints past the box into the gap below it; with cards stacked close
+     together that outer glow from one card's bottom edge lands on the
+     next card's top edge and reads as a dark bar/line sitting between
+     them. inset shadows are clipped to the box itself and can never leak
+     into the gap, so depth comes from this + the border + gradient fill
+     instead of a drop shadow. */
+  box-shadow: inset 0 1px rgba(255, 255, 255, .08);
   transition: box-shadow .18s ease, border-color .18s ease;
   /* No backdrop-filter here either — same reasoning as .sig-tools above. */
 }
@@ -463,7 +470,7 @@
 @media (hover: hover) and (pointer: fine) {
   #tin-hieu .sig-card:hover .sig-main {
     border-color: rgba(255, 255, 255, .18);
-    box-shadow: inset 0 1px rgba(255, 255, 255, .1), 0 .65rem 1.4rem rgba(0, 0, 0, .38);
+    box-shadow: inset 0 1px rgba(255, 255, 255, .1);
   }
   #tin-hieu .sig-chip:hover,
   #tin-hieu .sig-act:hover { color: #fff; }
