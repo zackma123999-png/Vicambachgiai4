@@ -2644,9 +2644,11 @@
       `<main class="wrap auth-page auth-google-only" style="max-width:30rem;padding:2rem 1rem">
         <button class="auth-back" id="authBack" type="button" aria-label="Quay lại trang trước">← Quay lại trang trước</button>
         <section class="auth-card" aria-labelledby="authTitle">
-          <div class="auth-card-avatar"><img src="brand/cat-mark.png" alt=""></div>
-          <h1 class="auth-card-wordmark" id="authTitle"><img src="brand/word.png" alt="ViCamBachGiai"></h1>
-          <p class="auth-card-intro">Lưu truyện, bình luận và tiếp tục đọc trên mọi thiết bị.</p>
+          <h1 class="auth-card-brand" id="authTitle">
+            <img class="auth-card-mark" src="brand/cat-mark.png" alt="">
+            <img class="auth-card-wordmark" src="brand/word.png" alt="ViCamBachGiai">
+          </h1>
+          <p class="auth-card-intro">Những câu chuyện bạn yêu, luôn chờ bạn trở lại.</p>
           <div class="auth-google-block">
             <div class="auth-card-google" id="googleAuth" aria-live="polite">
               <span class="auth-card-google-fallback"><span class="google-g-mark" aria-hidden="true">G</span><span>Đăng nhập bằng Google</span></span>
@@ -2656,8 +2658,7 @@
           <p class="auth-card-note">ViCamBachGiai chỉ nhận tên, email và ảnh đại diện.</p>
           <p class="auth-error" id="aErr"></p>
         </section>
-      </main>` +
-      footer();
+      </main>`;
     bindChrome();
     const back = $("#authBack");
     if (back) {
