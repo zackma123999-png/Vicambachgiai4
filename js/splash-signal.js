@@ -11,7 +11,7 @@
   var SEQUENCE_END = 2100; // ms — when the last reveal animation finishes
   var HOLD = 400;          // ms — floor: never dismiss before the reveal has had this long to settle
   var FADE = reduceMotion ? 180 : 450;
-  var HARD_FAILSAFE = 19000; // the bg video runs ~17s now (no loop) — this is a last-resort only
+  var HARD_FAILSAFE = 9000; // the bg video runs ~5.3s now (no loop) — this is a last-resort only
 
   function ready(fn) {
     if (document.readyState === "loading") {
@@ -31,6 +31,7 @@
       '<div class="sp-vignette"></div>' +
       '<div class="sp-grain"></div>' +
       '<div class="sp-tune"></div>' +
+      '<div class="sp-text-scrim"></div>' +
       '<div class="sp-brand">' +
         '<div class="sp-mark-wrap">' +
           '<div class="sp-mark-flash"></div>' +
