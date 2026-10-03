@@ -1546,9 +1546,19 @@
     const btn = $("#clThemeToggle");
     if (!scope || !btn) return;
     const KEY = "vcbg.commentLog.theme";
+    // Marking #app too (not just #clScope) lets the header/footer — siblings
+    // of #clScope, not descendants — pick up the same #app[data-theme="light"]
+    // rules story pages already use (styles/story-page-signal-v1.css). The
+    // router clears this off #app on every navigation so it never leaks.
+    const sunIco = btn.querySelector(".cl-theme-ico-sun");
+    const moonIco = btn.querySelector(".cl-theme-ico-moon");
     const apply = (light) => {
       scope.dataset.theme = light ? "light" : "dark";
-      btn.textContent = light ? "☾ Chế độ tối" : "☀ Chế độ sáng";
+      if (app()) app().dataset.theme = light ? "light" : "dark";
+      if (sunIco) sunIco.hidden = light;
+      if (moonIco) moonIco.hidden = !light;
+      btn.title = light ? "Tối" : "Sáng";
+      btn.setAttribute("aria-label", light ? "Đổi sang nền tối" : "Đổi sang nền sáng");
       btn.setAttribute("aria-pressed", String(light));
     };
     let light = false;
@@ -1605,7 +1615,10 @@
       `<div id="clScope" class="cl-scope">
         <div class="wrap cl-head">
           <span class="cl-kicker"><i aria-hidden="true"></i>NHẬT KÝ BÌNH LUẬN</span>
-          <button type="button" class="cl-theme-toggle" id="clThemeToggle" aria-pressed="false">☀ Chế độ sáng</button>
+          <button type="button" class="cl-theme-toggle" id="clThemeToggle" aria-pressed="false" aria-label="Đổi sang nền sáng" title="Đổi nền sáng/tối">
+            <svg class="cl-theme-ico cl-theme-ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="cl-theme-ico cl-theme-ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
         </div>
         ${homeLower()}
       </div>` +
