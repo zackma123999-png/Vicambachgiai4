@@ -22,12 +22,12 @@
 }
 .cl-kicker {
   display: inline-flex; align-items: center; gap: .45rem;
-  color: rgba(232, 238, 248, .56);
+  color: #26c2dc;
   font-family: 'JetBrains Mono', monospace; font-weight: 600;
   font-size: .68rem; letter-spacing: .18em;
 }
 .cl-kicker i {
-  width: 6px; height: 6px; border-radius: 50%; background: rgba(232, 238, 248, .56);
+  width: 6px; height: 6px; border-radius: 50%; background: #26c2dc;
 }
 .cl-theme-toggle {
   flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
@@ -59,13 +59,14 @@
 #clScope[data-theme="light"] {
   background: #f7f4ee; color: #221d16; border-radius: 20px; padding-bottom: 1rem;
 }
-#clScope[data-theme="light"] .cl-kicker { color: #6b655c; }
-#clScope[data-theme="light"] .cl-kicker i { background: #6b655c; }
+#clScope[data-theme="light"] .cl-kicker { color: #0d6e80; }
+#clScope[data-theme="light"] .cl-kicker i { background: #0d6e80; }
 #clScope[data-theme="light"] .cl-theme-toggle { border-color: rgba(33, 29, 22, .16); color: #564f45; }
 #clScope[data-theme="light"] .sig-brand p,
 #clScope[data-theme="light"] .sig-meta time,
 #clScope[data-theme="light"] .sig-scroll-status { color: #6b655c; }
-#clScope[data-theme="light"] .sig-brand h2 { color: #221d16; }
+#clScope[data-theme="light"] .sig-eyebrow { color: #0d6e80; }
+#clScope[data-theme="light"] .sig-brand h2 { color: #0d6e80; }
 #clScope[data-theme="light"] .sig-tools {
   background: linear-gradient(155deg, #fffdfa, #f2ede2);
   border-color: rgba(33, 29, 22, .1);
@@ -90,7 +91,7 @@
   box-shadow: 0 .5rem 1.4rem rgba(33, 29, 22, .06);
 }
 #clScope[data-theme="light"] .sig-ava { border-color: rgba(33, 29, 22, .12); }
-#clScope[data-theme="light"] .sig-meta b,
+#clScope[data-theme="light"] .sig-meta b { color: #0d6e80; }
 #clScope[data-theme="light"] .sig-text { color: #221d16; }
 #clScope[data-theme="light"] .sig-hot { background: rgba(33, 29, 22, .08); color: #564f45; }
 #clScope[data-theme="light"] .sig-story-tag { background: rgba(33, 29, 22, .05); border-color: rgba(33, 29, 22, .1); color: #564f45; }
