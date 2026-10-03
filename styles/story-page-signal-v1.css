@@ -352,8 +352,8 @@ body:has(#app[data-theme="light"]) { background: #f7f4ee; }
    since they're not a heading. */
 #app[data-theme="light"] .foot2-kicker {
   background: none; -webkit-background-clip: initial; background-clip: initial;
-  color: #0d6e80;
+  color: #0f90a8;
 }
-#app[data-theme="light"] .foot2-section h4 { color: #0d6e80; }
+#app[data-theme="light"] .foot2-section h4 { color: #0f90a8; }
 #app[data-theme="light"] .foot2-row svg { stroke: #221d16; }
 #app[data-theme="light"] .foot2-copy { color: #6b655c; }

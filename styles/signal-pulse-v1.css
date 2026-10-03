@@ -76,7 +76,7 @@
 
 #tin-hieu .sig-brand p {
   margin: .43rem 0 0;
-  color: #8794ad;
+  color: #989898;
   font-size: .82rem;
   line-height: 1.35;
 }
@@ -95,7 +95,7 @@
   width: 2px;
   height: var(--wave, 25%);
   border-radius: 1rem;
-  background: rgba(232, 238, 248, .7);
+  background: rgba(238, 238, 238, .7);
   animation: signal-wave 1.45s ease-in-out infinite alternate;
 }
 #tin-hieu .sig-waveform i:nth-child(1), #tin-hieu .sig-waveform i:nth-child(9) { --wave: 22%; animation-delay: -.3s; }
@@ -118,7 +118,7 @@
   border: 1px solid rgba(255, 255, 255, .14);
   border-radius: .72rem;
   background: linear-gradient(180deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .015));
-  color: rgba(232, 238, 248, .78);
+  color: rgba(238, 238, 238, .78);
   font-size: .7rem;
   white-space: nowrap;
   box-shadow: inset 0 1px rgba(255, 255, 255, .06);
@@ -128,7 +128,7 @@
   width: .45rem;
   height: .45rem;
   border-radius: 50%;
-  background: #e8eef8;
+  background: #ffffff;
 }
 
 #tin-hieu .sig-tools {
@@ -169,7 +169,7 @@
   border-right: 1px solid rgba(255, 255, 255, .08);
   border-radius: 0;
   background: transparent;
-  color: #8c99b1;
+  color: #9c9c9c;
   font-family: Inter, system-ui, sans-serif;
   font-size: .76rem;
   font-weight: 600;
@@ -179,7 +179,7 @@
 
 #tin-hieu .sig-tab.on {
   color: #0d1117;
-  background: #e8eef8;
+  background: #ffffff;
 }
 
 #tin-hieu .sig-filter,
@@ -192,7 +192,7 @@
   position: absolute;
   top: 50%;
   right: .85rem;
-  color: #8c9ab1;
+  color: #9d9d9d;
   font-size: 1rem;
   transform: translateY(-58%);
   pointer-events: none;
@@ -205,7 +205,7 @@
   border-radius: .72rem;
   appearance: none;
   background: rgba(255, 255, 255, .03);
-  color: #dce4f2;
+  color: #e6e6e6;
   font-size: .78rem;
 }
 
@@ -278,7 +278,7 @@
 
 #tin-hieu .sig-meta time {
   margin: 0;
-  color: #7f8da6;
+  color: #919191;
   font-size: .69rem;
 }
 
@@ -290,7 +290,7 @@
   padding: .15rem .5rem;
   border-radius: 999px;
   background: rgba(255, 255, 255, .08);
-  color: rgba(232, 238, 248, .85);
+  color: rgba(238, 238, 238, .85);
   font-size: .62rem;
   font-weight: 650;
   white-space: nowrap;
@@ -307,7 +307,7 @@
   border: 1px solid rgba(255, 255, 255, .12);
   border-radius: .55rem;
   background: rgba(255, 255, 255, .05);
-  color: rgba(232, 238, 248, .78);
+  color: rgba(238, 238, 238, .78);
   font-family: Inter, system-ui, sans-serif;
   font-size: .68rem;
   line-height: 1;
@@ -329,7 +329,7 @@
 }
 
 #tin-hieu .sig-quote > span {
-  color: rgba(232, 238, 248, .5);
+  color: rgba(238, 238, 238, .5);
   font-family: Georgia, serif;
   font-size: 2.15rem;
   font-weight: 700;
@@ -338,7 +338,7 @@
 
 #tin-hieu .sig-quote p {
   margin: 0;
-  color: #b9c2d3;
+  color: #c5c5c5;
   font-size: .8rem;
   line-height: 1.48;
 }
@@ -347,14 +347,14 @@
   display: block;
   margin-top: .3rem;
   text-align: right;
-  color: rgba(232, 238, 248, .45);
+  color: rgba(238, 238, 238, .45);
   font-style: normal;
   font-size: .72rem;
 }
 
 #tin-hieu .sig-text {
   margin: 0 0 .62rem;
-  color: #e5eaf4;
+  color: #ececec;
   font-size: .88rem;
   line-height: 1.52;
 }
@@ -376,7 +376,7 @@
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: rgba(232, 238, 248, .56);
+  color: rgba(238, 238, 238, .56);
   font-family: Inter, system-ui, sans-serif;
   font-size: .68rem;
   font-weight: 620;
@@ -387,7 +387,7 @@
   display: inline-grid;
   place-items: center;
   width: 1rem;
-  color: rgba(232, 238, 248, .56);
+  color: rgba(238, 238, 238, .56);
   font-size: .82rem;
   line-height: 1;
 }
@@ -411,15 +411,15 @@
 
 #tin-hieu .sig-reply .sig-meta { margin-right: 0; }
 #tin-hieu .sig-reply .sig-text { margin-bottom: .25rem; }
-#tin-hieu .sig-to { color: rgba(232, 238, 248, .56); }
+#tin-hieu .sig-to { color: rgba(238, 238, 238, .56); }
 
 #tin-hieu .sig-more-replies {
-  color: rgba(232, 238, 248, .6);
+  color: rgba(238, 238, 238, .6);
   font-size: .72rem;
 }
 
 #tin-hieu .sig-scroll-status {
-  color: #7f8da6;
+  color: #919191;
   font-size: .7rem;
 }
 
@@ -427,7 +427,7 @@
   width: .38rem;
   height: .38rem;
   border-radius: 1px;
-  background: rgba(232, 238, 248, .6);
+  background: rgba(238, 238, 238, .6);
   transform: rotate(45deg);
 }
 
@@ -438,7 +438,7 @@
   background: rgba(255, 255, 255, .2);
 }
 #tin-hieu .sig-scroll-status::before {
-  background: rgba(232, 238, 248, .6);
+  background: rgba(238, 238, 238, .6);
   box-shadow: none;
 }
 
@@ -457,12 +457,12 @@
 
 #tin-hieu .sig-send {
   border-color: rgba(255, 255, 255, .16);
-  background: #e8eef8;
+  background: #ffffff;
   color: #0d1117;
   box-shadow: 0 .3rem 1rem rgba(0, 0, 0, .3);
 }
 
-#tin-hieu .sig-login a { color: rgba(232, 238, 248, .85); }
+#tin-hieu .sig-login a { color: rgba(238, 238, 238, .85); }
 
 @media (hover: hover) {
   #tin-hieu .sig-card:hover .sig-main {

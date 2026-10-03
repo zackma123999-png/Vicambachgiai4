@@ -59,14 +59,14 @@
 #clScope[data-theme="light"] {
   background: #f7f4ee; color: #221d16; border-radius: 20px; padding-bottom: 1rem;
 }
-#clScope[data-theme="light"] .cl-kicker { color: #0d6e80; }
-#clScope[data-theme="light"] .cl-kicker i { background: #0d6e80; }
+#clScope[data-theme="light"] .cl-kicker { color: #0f90a8; }
+#clScope[data-theme="light"] .cl-kicker i { background: #0f90a8; }
 #clScope[data-theme="light"] .cl-theme-toggle { border-color: rgba(33, 29, 22, .16); color: #564f45; }
 #clScope[data-theme="light"] .sig-brand p,
 #clScope[data-theme="light"] .sig-meta time,
 #clScope[data-theme="light"] .sig-scroll-status { color: #6b655c; }
-#clScope[data-theme="light"] .sig-eyebrow { color: #0d6e80; }
-#clScope[data-theme="light"] .sig-brand h2 { color: #0d6e80; }
+#clScope[data-theme="light"] .sig-eyebrow { color: #0f90a8; }
+#clScope[data-theme="light"] .sig-brand h2 { color: #0f90a8; }
 #clScope[data-theme="light"] .sig-tools {
   background: linear-gradient(155deg, #fffdfa, #f2ede2);
   border-color: rgba(33, 29, 22, .1);
@@ -91,7 +91,7 @@
   box-shadow: 0 .5rem 1.4rem rgba(33, 29, 22, .06);
 }
 #clScope[data-theme="light"] .sig-ava { border-color: rgba(33, 29, 22, .12); }
-#clScope[data-theme="light"] .sig-meta b { color: #0d6e80; }
+#clScope[data-theme="light"] .sig-meta b { color: #0f90a8; }
 #clScope[data-theme="light"] .sig-text { color: #221d16; }
 #clScope[data-theme="light"] .sig-hot { background: rgba(33, 29, 22, .08); color: #564f45; }
 #clScope[data-theme="light"] .sig-story-tag { background: rgba(33, 29, 22, .05); border-color: rgba(33, 29, 22, .1); color: #564f45; }
