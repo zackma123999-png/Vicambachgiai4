@@ -2648,8 +2648,8 @@
           <h1 class="auth-card-wordmark" id="authTitle"><img src="brand/word.png" alt="ViCamBachGiai"></h1>
           <p class="auth-card-intro">Lưu truyện, bình luận và tiếp tục đọc trên mọi thiết bị.</p>
           <div class="auth-google-block">
-            <div class="auth-card-google" id="googleAuth" role="button" tabindex="0" aria-live="polite">
-              <span class="auth-card-google-fallback"><span class="google-g-mark" aria-hidden="true">G</span><span>Tiếp tục với Google</span></span>
+            <div class="auth-card-google" id="googleAuth" aria-live="polite">
+              <span class="auth-card-google-fallback"><span class="google-g-mark" aria-hidden="true">G</span><span>Đăng nhập bằng Google</span></span>
             </div>
             <button type="button" class="auth-google-retry" id="googleRetry" hidden>Tải lại trang</button>
           </div>
@@ -2721,7 +2721,7 @@
           type: "standard",
           theme: "filled_black",
           size: "large",
-          text: "continue_with",
+          text: "signin_with",
           shape: "pill",
           logo_alignment: "left",
           width: btnWidth,
