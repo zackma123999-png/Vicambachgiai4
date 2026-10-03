@@ -2643,17 +2643,17 @@
       header() +
       `<main class="wrap auth-page auth-google-only" style="max-width:30rem;padding:2rem 1rem">
         <button class="auth-back" id="authBack" type="button" aria-label="Quay lại trang trước">← Quay lại trang trước</button>
-        <section class="auth-login-content" aria-labelledby="authTitle">
-          <h1 class="hero-title" id="authTitle">Đăng nhập</h1>
-          <p class="auth-google-intro">Lưu truyện, bình luận và tiếp tục đọc trên mọi thiết bị.</p>
+        <section class="auth-card" aria-labelledby="authTitle">
+          <div class="auth-card-avatar"><img src="brand/cat-mark.png" alt=""></div>
+          <h1 class="auth-card-wordmark" id="authTitle"><img src="brand/word.png" alt="ViCamBachGiai"></h1>
+          <p class="auth-card-intro">Lưu truyện, bình luận và tiếp tục đọc trên mọi thiết bị.</p>
           <div class="auth-google-block">
-            <div class="auth-google-choice">
-              <div class="auth-google-copy"><strong>Chọn tài khoản Google</strong><span>Chạm biểu tượng G để tiếp tục</span></div>
-              <div class="auth-google-direct" id="googleAuth" role="button" tabindex="0" aria-live="polite"><span class="google-g-mark" aria-hidden="true">G</span><span>Đăng nhập bằng Google</span></div>
+            <div class="auth-card-google" id="googleAuth" role="button" tabindex="0" aria-live="polite">
+              <span class="auth-card-google-fallback"><span class="google-g-mark" aria-hidden="true">G</span><span>Tiếp tục với Google</span></span>
             </div>
             <button type="button" class="auth-google-retry" id="googleRetry" hidden>Tải lại trang</button>
           </div>
-          <p class="auth-google-note">ViCamBachGiai chỉ nhận tên, email và ảnh đại diện.</p>
+          <p class="auth-card-note">ViCamBachGiai chỉ nhận tên, email và ảnh đại diện.</p>
           <p class="auth-error" id="aErr"></p>
         </section>
       </main>` +
@@ -2716,11 +2716,15 @@
             }
           },
         });
+        const btnWidth = Math.max(240, Math.min(400, Math.round(googleBtn.getBoundingClientRect().width) || 320));
         google.accounts.id.renderButton(googleBtn, {
-          type: "icon",
-          theme: "outline",
+          type: "standard",
+          theme: "filled_black",
           size: "large",
-          shape: "circle",
+          text: "continue_with",
+          shape: "pill",
+          logo_alignment: "left",
+          width: btnWidth,
         });
       };
       mountGoogle().catch((err) => {
