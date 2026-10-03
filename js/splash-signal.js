@@ -9,8 +9,8 @@
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var SEQUENCE_END = 2100; // ms — when the last reveal animation finishes
-  var HOLD = 550;          // ms — tagline stays readable before fading out
-  var FADE = reduceMotion ? 180 : 350;
+  var HOLD = 1800;         // ms — holds on the settled logo so the video is actually visible, not just glimpsed
+  var FADE = reduceMotion ? 180 : 450;
   var HARD_FAILSAFE = 6000; // never let the splash block the real site
 
   function ready(fn) {
