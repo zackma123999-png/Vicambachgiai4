@@ -141,13 +141,12 @@
   border-radius: 1rem;
   background: linear-gradient(165deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .012));
   box-shadow: inset 0 1px rgba(255, 255, 255, .05), 0 .75rem 1.7rem rgba(0, 0, 0, .25);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  /* iOS Safari drops the border-radius clip on a scrolling element that
-     also has backdrop-filter, showing square corners until the next
-     repaint — forcing a (no-op) mask layer keeps it clipping correctly
-     through scroll. No effect on other browsers. */
-  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  /* No backdrop-filter: iOS Safari drops the border-radius clip on a
+     scrolling element that has both border-radius and backdrop-filter,
+     showing square corners until the next repaint. The -webkit-mask-image
+     trick that's supposed to work around this didn't fix it on a real
+     device, and .sig-board behind this is flat (nothing to blur), so the
+     real fix is dropping backdrop-filter rather than chasing the glitch. */
 }
 
 #tin-hieu .sig-tabs {
@@ -254,12 +253,8 @@
   border-radius: 1.15rem;
   background: linear-gradient(165deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .015) 55%, rgba(255, 255, 255, .03));
   box-shadow: inset 0 1px rgba(255, 255, 255, .08), 0 .9rem 2rem rgba(0, 0, 0, .32);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
   transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-  /* Same iOS Safari border-radius-vs-backdrop-filter scroll glitch as
-     .sig-tools above — each card needs its own mask layer too. */
-  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  /* No backdrop-filter here either — same reasoning as .sig-tools above. */
 }
 
 #tin-hieu .sig-meta {
