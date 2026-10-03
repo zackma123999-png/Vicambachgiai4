@@ -237,13 +237,6 @@
   box-shadow: 0 .4rem 1rem rgba(0, 0, 0, .3);
 }
 
-/* Demo avatar artwork bakes a colored ring straight into the image pixels
-   (see avatar-pool.css) — desaturate on display rather than touching the
-   shared asset, so this feed stays monochrome without recoloring avatars
-   used elsewhere on the site. */
-#tin-hieu .sig-ava img {
-  filter: grayscale(1) contrast(1.05);
-}
 
 #tin-hieu .sig-main {
   position: relative;
@@ -253,7 +246,7 @@
   border-radius: 1.15rem;
   background: linear-gradient(165deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .015) 55%, rgba(255, 255, 255, .03));
   box-shadow: inset 0 1px rgba(255, 255, 255, .08), 0 .9rem 2rem rgba(0, 0, 0, .32);
-  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  transition: box-shadow .18s ease, border-color .18s ease;
   /* No backdrop-filter here either — same reasoning as .sig-tools above. */
 }
 
@@ -459,11 +452,18 @@
 
 #tin-hieu .sig-login a { color: rgba(238, 238, 238, .85); }
 
-@media (hover: hover) {
+/* (hover: hover) alone isn't a reliable "not a touchscreen" signal on
+   iOS Safari — a tap can leave :hover stuck on a card after the finger
+   lifts, until something else is tapped. With the translateY below that
+   turned into a real bug: the stuck card would shift up and its edge
+   would overlap the rounded top corner of the card right after it,
+   reading as a flat/square seam between every pair of cards. Requiring
+   (pointer: fine) too, and dropping the shift itself, removes the risk
+   instead of chasing it. */
+@media (hover: hover) and (pointer: fine) {
   #tin-hieu .sig-card:hover .sig-main {
     border-color: rgba(255, 255, 255, .18);
     box-shadow: inset 0 1px rgba(255, 255, 255, .1), 0 1.1rem 2.4rem rgba(0, 0, 0, .38);
-    transform: translateY(-2px);
   }
   #tin-hieu .sig-chip:hover,
   #tin-hieu .sig-act:hover { color: #fff; }
@@ -505,5 +505,4 @@
 
 @media (prefers-reduced-motion: reduce) {
   #tin-hieu .sig-waveform i { animation: none; }
-  #tin-hieu .sig-card:hover .sig-main { transform: none; }
 }
