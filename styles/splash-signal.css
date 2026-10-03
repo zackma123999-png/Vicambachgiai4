@@ -41,6 +41,13 @@
   background: linear-gradient(180deg, transparent 48%, rgba(38, 194, 220, .5) 50%, transparent 52%);
   opacity: 0;
 }
+/* Guarantees the white logo/wordmark/tagline stay readable no matter how
+   bright the footage is — the vignette alone isn't enough on light clips
+   (it's tuned for the overall frame, not pinned to where the text sits). */
+#vcbgSplash .sp-text-scrim {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: radial-gradient(58% 48% at 50% 50%, rgba(7, 11, 20, .62) 0%, rgba(7, 11, 20, .4) 48%, transparent 82%);
+}
 
 #vcbgSplash .sp-brand {
   position: relative; z-index: 3;
