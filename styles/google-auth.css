@@ -2,7 +2,7 @@
   margin: 1.75rem 0 0.75rem;
 }
 
-/* ---- login card: avatar + wordmark + full-width Google button ---- */
+/* ---- login card: mark+wordmark lockup + full-width Google button ---- */
 .auth-card {
   display: flex;
   flex-direction: column;
@@ -12,34 +12,26 @@
   padding: clamp(2rem, 6vw, 2.75rem) clamp(1.5rem, 5vw, 2.25rem) clamp(1.75rem, 5vw, 2.25rem);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1.5rem;
-  background: var(--bg-2, #0c1322);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  background: transparent;
 }
 
-.auth-card-avatar {
-  width: 72px;
-  height: 72px;
-  display: grid;
-  place-items: center;
-  margin-bottom: 1.1rem;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+.auth-card-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 0 0 1.1rem;
 }
 
-.auth-card-avatar img {
-  width: 38px;
-  height: 38px;
+.auth-card-mark {
   display: block;
+  height: 32px;
+  width: auto;
 }
 
 .auth-card-wordmark {
-  margin: 0 0 0.9rem;
-}
-
-.auth-card-wordmark img {
   display: block;
-  height: 30px;
+  height: 26px;
   width: auto;
 }
 
