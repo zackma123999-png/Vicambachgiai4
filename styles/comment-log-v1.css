@@ -88,7 +88,7 @@
 #clScope[data-theme="light"] .sig-main {
   background: linear-gradient(145deg, #fffdfa, #f3efe6);
   border-color: rgba(33, 29, 22, .1);
-  box-shadow: 0 .5rem 1.4rem rgba(33, 29, 22, .06);
+  box-shadow: 0 .3rem .75rem rgba(33, 29, 22, .07);
 }
 #clScope[data-theme="light"] .sig-ava { border-color: rgba(33, 29, 22, .12); }
 #clScope[data-theme="light"] .sig-meta b { color: #0f90a8; }
